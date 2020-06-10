@@ -1,8 +1,8 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::collections::Map;
-use near_sdk::collections::Vector;
+use near_sdk::collections::{Map, Set, Vector};
 use near_sdk::{env, near_bindgen};
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -44,66 +44,100 @@ impl Welcome {
 
 #[near_bindgen]
 #[derive(Default, BorshDeserialize, BorshSerialize)]
-pub struct ProfileDetails {
-    profile_tags: Map<String, ProductList>,
-}
-
-#[near_bindgen]
-#[derive(Default, BorshDeserialize, BorshSerialize, Debug)]
-pub struct Product {
-    product_name: String,
-    product_details: String,
+pub struct Profile {
+    profile_map: Map<String, ProfileDetails>,
 }
 
 #[near_bindgen]
 #[derive(Default, BorshDeserialize, BorshSerialize)]
-pub struct ProductList {
-    products: Vector<Product>,
+pub struct ProductMap {
+    product_map: Map<String, Product>,
+}
+
+
+#[near_bindgen]
+#[derive(Default, BorshDeserialize, BorshSerialize, Debug)]
+pub struct Product {
+    product_tag: String,
+    product_details: String, //IPFS Hash
 }
 
 #[near_bindgen]
-impl ProfileDetails {
-    pub fn set_profile(&mut self, product_name: String, product_details: String) {
+#[derive(Default, BorshDeserialize, BorshSerialize)]
+pub struct ProfileDetails {
+    profile_hash: String, //IPFS Hash
+    products: Set<ProductMap>,
+}
+
+#[near_bindgen]
+impl Profile {
+    pub fn set_profile(&mut self, product_tag: String, product_details: String) {
         let account_id = String::from("amiyatulu.test");
-        println!("{}", product_name);
+        println!("{}", product_tag);
         let p = Product {
-            product_name,
+            product_tag,
             product_details,
         };
         let id = account_id.clone().into_bytes();
-        let mut id_products = ProductList {
-            products: Vector::new(id),
+        let mut p_map = Map::new(id);
+        let id2 = account_id.clone().into_bytes();
+        p_map.insert(&"productid124243".to_string(), &p);
+        let pmap = ProductMap { product_map: p_map };
+        let mut id_products = ProfileDetails {
+            products: Set::new(id2),
+            profile_hash: "IPFSHASH".to_string(),
         };
-        id_products.products.push(&p);
-        self.profile_tags.insert(&account_id, &id_products);
+        id_products.products.insert(&pmap);
+        self.profile_map.insert(&account_id, &id_products);
     }
 
-    pub fn push_product_to_profile(&mut self, product_name: String, product_details: String) {
+    pub fn push_product_to_profile(&mut self, product_tag: String, product_details: String) {
         let account_id = String::from("amiyatulu.test");
         let p = Product {
-            product_name,
+            product_tag,
             product_details,
         };
-        let my_products_option = self.profile_tags.get(&account_id);
-        match my_products_option {
-            Some(mut my_products) => {
-                my_products.products.push(&p);
-                self.profile_tags.insert(&account_id, &my_products);
-                println!("Hello myproducts push");
+        let mut id = account_id.clone().into_bytes();
+        id.push(28);
+
+        let mut p_map = Map::new(id);
+        p_map.insert(&"productidabc".to_string(), &p);
+        let pmap = ProductMap { product_map: p_map };
+        let profile_details_option = self.profile_map.get(&account_id);
+        match profile_details_option {
+            Some(mut profile_details) => {
+                let productmapset = profile_details.products.to_vec();
+                for i in 0..productmapset.len() {
+                    println!("{:?}", productmapset[i].product_map.to_vec());
+                }
+                profile_details.products.insert(&pmap);
+                self.profile_map.insert(&account_id, &profile_details);
+
             }
-            None => println!("Can't get the profile tag"),
+            None => println!("Can't get profile details"),
         }
+
+
+        // match my_products_option {
+        //     Some(mut my_products) => {
+        //         println!("My set {:?}", my_products)
+        //         my_products.products.insert(&pmap);
+        //         self.profile_map.insert(&account_id, &my_products);
+        //         println!("my_products push");
+        //     }
+        //     None => println!("Can't get the profile tag"),
+        // }
     }
 
     pub fn get_product_list(&mut self) {
         let account_id = String::from("amiyatulu.test");
-        let my_products_option = self.profile_tags.get(&account_id);
+        let my_products_option = self.profile_map.get(&account_id);
         match my_products_option {
             Some(my_products) => {
-                let data = my_products.products.get(0).unwrap();
-                println!("{:?}", data);
-                let data2 = my_products.products.get(1).unwrap();
-                println!("{:?}", data2);
+                let data = my_products.products.to_vec();
+                for i in 0..data.len() {
+                    println!("{:?}", data[i].product_map.to_vec());
+                }
             }
             None => println!("Can't get the profile tag"),
         }
@@ -169,7 +203,7 @@ mod tests {
     fn profile() {
         let context = get_context(vec![], false);
         testing_env!(context);
-        let mut contract = ProfileDetails::default();
+        let mut contract = Profile::default();
         contract.set_profile("Cell biology".to_string(), "DNA".to_string());
         contract.push_product_to_profile("Mathematics".to_string(), "Set Theory".to_string());
         contract.get_product_list();
