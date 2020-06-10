@@ -1,8 +1,8 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{Map, Set, Vector};
+use near_sdk::collections::{Map, Set};
 use near_sdk::{env, near_bindgen};
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use uuid::Uuid;
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -78,9 +78,9 @@ impl Profile {
             product_tag,
             product_details,
         };
-        let id = account_id.clone().into_bytes();
+        let id = Uuid::new_v4().to_string().into_bytes();
         let mut p_map = Map::new(id);
-        let id2 = account_id.clone().into_bytes();
+        let id2 =  Uuid::new_v4().to_string().into_bytes();
         p_map.insert(&"productid124243".to_string(), &p);
         let pmap = ProductMap { product_map: p_map };
         let mut id_products = ProfileDetails {
@@ -97,19 +97,17 @@ impl Profile {
             product_tag,
             product_details,
         };
-        let mut id = account_id.clone().into_bytes();
-        id.push(28);
-
+        let id = Uuid::new_v4().to_string().into_bytes();
         let mut p_map = Map::new(id);
         p_map.insert(&"productidabc".to_string(), &p);
         let pmap = ProductMap { product_map: p_map };
         let profile_details_option = self.profile_map.get(&account_id);
         match profile_details_option {
             Some(mut profile_details) => {
-                let productmapset = profile_details.products.to_vec();
-                for i in 0..productmapset.len() {
-                    println!("{:?}", productmapset[i].product_map.to_vec());
-                }
+                // let productmapset = profile_details.products.to_vec();
+                // for i in 0..productmapset.len() {
+                //     println!("{:?}", productmapset[i].product_map.to_vec());
+                // }
                 profile_details.products.insert(&pmap);
                 self.profile_map.insert(&account_id, &profile_details);
 
