@@ -116,17 +116,6 @@ impl Profile {
             }
             None => println!("Can't get profile details"),
         }
-
-
-        // match my_products_option {
-        //     Some(mut my_products) => {
-        //         println!("My set {:?}", my_products)
-        //         my_products.products.insert(&pmap);
-        //         self.profile_map.insert(&account_id, &my_products);
-        //         println!("my_products push");
-        //     }
-        //     None => println!("Can't get the profile tag"),
-        // }
     }
 
     pub fn get_product_list(&mut self) {
