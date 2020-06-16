@@ -1,3 +1,16 @@
+## Avrit UI for Blockchain
+
+### Avrit User Interface
+A decentralized way of designing and reviewing the quality and the importance of study material or content, assignments, projects, practicals and assessments. 
+
+Attributes based on which content will be reviewed:  
+https://iambrainstorming.wordpress.com/2017/01/14/all-books-that-dont-meet-the-learning-criteria-must-be-taken-off/
+
+### Avrit Whitepaper   
+https://avrit.reaudito.com
+
+![logo](logo.png)
+
 <br />
 <br />
 
