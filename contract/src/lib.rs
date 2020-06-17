@@ -1,9 +1,29 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{Map, Set};
 use near_sdk::{env, near_bindgen};
+use rand::{rngs::StdRng, RngCore, SeedableRng};
+use uuid::{Builder, Uuid, Variant, Version};
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+pub fn get_uuid(seed_vec: Vec<u8>) -> Uuid {
+    let mut seed = [0u8; 32];
+    let mut counter = 0;
+    for v in seed_vec.iter() {
+        seed[counter] = *v;
+        counter += 1;
+    }
+
+    let mut rng: StdRng = SeedableRng::from_seed(seed);
+    let mut bytes = [0u8; 16];
+    rng.fill_bytes(&mut bytes);
+    let uuid = Builder::from_bytes(bytes)
+        .set_variant(Variant::RFC4122)
+        .set_version(Version::Random)
+        .build();
+    return uuid;
+}
 
 #[near_bindgen]
 #[derive(Default, BorshDeserialize, BorshSerialize)]
@@ -45,7 +65,7 @@ pub struct Review {
 pub struct Product {
     user_id: u128,
     product_tag: String,
-    product_details: String, //IPFS Hash
+    product_details_hash: String, //IPFS Hash
 }
 
 #[near_bindgen]
@@ -75,9 +95,56 @@ impl Avrit {
         let account_id_exists_option = self.user_map.get(&account_id);
         match account_id_exists_option {
             Some(user_id) => {
-               let userdata = self.user_profile_map.get(&user_id).unwrap();
-               println!("{:?}", userdata.profile_hash);
-               return userdata.profile_hash;
+                let userdata = self.user_profile_map.get(&user_id).unwrap();
+                println!("{:?}", userdata.profile_hash);
+                return userdata.profile_hash;
+            }
+            None => {
+                panic!("User profile does not exists");
+            }
+        }
+    }
+
+    pub fn create_product(&mut self, product_tag: String, product_details_hash: String) {
+        let account_id = env::signer_account_id();
+        let account_id_exists_option = self.user_map.get(&account_id);
+        match account_id_exists_option {
+            Some(user_id) => {
+                let prod = Product {
+                    user_id,
+                    product_tag,
+                    product_details_hash,
+                };
+                self.product_id += 1;
+                self.product_map.insert(&self.product_id, &prod);
+                let user_products_option = self.user_products_map.get(&user_id);
+                match user_products_option {
+                    Some(mut product_ids_set) => {
+                        product_ids_set.insert(&self.product_id);
+                        self.user_products_map.insert(&user_id, &product_ids_set);
+                    }
+                    None => {
+                        let random_vec = env::random_seed();
+                        let id = get_uuid(random_vec).to_string().into_bytes();
+                        let mut product_ids_set = Set::new(id);
+                        product_ids_set.insert(&self.product_id);
+                        self.user_products_map.insert(&user_id, &product_ids_set);
+                    }
+                }
+            }
+            None => {
+                panic!("User profile does not exists");
+            }
+        }
+    }
+
+    pub fn get_products_of_user(&self) -> Vec<u128> {
+        let account_id = env::signer_account_id();
+        let account_id_exists_option = self.user_map.get(&account_id);
+        match account_id_exists_option {
+            Some(user_id) => {
+                let products_set = self.user_products_map.get(&user_id).unwrap();
+                return products_set.to_vec();
             }
             None => {
                 panic!("User profile does not exists");
@@ -142,16 +209,22 @@ mod tests {
         contract.create_profile(hash_string);
         let profile_hash = contract.get_profile_hash();
         assert_eq!(hash_string2, profile_hash);
-
-    }
-
-    #[test]
-    fn create_again_profile() {
-        let context = get_context(vec![], false);
-        testing_env!(context);
-        let mut contract = Avrit::default();
         contract.create_profile("QmxeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
         let profile_hash = contract.get_profile_hash();
-        assert_eq!("QmxeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), profile_hash);
+        assert_eq!(
+            "QmxeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            profile_hash
+        );
+        contract.create_product(
+            "evidence".to_owned(),
+            "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+        );
+
+        contract.create_product(
+            "books".to_owned(),
+            "Product2xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+        );
+        let ids = contract.get_products_of_user();
+        println!("{:?}", ids);
     }
 }
