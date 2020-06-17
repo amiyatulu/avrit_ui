@@ -30,7 +30,8 @@ pub struct Avrit {
 
 #[derive(Default, BorshDeserialize, BorshSerialize)]
 pub struct User {
-    profile_hash: String,
+    profile_hash: String, //IPFS Hash
+    kyc_done: bool,
 }
 
 #[derive(Default, BorshDeserialize, BorshSerialize)]
@@ -49,18 +50,37 @@ pub struct Product {
 
 #[near_bindgen]
 impl Avrit {
-    pub fn create_profile(&mut self) {
+    pub fn create_profile(&mut self, profile_hash: String) {
         let account_id = env::signer_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
+        let u = User {
+            profile_hash,
+            kyc_done: false,
+        };
         match account_id_exists_option {
-            Some(user_id) => panic!(
-                "Username {:?} name already exists and has id {:?}",
-                account_id, user_id
-            ),
+            Some(user_id) => {
+                self.user_profile_map.insert(&user_id, &u);
+            }
             None => {
                 self.user_id += 1;
                 self.user_map.insert(&account_id, &self.user_id);
                 println!("{:?}: {:?}", account_id, self.user_id);
+                self.user_profile_map.insert(&self.user_id, &u);
+            }
+        }
+    }
+
+    pub fn get_profile_hash(&self) -> String {
+        let account_id = env::signer_account_id();
+        let account_id_exists_option = self.user_map.get(&account_id);
+        match account_id_exists_option {
+            Some(user_id) => {
+               let userdata = self.user_profile_map.get(&user_id).unwrap();
+               println!("{:?}", userdata.profile_hash);
+               return userdata.profile_hash;
+            }
+            None => {
+                panic!("User profile does not exists");
             }
         }
     }
@@ -117,17 +137,21 @@ mod tests {
         let context = get_context(vec![], false);
         testing_env!(context);
         let mut contract = Avrit::default();
-        contract.create_profile();
-        
+        let hash_string = "QmZeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4z".to_owned();
+        let hash_string2 = hash_string.clone();
+        contract.create_profile(hash_string);
+        let profile_hash = contract.get_profile_hash();
+        assert_eq!(hash_string2, profile_hash);
+
     }
 
     #[test]
-    #[should_panic(expected = "Username bob_near name already exists and has id 1")]
     fn create_again_profile() {
         let context = get_context(vec![], false);
         testing_env!(context);
         let mut contract = Avrit::default();
-        contract.create_profile();
-
+        contract.create_profile("QmxeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
+        let profile_hash = contract.get_profile_hash();
+        assert_eq!("QmxeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), profile_hash);
     }
 }
