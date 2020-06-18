@@ -151,6 +151,43 @@ impl Avrit {
             }
         }
     }
+    pub fn create_review(&mut self, product_id: u128, review_hash: String) {
+        let account_id = env::signer_account_id();
+        let account_id_exists_option = self.user_map.get(&account_id);
+        let _product_exist = self.product_map.get(&product_id).unwrap();
+
+        match account_id_exists_option {
+            Some(user_id) => {
+                let rev = Review {
+                    product_id,
+                    user_id,
+                    review_hash,
+                };
+                self.review_id += 1;
+                self.review_map.insert(&self.review_id, &rev);
+                let product_reviews_option = self.product_reviews_map.get(&product_id);
+                match product_reviews_option {
+                    Some(mut review_ids_set) => {
+                        review_ids_set.insert(&self.review_id);
+                        self.product_reviews_map
+                            .insert(&product_id, &review_ids_set);
+                    }
+                    None => {
+                        let random_vec = env::random_seed();
+                        let id = get_uuid(random_vec).to_string().into_bytes();
+                        let mut review_ids_set = Set::new(id);
+                        review_ids_set.insert(&self.review_id);
+                        self.product_reviews_map
+                            .insert(&product_id, &review_ids_set);
+                    }
+                }
+            }
+
+            None => {
+                panic!("User profile does not exists");
+            }
+        }
+    }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -226,5 +263,7 @@ mod tests {
         );
         let ids = contract.get_products_of_user();
         println!("{:?}", ids);
+        contract.create_review(1,"Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned() );
+        contract.create_review(2,"Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned() );
     }
 }
