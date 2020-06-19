@@ -1,7 +1,7 @@
 [package]
-name = "status-message"
+name = "contract_erc20"
 version = "0.1.0"
-authors = ["Near Inc <hello@nearprotocol.com>"]
+authors = ["Amiya Behera <amiyatulu@gmail.com>"]
 edition = "2018"
 
 [lib]
@@ -26,3 +26,4 @@ panic = "abort"
 
 [workspace]
 members = []
+

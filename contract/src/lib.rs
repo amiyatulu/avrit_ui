@@ -1,5 +1,5 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{Map, Set};
+use near_sdk::collections::{TreeMap, UnorderedSet};
 use near_sdk::{env, near_bindgen};
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 use uuid::{Builder, Uuid, Variant, Version};
@@ -40,12 +40,12 @@ pub struct Avrit {
     user_id: u128,
     product_id: u128,
     review_id: u128,
-    user_map: Map<String, u128>,               // (username, user_id)
-    user_profile_map: Map<u128, User>,         // (user_id, User)
-    product_map: Map<u128, Product>,           // (product_id, Product)
-    review_map: Map<u128, Review>,             // (review_id, Review)
-    user_products_map: Map<u128, Set<u128>>,   // (user_id, set<product_id>)
-    product_reviews_map: Map<u128, Set<u128>>, // (product_id, set<review_id>)
+    user_map: TreeMap<String, u128>,               // (username, user_id)
+    user_profile_map: TreeMap<u128, User>,         // (user_id, User)
+    product_map: TreeMap<u128, Product>,           // (product_id, Product)
+    review_map: TreeMap<u128, Review>,             // (review_id, Review)
+    user_products_map: TreeMap<u128, UnorderedSet<u128>>,   // (user_id, set<product_id>)
+    product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
 }
 
 #[derive(Default, BorshDeserialize, BorshSerialize)]
@@ -126,7 +126,7 @@ impl Avrit {
                     None => {
                         let random_vec = env::random_seed();
                         let id = get_uuid(random_vec).to_string().into_bytes();
-                        let mut product_ids_set = Set::new(id);
+                        let mut product_ids_set = UnorderedSet::new(id);
                         product_ids_set.insert(&self.product_id);
                         self.user_products_map.insert(&user_id, &product_ids_set);
                     }
@@ -175,7 +175,7 @@ impl Avrit {
                     None => {
                         let random_vec = env::random_seed();
                         let id = get_uuid(random_vec).to_string().into_bytes();
-                        let mut review_ids_set = Set::new(id);
+                        let mut review_ids_set = UnorderedSet::new(id);
                         review_ids_set.insert(&self.review_id);
                         self.product_reviews_map
                             .insert(&product_id, &review_ids_set);
@@ -263,7 +263,13 @@ mod tests {
         );
         let ids = contract.get_products_of_user();
         println!("{:?}", ids);
-        contract.create_review(1,"Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned() );
-        contract.create_review(2,"Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned() );
+        contract.create_review(
+            1,
+            "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+        );
+        contract.create_review(
+            2,
+            "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+        );
     }
 }
