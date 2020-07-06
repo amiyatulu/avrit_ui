@@ -7,7 +7,7 @@ use uuid::{Builder, Uuid, Variant, Version};
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-pub fn get_uuid(seed_vec: Vec<u8>) -> Uuid {
+fn get_uuid(seed_vec: Vec<u8>) -> Uuid {
     let mut seed = [0u8; 32];
     let mut counter = 0;
     for v in seed_vec.iter() {
@@ -25,7 +25,7 @@ pub fn get_uuid(seed_vec: Vec<u8>) -> Uuid {
     return uuid;
 }
 #[derive(BorshDeserialize, BorshSerialize)]
-struct SortitionSumTree {
+pub struct SortitionSumTree {
     k: u128,
     stack: Vector<u128>,
     nodes: Vector<u128>,
@@ -35,7 +35,7 @@ struct SortitionSumTree {
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
-struct SortitionSumTrees {
+pub struct SortitionSumTrees {
     sortition_sum_trees: TreeMap<String, SortitionSumTree>,
 }
 
@@ -89,7 +89,7 @@ impl SortitionSumTrees {
         }
     }
 
-    fn set(&mut self, _key: String, _value: u128, _id: String) {
+    pub fn set(&mut self, _key: String, _value: u128, _id: String) {
         let tree_option = self.sortition_sum_trees.get(&_key);
 
         match tree_option {
@@ -97,7 +97,24 @@ impl SortitionSumTrees {
                 let ids_to_node_option = tree.ids_to_node_indexes.get(&_id);
                 println!("Data {:?}", ids_to_node_option);
                 match ids_to_node_option {
-                    Some(node) => {}
+                    Some(tree_index) => {
+                        if _value == 0 {
+                            let value = tree.nodes.get(tree_index as u64).unwrap();
+                            tree.nodes.replace(tree_index as u64, &0);
+                            tree.stack.push(&tree_index);
+                            tree.ids_to_node_indexes.remove(&_id);
+                            tree.node_indexes_to_ids.remove(&tree_index);
+                            self.update_parents(_key, tree_index, false, value);
+                        } else if _value != tree.nodes.get(tree_index as u64).unwrap() {
+                            let plus_or_minus =
+                                tree.nodes.get(tree_index as u64).unwrap() <= _value;
+                            let plus_or_minus_value = if plus_or_minus {
+                                _value - tree.nodes.get(tree_index as u64).unwrap()
+                            } else {
+                                tree.nodes.get(tree_index as u64).unwrap() - _value
+                            };
+                        }
+                    }
                     None => {
                         if _value != 0 {
                             println!("{:?}", tree.stack.len());
@@ -137,6 +154,7 @@ impl SortitionSumTrees {
                                 "ids_to_node_indexes {:?}",
                                 tree.ids_to_node_indexes.to_vec()
                             );
+                            self.update_parents(_key, 0, true, _value);
                         }
                     }
                 }
@@ -145,6 +163,25 @@ impl SortitionSumTrees {
             None => {
                 println!("Null");
             }
+        }
+    }
+
+    fn update_parents(
+        &mut self,
+        _key: String,
+        _tree_index: u128,
+        _plus_or_minus: bool,
+        _value: u128,
+    ) {
+        let tree = self.sortition_sum_trees.get(&_key).unwrap();
+
+        let mut parent_index = _tree_index;
+        println!("{:?}", parent_index);
+
+        while parent_index != 0 {
+            parent_index = (parent_index - 1) / tree.k;
+            let nodes = tree.nodes.get(parent_index as u64).unwrap();
+            println!("{:?}", nodes);
         }
     }
 }
@@ -195,12 +232,13 @@ mod tests {
     }
 
     #[test]
+
     fn set_get_message() {
         let context = get_context(vec![], false);
         testing_env!(context);
-        let mut data = SortitionSumTrees::new();
-        data.create_tree("Python".to_owned(), 1);
+        let mut contract = SortitionSumTrees::new();
+        contract.create_tree("Python".to_owned(), 1);
         // data.create_tree("Python".to_owned(), 1);
-        data.set("Python".to_owned(), 5, "Code".to_owned());
+        contract.set("Python".to_owned(), 5, "Code".to_owned());
     }
 }
