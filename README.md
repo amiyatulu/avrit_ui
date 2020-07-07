@@ -11,7 +11,8 @@ https://avrit.reaudito.com
 
 Video:  
 
-[![avrit](http://img.youtube.com/vi/-D7u6rTyoOc/0.jpg)](http://www.youtube.com/watch?v=-D7u6rTyoOc "Avirt")
+[![Avrit](http://img.youtube.com/vi/HW7kblrIv2M/0.jpg)](http://www.youtube.com/watch?v=HW7kblrIv2M "Avirt")
+
 
 
 ![logo](logo.png)
