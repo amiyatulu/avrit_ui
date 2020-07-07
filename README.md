@@ -9,6 +9,11 @@ https://iambrainstorming.wordpress.com/2017/01/14/all-books-that-dont-meet-the-l
 ### Avrit Whitepaper   
 https://avrit.reaudito.com
 
+Video:  
+
+[![avrit](http://img.youtube.com/vi/-D7u6rTyoOc/0.jpg)](http://www.youtube.com/watch?v=-D7u6rTyoOc "Avirt")
+
+
 ![logo](logo.png)
 
 <br />
