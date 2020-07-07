@@ -113,6 +113,9 @@ impl SortitionSumTrees {
                             } else {
                                 tree.nodes.get(tree_index as u64).unwrap() - _value
                             };
+                            tree.nodes.replace(tree_index as u64, &_value);
+
+                            self.update_parents(_key, tree_index, plus_or_minus, plus_or_minus_value);
                         }
                     }
                     None => {
@@ -173,7 +176,7 @@ impl SortitionSumTrees {
         _plus_or_minus: bool,
         _value: u128,
     ) {
-        let tree = self.sortition_sum_trees.get(&_key).unwrap();
+        let mut tree = self.sortition_sum_trees.get(&_key).unwrap();
 
         let mut parent_index = _tree_index;
         println!("{:?}", parent_index);
@@ -182,6 +185,14 @@ impl SortitionSumTrees {
             parent_index = (parent_index - 1) / tree.k;
             let nodes = tree.nodes.get(parent_index as u64).unwrap();
             println!("{:?}", nodes);
+            let tree_node_value = if _plus_or_minus {
+               tree.nodes.get(parent_index as u64).unwrap() +  _value 
+            } else {
+                tree.nodes.get(parent_index as u64).unwrap() - _value
+            };
+
+            tree.nodes.replace(parent_index as u64, &tree_node_value);
+            
         }
     }
 }
