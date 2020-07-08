@@ -5,5 +5,5 @@
 ## Testing
 To test run:
 ```bash
-cargo test --package status-message -- --nocapture
+cargo test --package sortition -- --nocapture
 ```

@@ -95,7 +95,7 @@ impl SortitionSumTrees {
         match tree_option {
             Some(mut tree) => {
                 let ids_to_node_option = tree.ids_to_node_indexes.get(&_id);
-                println!("Data {:?}", ids_to_node_option);
+                println!("ids_to_node_option {:?}", ids_to_node_option);
                 match ids_to_node_option {
                     Some(tree_index) => {
                         if _value == 0 {
@@ -104,7 +104,9 @@ impl SortitionSumTrees {
                             tree.stack.push(&tree_index);
                             tree.ids_to_node_indexes.remove(&_id);
                             tree.node_indexes_to_ids.remove(&tree_index);
+                            self.sortition_sum_trees.insert(&_key, &tree);
                             self.update_parents(_key, tree_index, false, value);
+
                         } else if _value != tree.nodes.get(tree_index as u64).unwrap() {
                             let plus_or_minus =
                                 tree.nodes.get(tree_index as u64).unwrap() <= _value;
@@ -115,30 +117,38 @@ impl SortitionSumTrees {
                             };
                             tree.nodes.replace(tree_index as u64, &_value);
 
+                            self.sortition_sum_trees.insert(&_key, &tree);
                             self.update_parents(_key, tree_index, plus_or_minus, plus_or_minus_value);
                         }
                     }
                     None => {
                         if _value != 0 {
                             println!("{:?}", tree.stack.len());
+                            let mut tree_index: u128 = 0;
                             if tree.stack.len() == 0 {
-                                let tree_index = tree.nodes.len() as u128;
+                                tree_index = tree.nodes.len() as u128;
                                 println!("Node length {:?}", tree_index);
                                 tree.nodes.push(&_value);
-                                println!("{:?}", tree.nodes.to_vec());
+                                println!("{:?}: Nodes", tree.nodes.to_vec());
 
                                 if tree_index != 1 && (tree_index - 1) % tree.k == 0 {
                                     println!("Inside a long test");
-
+                                    println!("Tree index {:?}", tree_index);
+                                    println!("K value {:?}", tree.k);
                                     let parent_index = tree_index / tree.k;
+                                    println!("{:?}: parent_index", parent_index);
+                                    println!("nodes_indexes_to_ids: {:?}", tree.node_indexes_to_ids.to_vec());
                                     let parent_id =
                                         tree.node_indexes_to_ids.get(&parent_index).unwrap();
+                                    println!("{:?}: parent_id", parent_id);
                                     let new_index = tree_index + 1;
                                     tree.nodes
                                         .push(&tree.nodes.get(parent_index as u64).unwrap());
                                     tree.node_indexes_to_ids.remove(&parent_index);
                                     tree.ids_to_node_indexes.insert(&parent_id, &new_index);
                                     tree.node_indexes_to_ids.insert(&new_index, &parent_id);
+                                    self.sortition_sum_trees.insert(&_key, &tree);
+
                                 }
                             } else {
                                 println!("Inside else block long test");
@@ -146,9 +156,12 @@ impl SortitionSumTrees {
                                 let tree_index = tree.stack.get(tree.stack.len() - 1);
                                 tree.stack.pop();
                                 tree.nodes.replace(tree_index.unwrap() as u64, &_value);
+                                self.sortition_sum_trees.insert(&_key, &tree);
                             }
-                            tree.ids_to_node_indexes.insert(&_id, &0);
-                            tree.node_indexes_to_ids.insert(&0, &_id);
+                            println!("Before appending 0 and id");
+                            println!("Tree index {:?}", tree_index);
+                            tree.ids_to_node_indexes.insert(&_id, &tree_index);
+                            tree.node_indexes_to_ids.insert(&tree_index, &_id);
                             println!(
                                 "node_indexes_to_ids {:?}",
                                 tree.node_indexes_to_ids.to_vec()
@@ -157,6 +170,7 @@ impl SortitionSumTrees {
                                 "ids_to_node_indexes {:?}",
                                 tree.ids_to_node_indexes.to_vec()
                             );
+                            self.sortition_sum_trees.insert(&_key, &tree);
                             self.update_parents(_key, 0, true, _value);
                         }
                     }
@@ -178,8 +192,10 @@ impl SortitionSumTrees {
     ) {
         let mut tree = self.sortition_sum_trees.get(&_key).unwrap();
 
+        println!("{:?} hello", tree.ids_to_node_indexes.to_vec());
+
         let mut parent_index = _tree_index;
-        println!("{:?}", parent_index);
+        println!("{:?} parent index", parent_index);
 
         while parent_index != 0 {
             parent_index = (parent_index - 1) / tree.k;
@@ -192,6 +208,10 @@ impl SortitionSumTrees {
             };
 
             tree.nodes.replace(parent_index as u64, &tree_node_value);
+
+            self.sortition_sum_trees.insert(&_key, &tree);
+
+
             
         }
     }
@@ -248,8 +268,17 @@ mod tests {
         let context = get_context(vec![], false);
         testing_env!(context);
         let mut contract = SortitionSumTrees::new();
-        contract.create_tree("Python".to_owned(), 1);
+        contract.create_tree("Python".to_owned(), 2);
         // data.create_tree("Python".to_owned(), 1);
-        contract.set("Python".to_owned(), 5, "Code".to_owned());
+        contract.set("Python".to_owned(), 15, "Code1".to_owned());
+        println!("---------------------------------------------");
+        contract.set("Python".to_owned(), 5, "Code2".to_owned());
+        println!("---------------------------------------------");
+        contract.set("Python".to_owned(), 10, "Code3".to_owned());
+        println!("---------------------------------------------");
+        contract.set("Python".to_owned(), 20, "Code4".to_owned());
+
+
+
     }
 }
