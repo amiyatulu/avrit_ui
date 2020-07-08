@@ -171,7 +171,7 @@ impl SortitionSumTrees {
                                 tree.ids_to_node_indexes.to_vec()
                             );
                             self.sortition_sum_trees.insert(&_key, &tree);
-                            self.update_parents(_key, 0, true, _value);
+                            self.update_parents(_key, tree_index, true, _value);
                         }
                     }
                 }
@@ -208,6 +208,8 @@ impl SortitionSumTrees {
             };
 
             tree.nodes.replace(parent_index as u64, &tree_node_value);
+
+            println!("Final nodes: {:?}", tree.nodes.to_vec());
 
             self.sortition_sum_trees.insert(&_key, &tree);
 
