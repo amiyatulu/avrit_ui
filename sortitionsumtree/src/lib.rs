@@ -106,7 +106,6 @@ impl SortitionSumTrees {
                             tree.node_indexes_to_ids.remove(&tree_index);
                             self.sortition_sum_trees.insert(&_key, &tree);
                             self.update_parents(_key, tree_index, false, value);
-
                         } else if _value != tree.nodes.get(tree_index as u64).unwrap() {
                             let plus_or_minus =
                                 tree.nodes.get(tree_index as u64).unwrap() <= _value;
@@ -118,7 +117,12 @@ impl SortitionSumTrees {
                             tree.nodes.replace(tree_index as u64, &_value);
 
                             self.sortition_sum_trees.insert(&_key, &tree);
-                            self.update_parents(_key, tree_index, plus_or_minus, plus_or_minus_value);
+                            self.update_parents(
+                                _key,
+                                tree_index,
+                                plus_or_minus,
+                                plus_or_minus_value,
+                            );
                         }
                     }
                     None => {
@@ -137,7 +141,10 @@ impl SortitionSumTrees {
                                     println!("K value {:?}", tree.k);
                                     let parent_index = tree_index / tree.k;
                                     println!("{:?}: parent_index", parent_index);
-                                    println!("nodes_indexes_to_ids: {:?}", tree.node_indexes_to_ids.to_vec());
+                                    println!(
+                                        "nodes_indexes_to_ids: {:?}",
+                                        tree.node_indexes_to_ids.to_vec()
+                                    );
                                     let parent_id =
                                         tree.node_indexes_to_ids.get(&parent_index).unwrap();
                                     println!("{:?}: parent_id", parent_id);
@@ -148,7 +155,6 @@ impl SortitionSumTrees {
                                     tree.ids_to_node_indexes.insert(&parent_id, &new_index);
                                     tree.node_indexes_to_ids.insert(&new_index, &parent_id);
                                     self.sortition_sum_trees.insert(&_key, &tree);
-
                                 }
                             } else {
                                 println!("Inside else block long test");
@@ -202,20 +208,47 @@ impl SortitionSumTrees {
             let nodes = tree.nodes.get(parent_index as u64).unwrap();
             println!("{:?}", nodes);
             let tree_node_value = if _plus_or_minus {
-               tree.nodes.get(parent_index as u64).unwrap() +  _value 
+                tree.nodes.get(parent_index as u64).unwrap() + _value
             } else {
                 tree.nodes.get(parent_index as u64).unwrap() - _value
             };
 
             tree.nodes.replace(parent_index as u64, &tree_node_value);
-
+            println!("Final K: {:?}", tree.k);
+            println!("Final stack: {:?}", tree.stack.to_vec());
             println!("Final nodes: {:?}", tree.nodes.to_vec());
+            println!(
+                "Final ids_to_node_indexes: {:?}",
+                tree.ids_to_node_indexes.to_vec()
+            );
+            println!(
+                "Final node_indexes_to_ids: {:?}",
+                tree.node_indexes_to_ids.to_vec()
+            );
 
             self.sortition_sum_trees.insert(&_key, &tree);
-
-
-            
         }
+    }
+
+    pub fn draw(&mut self, _key: String, _draw_number: u128) -> String {
+        let tree = self.sortition_sum_trees.get(&_key).unwrap();
+        let mut tree_index = 0;
+        let mut current_draw_number = _draw_number % tree.nodes.get(0).unwrap();
+
+        while (tree.k * tree_index) + 1 < (tree.nodes.len() as u128) {
+            for i in 1..tree.k + 1 {
+                let node_index = (tree.k * tree_index) + i;
+                let node_value = tree.nodes.get(node_index as u64).unwrap();
+                if current_draw_number >= node_value {
+                    current_draw_number -= node_value;
+                } else {
+                    tree_index = node_index;
+                    break;
+                }
+            }
+        }
+
+        tree.node_indexes_to_ids.get(&tree_index).unwrap()
     }
 }
 
@@ -280,7 +313,18 @@ mod tests {
         println!("---------------------------------------------");
         contract.set("Python".to_owned(), 20, "Code4".to_owned());
 
+        let draw_value = contract.draw("Python".to_owned(), 13);
+        println!("{:?}", draw_value);
+        let draw_value = contract.draw("Python".to_owned(), 27);
+        println!("{:?}", draw_value);
 
-
+        let draw_value = contract.draw("Python".to_owned(), 3);
+        println!("{:?}", draw_value);
+        let draw_value = contract.draw("Python".to_owned(), 19);
+        println!("{:?}", draw_value);
+        let draw_value = contract.draw("Python".to_owned(), 49);
+        println!("{:?}", draw_value);
+        let draw_value = contract.draw("Python".to_owned(), 0);
+        println!("{:?}", draw_value);
     }
 }
