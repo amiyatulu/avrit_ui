@@ -1,29 +1,10 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{TreeMap, Vector};
 use near_sdk::{env, near_bindgen};
-use rand::{rngs::StdRng, RngCore, SeedableRng};
-use uuid::{Builder, Uuid, Variant, Version};
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-fn get_uuid(seed_vec: Vec<u8>) -> Uuid {
-    let mut seed = [0u8; 32];
-    let mut counter = 0;
-    for v in seed_vec.iter() {
-        seed[counter] = *v;
-        counter += 1;
-    }
-
-    let mut rng: StdRng = SeedableRng::from_seed(seed);
-    let mut bytes = [0u8; 16];
-    rng.fill_bytes(&mut bytes);
-    let uuid = Builder::from_bytes(bytes)
-        .set_variant(Variant::RFC4122)
-        .set_version(Version::Random)
-        .build();
-    return uuid;
-}
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct SortitionSumTree {
     k: u128,
@@ -37,15 +18,16 @@ pub struct SortitionSumTree {
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct SortitionSumTrees {
     sortition_sum_trees: TreeMap<String, SortitionSumTree>,
+    uniquecount: u128,
 }
 
 #[near_bindgen]
 impl SortitionSumTrees {
     pub fn new() -> SortitionSumTrees {
-        let random_vec = env::random_seed();
-        let id = get_uuid(random_vec).to_string().into_bytes();
+        let id = "68dbf390-0b13-4db1-bb7d-9bf6ac5d23ab".to_string().into_bytes();
         SortitionSumTrees {
             sortition_sum_trees: TreeMap::new(id),
+            uniquecount: 0
         }
     }
     pub fn create_tree(&mut self, _key: String, _k: u128) {
@@ -58,23 +40,23 @@ impl SortitionSumTrees {
                 panic!("The tree already exists.");
             }
             None => {
-                let mut random_vec = env::random_seed();
-                random_vec[0] = 1;
-                let rand = random_vec.clone();
-                println!("{:?}", rand);
-                let stack_id = get_uuid(rand).to_string().into_bytes();
-                random_vec[0] = 2;
-                let rand = random_vec.clone();
-                println!("{:?}", rand);
-                let node_id = get_uuid(rand).to_string().into_bytes();
-                random_vec[0] = 3;
-                let rand = random_vec.clone();
-                println!("{:?}", rand);
-                let ids_to_node_indexes_id = get_uuid(rand).to_string().into_bytes();
-                random_vec[0] = 4;
-                let rand = random_vec.clone();
-                println!("{:?}", rand);
-                let node_indexes_to_ids_id = get_uuid(rand).to_string().into_bytes();
+                let s = "SortitionSumTree";
+                self.uniquecount = self.uniquecount + 1;
+                let t = format!("{}{}", s, self.uniquecount);
+                println!("{:?}", t);
+                let node_id = t.to_string().into_bytes();
+                self.uniquecount = self.uniquecount + 1;
+                let t = format!("{}{}", s, self.uniquecount);
+                println!("{:?}", t);
+                let stack_id = t.to_string().into_bytes();
+                self.uniquecount = self.uniquecount+ 1;
+                let t = format!("{}{}", s, self.uniquecount);
+                println!("{:?}", t);
+                let ids_to_node_indexes_id = t.to_string().into_bytes();
+                self.uniquecount = self.uniquecount+ 1;
+                let t = format!("{}{}", s, self.uniquecount);
+                println!("{:?}", t);
+                let node_indexes_to_ids_id = t.to_string().into_bytes();
                 let mut firstnode = Vector::new(node_id);
                 firstnode.push(&0);
                 let sum_tree = SortitionSumTree {
@@ -250,6 +232,19 @@ impl SortitionSumTrees {
 
         tree.node_indexes_to_ids.get(&tree_index).unwrap()
     }
+    pub fn stake_of(&mut self, _key: String, _id: String) -> u128 {
+        let tree = self.sortition_sum_trees.get(&_key).unwrap();
+        let tree_index = tree.ids_to_node_indexes.get(&_id).unwrap();
+        let  value:u128;
+        if tree_index == 0 {
+            value = 0;
+        } else {
+            value = tree.nodes.get(tree_index as u64).unwrap();
+        }
+        value
+
+    }
+
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -300,6 +295,7 @@ mod tests {
     #[test]
 
     fn set_get_message() {
+        // for x in 0..1000{
         let context = get_context(vec![], false);
         testing_env!(context);
         let mut contract = SortitionSumTrees::new();
@@ -326,5 +322,14 @@ mod tests {
         println!("{:?}", draw_value);
         let draw_value = contract.draw("Python".to_owned(), 0);
         println!("{:?}", draw_value);
+        let value = contract.stake_of("Python".to_owned(), "Code4".to_owned());
+        println!("{:?}", value);
+
+        contract.create_tree("Python2".to_owned(), 2);
+        contract.set("Python2".to_owned(), 15, "Code1".to_owned());
+
+
+        // }
+        
     }
 }
