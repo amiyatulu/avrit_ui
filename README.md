@@ -17,6 +17,11 @@ Video:
 
 ![logo](logo.png)
 
+
+Pages:
+
+![page](avrit_ui_pages.svg)
+
 <br />
 <br />
 

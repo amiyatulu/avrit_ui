@@ -7,149 +7,149 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="344.08441mm"
-   height="466.90359mm"
-   viewBox="0 0 344.08441 466.90359"
-   version="1.1"
-   id="svg8"
+   sodipodi:docname="kleros_sortition.svg"
    inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
-   sodipodi:docname="kleros_sortition.svg">
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 344.08441 466.90359"
+   height="466.90359mm"
+   width="344.08441mm">
   <defs
      id="defs2">
     <rect
-       x="150"
-       y="295"
-       width="60"
+       id="rect1774"
        height="65"
-       id="rect1774" />
+       width="60"
+       y="295"
+       x="150" />
     <marker
-       inkscape:stockid="Arrow1Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
+       inkscape:isstock="true"
+       style="overflow:visible"
        id="marker1602"
-       style="overflow:visible"
-       inkscape:isstock="true">
-      <path
-         id="path1600"
-         d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         style="fill:#00ffff;fill-opacity:1;fill-rule:evenodd;stroke:#00ffff;stroke-width:1pt;stroke-opacity:1"
-         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
-    </marker>
-    <marker
-       inkscape:stockid="Arrow1Lend"
-       orient="auto"
-       refY="0"
        refX="0"
-       id="marker1514"
-       style="overflow:visible"
-       inkscape:isstock="true">
-      <path
-         id="path1512"
-         d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         style="fill:#00ffff;fill-opacity:1;fill-rule:evenodd;stroke:#00ffff;stroke-width:1pt;stroke-opacity:1"
-         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
-    </marker>
-    <marker
-       inkscape:stockid="Tail"
-       orient="auto"
        refY="0"
-       refX="0"
-       id="Tail"
-       style="overflow:visible"
-       inkscape:isstock="true">
-      <g
-         id="g1206"
-         transform="scale(-1.2)"
-         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
-        <path
-           id="path1194"
-           d="M -3.8048674,-3.9585227 0.54352094,0"
-           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1" />
-        <path
-           id="path1196"
-           d="M -1.2866832,-3.9585227 3.0617053,0"
-           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1" />
-        <path
-           id="path1198"
-           d="M 1.3053582,-3.9585227 5.6537466,0"
-           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1" />
-        <path
-           id="path1200"
-           d="M -3.8048674,4.1775838 0.54352094,0.21974226"
-           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1" />
-        <path
-           id="path1202"
-           d="M -1.2866832,4.1775838 3.0617053,0.21974226"
-           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1" />
-        <path
-           id="path1204"
-           d="M 1.3053582,4.1775838 5.6537466,0.21974226"
-           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1" />
-      </g>
+       orient="auto"
+       inkscape:stockid="Arrow1Lend">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:#00ffff;fill-opacity:1;fill-rule:evenodd;stroke:#00ffff;stroke-width:1pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path1600" />
     </marker>
     <marker
        inkscape:isstock="true"
        style="overflow:visible"
-       id="marker1294"
+       id="marker1514"
        refX="0"
        refY="0"
        orient="auto"
+       inkscape:stockid="Arrow1Lend">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:#00ffff;fill-opacity:1;fill-rule:evenodd;stroke:#00ffff;stroke-width:1pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path1512" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="Tail"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Tail">
+      <g
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+         transform="scale(-1.2)"
+         id="g1206">
+        <path
+           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1"
+           d="M -3.8048674,-3.9585227 0.54352094,0"
+           id="path1194" />
+        <path
+           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1"
+           d="M -1.2866832,-3.9585227 3.0617053,0"
+           id="path1196" />
+        <path
+           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1"
+           d="M 1.3053582,-3.9585227 5.6537466,0"
+           id="path1198" />
+        <path
+           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1"
+           d="M -3.8048674,4.1775838 0.54352094,0.21974226"
+           id="path1200" />
+        <path
+           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1"
+           d="M -1.2866832,4.1775838 3.0617053,0.21974226"
+           id="path1202" />
+        <path
+           style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1"
+           d="M 1.3053582,4.1775838 5.6537466,0.21974226"
+           id="path1204" />
+      </g>
+    </marker>
+    <marker
+       inkscape:collect="always"
        inkscape:stockid="Arrow1Lend"
-       inkscape:collect="always">
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker1294"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path1292"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:collect="always"
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="Arrow1Lend"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend">
       <path
          transform="matrix(-0.8,0,0,-0.8,-10,0)"
          style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
          d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         id="path1292" />
-    </marker>
-    <marker
-       inkscape:stockid="Arrow1Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow1Lend"
-       style="overflow:visible"
-       inkscape:isstock="true"
-       inkscape:collect="always">
-      <path
-         id="path909"
-         d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
-         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+         id="path909" />
     </marker>
   </defs>
   <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="1"
-     inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="851.32743"
-     inkscape:cy="363.98595"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     showgrid="true"
-     inkscape:window-width="1880"
-     inkscape:window-height="1016"
-     inkscape:window-x="40"
-     inkscape:window-y="27"
-     inkscape:window-maximized="1"
-     inkscape:document-rotation="0"
-     fit-margin-top="10"
-     fit-margin-left="10"
+     fit-margin-bottom="10"
      fit-margin-right="10"
-     fit-margin-bottom="10">
+     fit-margin-left="10"
+     fit-margin-top="10"
+     inkscape:document-rotation="0"
+     inkscape:window-maximized="0"
+     inkscape:window-y="463"
+     inkscape:window-x="270"
+     inkscape:window-height="539"
+     inkscape:window-width="1707"
+     showgrid="true"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="mm"
+     inkscape:cy="1616.5751"
+     inkscape:cx="1046.6891"
+     inkscape:zoom="0.98994949"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="1"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base">
     <inkscape:grid
-       type="xygrid"
-       id="grid834"
-       units="mm"
-       spacingx="10"
-       spacingy="5"
+       originy="-2.6199142"
        originx="70.000001"
-       originy="-2.6199142" />
+       spacingy="5"
+       spacingx="10"
+       units="mm"
+       id="grid834"
+       type="xygrid" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -164,553 +164,564 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
+     transform="translate(70,-2.6199144)"
      id="layer1"
-     transform="translate(70,-2.6199144)">
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
     <path
-       style="fill:none;stroke:#000000;stroke-width:1.13389;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M -60,22 H 210"
+       inkscape:connector-curvature="0"
        id="path836"
-       inkscape:connector-curvature="0" />
+       d="M -60,22 H 210"
+       style="fill:none;stroke:#000000;stroke-width:1.13389;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       id="text840"
+       y="17"
        x="-22.279163"
-       y="17"
-       id="text840"><tspan
-         sodipodi:role="line"
-         id="tspan838"
-         x="-22.279163"
-         y="17"
-         style="stroke-width:0.264583">Code</tspan></text>
-    <text
-       xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="140"
-       y="17"
-       id="text844"><tspan
-         sodipodi:role="line"
-         id="tspan842"
-         x="140"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="17"
-         style="stroke-width:0.264583">Stack</tspan></text>
+         x="-22.279163"
+         id="tspan838"
+         sodipodi:role="line">Code</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="-49.741692"
+       id="text844"
+       y="17"
+       x="140"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="17"
+         x="140"
+         id="tspan842"
+         sodipodi:role="line">Stack</tspan></text>
+    <text
+       id="text848"
        y="102.7483"
-       id="text848"><tspan
-         sodipodi:role="line"
-         id="tspan846"
-         x="-49.741692"
+       x="-49.741692"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="102.7483"
-         style="stroke-width:0.264583">let mut data = SortitionSumTrees::new();</tspan></text>
+         x="-49.741692"
+         id="tspan846"
+         sodipodi:role="line">let mut data = SortitionSumTrees::new();</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="-49.741692"
+       id="text852"
        y="31.999998"
-       id="text852"><tspan
-         sodipodi:role="line"
-         id="tspan850"
-         x="-49.741692"
-         y="31.999998"
-         style="stroke-width:0.264583">struct SortitionSumTree {</tspan><tspan
-         sodipodi:role="line"
-         x="-49.741692"
-         y="37.29166"
-         style="stroke-width:0.264583"
-         id="tspan854">    k: u128,</tspan><tspan
-         sodipodi:role="line"
-         x="-49.741692"
-         y="42.583321"
-         style="stroke-width:0.264583"
-         id="tspan856">    stack: Vector&lt;u128&gt;,</tspan><tspan
-         sodipodi:role="line"
-         x="-49.741692"
-         y="47.874985"
-         style="stroke-width:0.264583"
-         id="tspan858">    nodes: Vector&lt;u128&gt;,</tspan><tspan
-         sodipodi:role="line"
-         x="-49.741692"
-         y="53.166649"
-         style="stroke-width:0.264583"
-         id="tspan860">    ids_to_node_indexes: TreeMap&lt;String, u128&gt;,</tspan><tspan
-         sodipodi:role="line"
-         x="-49.741692"
-         y="58.458309"
-         style="stroke-width:0.264583"
-         id="tspan862">    node_indexes_to_ids: TreeMap&lt;u128, String&gt;,</tspan><tspan
-         sodipodi:role="line"
-         x="-49.741692"
-         y="63.749969"
-         style="stroke-width:0.264583"
-         id="tspan864">}</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="-49.741692"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="31.999998"
+         x="-49.741692"
+         id="tspan850"
+         sodipodi:role="line">struct SortitionSumTree {</tspan><tspan
+         id="tspan854"
+         style="stroke-width:0.264583"
+         y="37.29166"
+         x="-49.741692"
+         sodipodi:role="line">    k: u128,</tspan><tspan
+         id="tspan856"
+         style="stroke-width:0.264583"
+         y="42.583321"
+         x="-49.741692"
+         sodipodi:role="line">    stack: Vector&lt;u128&gt;,</tspan><tspan
+         id="tspan858"
+         style="stroke-width:0.264583"
+         y="47.874985"
+         x="-49.741692"
+         sodipodi:role="line">    nodes: Vector&lt;u128&gt;,</tspan><tspan
+         id="tspan860"
+         style="stroke-width:0.264583"
+         y="53.166649"
+         x="-49.741692"
+         sodipodi:role="line">    ids_to_node_indexes: TreeMap&lt;String, u128&gt;,</tspan><tspan
+         id="tspan862"
+         style="stroke-width:0.264583"
+         y="58.458309"
+         x="-49.741692"
+         sodipodi:role="line">    node_indexes_to_ids: TreeMap&lt;u128, String&gt;,</tspan><tspan
+         id="tspan864"
+         style="stroke-width:0.264583"
+         y="63.749969"
+         x="-49.741692"
+         sodipodi:role="line">}</tspan></text>
+    <text
+       id="text868"
        y="77"
-       id="text868"><tspan
-         sodipodi:role="line"
-         id="tspan866"
-         x="-49.741692"
+       x="-49.741692"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="77"
-         style="stroke-width:0.264583">struct SortitionSumTrees {</tspan><tspan
-         sodipodi:role="line"
          x="-49.741692"
+         id="tspan866"
+         sodipodi:role="line">struct SortitionSumTrees {</tspan><tspan
+         id="tspan870"
+         style="stroke-width:0.264583"
          y="82.291664"
-         style="stroke-width:0.264583"
-         id="tspan870">    sortition_sum_trees: TreeMap&lt;String, SortitionSumTree&gt;,</tspan><tspan
-         sodipodi:role="line"
          x="-49.741692"
+         sodipodi:role="line">    sortition_sum_trees: TreeMap&lt;String, SortitionSumTree&gt;,</tspan><tspan
+         id="tspan872"
+         style="stroke-width:0.264583"
          y="87.583328"
-         style="stroke-width:0.264583"
-         id="tspan872">}</tspan></text>
+         x="-49.741692"
+         sodipodi:role="line">}</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="110.0541"
+       id="text876"
        y="102.52916"
-       id="text876"><tspan
-         sodipodi:role="line"
-         id="tspan874"
-         x="110.0541"
+       x="110.0541"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="102.52916"
-         style="stroke-width:0.264583">SortitionSumTrees {</tspan><tspan
-         sodipodi:role="line"
          x="110.0541"
+         id="tspan874"
+         sodipodi:role="line">SortitionSumTrees {</tspan><tspan
+         id="tspan878"
+         style="stroke-width:0.264583"
          y="107.82082"
-         style="stroke-width:0.264583"
-         id="tspan878">            sortition_sum_trees: TreeMap::new(id),</tspan><tspan
-         sodipodi:role="line"
          x="110.0541"
+         sodipodi:role="line">            sortition_sum_trees: TreeMap::new(id),</tspan><tspan
+         id="tspan880"
+         style="stroke-width:0.264583"
          y="113.11249"
-         style="stroke-width:0.264583"
-         id="tspan880">        }</tspan></text>
+         x="110.0541"
+         sodipodi:role="line">        }</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="-50"
+       id="text884"
        y="152"
-       id="text884"><tspan
-         sodipodi:role="line"
+       x="-50"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="152"
+         x="-50"
          id="tspan882"
-         x="-50"
-         y="152"
-         style="stroke-width:0.264583">data.create_tree(&quot;Python&quot;.to_owned(), 1);</tspan></text>
+         sodipodi:role="line">data.create_tree(&quot;Python&quot;.to_owned(), 1);</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="109.99999"
+       id="text888"
        y="152"
-       id="text888"><tspan
-         sodipodi:role="line"
-         id="tspan886"
-         x="109.99999"
+       x="109.99999"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="152"
-         style="stroke-width:0.264583">let sum_tree = SortitionSumTree {</tspan><tspan
-         sodipodi:role="line"
          x="109.99999"
+         id="tspan886"
+         sodipodi:role="line">let sum_tree = SortitionSumTree {</tspan><tspan
+         id="tspan890"
+         style="stroke-width:0.264583"
          y="157.29166"
-         style="stroke-width:0.264583"
-         id="tspan890">                    k: _k,</tspan><tspan
-         sodipodi:role="line"
          x="109.99999"
+         sodipodi:role="line">                    k: _k,</tspan><tspan
+         id="tspan892"
+         style="stroke-width:0.264583"
          y="162.58333"
-         style="stroke-width:0.264583"
-         id="tspan892">                    stack: Vector::new(stack_id),</tspan><tspan
-         sodipodi:role="line"
          x="109.99999"
-         y="167.87498"
-         style="stroke-width:0.264583"
+         sodipodi:role="line">                    stack: Vector::new(stack_id),</tspan><tspan
+         dy="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
          id="tspan894"
-         dy="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0">                    nodes: [0],</tspan><tspan
-         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         y="167.87498"
          x="109.99999"
+         sodipodi:role="line">                    nodes: [0],</tspan><tspan
+         id="tspan896"
+         style="stroke-width:0.264583"
          y="173.16666"
-         style="stroke-width:0.264583"
-         id="tspan896">                    ids_to_node_indexes: TreeMap::new(ids_to_node_indexes_id),</tspan><tspan
-         sodipodi:role="line"
          x="109.99999"
+         sodipodi:role="line">                    ids_to_node_indexes: TreeMap::new(ids_to_node_indexes_id),</tspan><tspan
+         id="tspan898"
+         style="stroke-width:0.264583"
          y="178.45831"
-         style="stroke-width:0.264583"
-         id="tspan898">                    node_indexes_to_ids: TreeMap::new(node_indexes_to_ids_id),</tspan><tspan
-         sodipodi:role="line"
          x="109.99999"
+         sodipodi:role="line">                    node_indexes_to_ids: TreeMap::new(node_indexes_to_ids_id),</tspan><tspan
+         id="tspan900"
+         style="stroke-width:0.264583"
          y="183.74997"
-         style="stroke-width:0.264583"
-         id="tspan900">                };</tspan><tspan
-         sodipodi:role="line"
          x="109.99999"
+         sodipodi:role="line">                };</tspan><tspan
+         id="tspan902"
+         style="stroke-width:0.264583"
          y="189.04164"
-         style="stroke-width:0.264583"
-         id="tspan902"> self.sortition_sum_trees.insert(&amp;_key, &amp;sum_tree);</tspan></text>
+         x="109.99999"
+         sodipodi:role="line"> self.sortition_sum_trees.insert(&amp;_key, &amp;sum_tree);</tspan></text>
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
-       d="m 12.645833,146.47083 c 0,0 71.587498,-25.52916 111.587497,9.47084"
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
        id="path904"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
+       d="m 12.645833,146.47083 c 0,0 71.587498,-25.52916 111.587497,9.47084"
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1294)"
-       d="m -15.2375,154.35417 c 0,0 98.941665,66.5875 178.94167,36.5875"
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
        id="path1284"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
+       d="m -15.2375,154.35417 c 0,0 98.941665,66.5875 178.94167,36.5875"
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1294)" />
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="109.99999"
+       id="text1568"
        y="137"
-       id="text1568"><tspan
-         sodipodi:role="line"
-         id="tspan1566"
-         x="109.99999"
+       x="109.99999"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="137"
-         style="stroke-width:0.264583">k: The maximum number of childs per node.</tspan></text>
+         x="109.99999"
+         id="tspan1566"
+         sodipodi:role="line">k: The maximum number of childs per node.</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="109.99999"
+       id="text1572"
        y="142"
-       id="text1572"><tspan
-         sodipodi:role="line"
-         id="tspan1570"
-         x="109.99999"
-         y="142"
-         style="stroke-width:0.264583">node index 0 is reserved for the root node</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="-50"
-       y="247.92883"
-       id="text893"><tspan
-         sodipodi:role="line"
-         id="tspan891"
-         x="-50"
-         y="247.92883"
-         style="stroke-width:0.264583">data.set(&quot;Python&quot;.to_owned(), 5, &quot;Code&quot;.to_owned());</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="100"
-       y="247.92883"
-       id="text897"><tspan
-         sodipodi:role="line"
-         id="tspan895"
-         x="100"
-         y="247.92883"
-         style="stroke-width:0.264583">fn set(&amp;mut self, _key: String, _value: u128, _id: String)</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="100"
-       y="260.92896"
-       id="text239"><tspan
-         sodipodi:role="line"
-         id="tspan237"
-         x="100"
-         y="260.92896"
-         style="stroke-width:0.264583">let tree_option = self.sortition_sum_trees.get(&amp;_key);</tspan></text>
-    <path
-       style="fill:none;stroke:#00ffff;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker1602)"
-       d="m -20,240.92933 c 0,0 109.999999,-35 150,0"
-       id="path241" />
-    <path
-       style="fill:none;stroke:#00ffff;stroke-width:0.264583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker1514)"
-       d="m 130,250.92933 39.47083,5"
-       id="path1154"
-       sodipodi:nodetypes="cc" />
-    <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="100"
-       y="270"
-       id="text1720"><tspan
-         sodipodi:role="line"
-         id="tspan1718"
-         x="100"
-         y="270"
-         style="stroke-width:0.264583">Some(tree):</tspan><tspan
-         sodipodi:role="line"
-         x="100"
-         y="274.85071"
-         style="stroke-width:0.264583"
-         id="tspan1722" /></text>
-    <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
        x="109.99999"
-       y="275"
-       id="text1726"><tspan
-         sodipodi:role="line"
-         id="tspan1724"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="142"
          x="109.99999"
+         id="tspan1570"
+         sodipodi:role="line">node index 0 is reserved for the root node</tspan></text>
+    <text
+       id="text893"
+       y="247.92883"
+       x="-50"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="247.92883"
+         x="-50"
+         id="tspan891"
+         sodipodi:role="line">data.set(&quot;Python&quot;.to_owned(), 5, &quot;Code&quot;.to_owned());</tspan></text>
+    <text
+       id="text897"
+       y="247.92883"
+       x="100"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="247.92883"
+         x="100"
+         id="tspan895"
+         sodipodi:role="line">fn set(&amp;mut self, _key: String, _value: u128, _id: String)</tspan></text>
+    <text
+       id="text239"
+       y="260.92896"
+       x="100"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="260.92896"
+         x="100"
+         id="tspan237"
+         sodipodi:role="line">let tree_option = self.sortition_sum_trees.get(&amp;_key);</tspan></text>
+    <path
+       id="path241"
+       d="m -20,240.92933 c 0,0 109.999999,-35 150,0"
+       style="fill:none;stroke:#00ffff;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker1602)" />
+    <path
+       sodipodi:nodetypes="cc"
+       id="path1154"
+       d="m 130,250.92933 39.47083,5"
+       style="fill:none;stroke:#00ffff;stroke-width:0.264583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker1514)" />
+    <text
+       id="text1720"
+       y="270"
+       x="100"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="270"
+         x="100"
+         id="tspan1718"
+         sodipodi:role="line">Some(tree):</tspan><tspan
+         id="tspan1722"
+         style="stroke-width:0.264583"
+         y="274.85071"
+         x="100"
+         sodipodi:role="line" /></text>
+    <text
+       id="text1726"
+       y="275"
+       x="109.99999"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="275"
-         style="stroke-width:0.264583">let ids_to_node_option = tree.ids_to_node_indexes.get(&amp;_id)</tspan></text>
+         x="109.99999"
+         id="tspan1724"
+         sodipodi:role="line">let ids_to_node_option = tree.ids_to_node_indexes.get(&amp;_id)</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="120"
+       id="text1730"
        y="280"
-       id="text1730"><tspan
-         sodipodi:role="line"
-         id="tspan1728"
-         x="120"
+       x="120"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="280"
-         style="stroke-width:0.264583">None =&gt; </tspan></text>
+         x="120"
+         id="tspan1728"
+         sodipodi:role="line">None =&gt; </tspan></text>
     <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="130"
+       id="text1734"
        y="285"
-       id="text1734"><tspan
-         sodipodi:role="line"
-         id="tspan1732"
-         x="130"
+       x="130"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="285"
-         style="stroke-width:0.264583">if _value != 0   =&gt; True (Value is 5 here)</tspan></text>
+         x="130"
+         id="tspan1732"
+         sodipodi:role="line">if _value != 0   =&gt; True (Value is 5 here)</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="140"
+       id="text1738"
        y="294.99997"
-       id="text1738"><tspan
-         sodipodi:role="line"
-         id="tspan1736"
-         x="140"
+       x="140"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="294.99997"
-         style="stroke-width:0.264583">if tree.stack.len() == 0  =&gt; True</tspan></text>
+         x="140"
+         id="tspan1736"
+         sodipodi:role="line">if tree.stack.len() == 0  =&gt; True</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="150"
+       id="text1742"
        y="308.17502"
-       id="text1742"><tspan
-         sodipodi:role="line"
-         id="tspan1740"
-         x="150"
+       x="150"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="308.17502"
-         style="stroke-width:0.264583">tree.nodes.push(&amp;_value);</tspan></text>
+         x="150"
+         id="tspan1740"
+         sodipodi:role="line">tree.nodes.push(&amp;_value);</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="160"
+       id="text1746"
        y="318.17505"
-       id="text1746"><tspan
-         sodipodi:role="line"
-         id="tspan1744"
-         x="160"
-         y="318.17505"
-         style="stroke-width:0.264583">So, tree value becomes:</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
        x="160"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="318.17505"
+         x="160"
+         id="tspan1744"
+         sodipodi:role="line">So, tree value becomes:</tspan></text>
+    <text
+       id="text1750"
        y="328.17508"
-       id="text1750"><tspan
-         sodipodi:role="line"
-         id="tspan1748"
-         x="160"
+       x="160"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="328.17508"
-         style="stroke-width:0.264583">tree = SortitionSumTree {</tspan><tspan
-         sodipodi:role="line"
          x="160"
+         id="tspan1748"
+         sodipodi:role="line">tree = SortitionSumTree {</tspan><tspan
+         id="tspan1752"
+         style="stroke-width:0.264583"
          y="333.02579"
-         style="stroke-width:0.264583"
-         id="tspan1752">                    k: 1,</tspan><tspan
-         sodipodi:role="line"
          x="160"
+         sodipodi:role="line">                    k: 1,</tspan><tspan
+         id="tspan1754"
+         style="stroke-width:0.264583"
          y="337.87646"
-         style="stroke-width:0.264583"
-         id="tspan1754">                    stack: Vector::new(stack_id),</tspan><tspan
-         sodipodi:role="line"
          x="160"
+         sodipodi:role="line">                    stack: Vector::new(stack_id),</tspan><tspan
+         id="tspan1756"
+         style="stroke-width:0.264583"
          y="342.72717"
-         style="stroke-width:0.264583"
-         id="tspan1756">                    nodes: [0, 5],</tspan><tspan
-         sodipodi:role="line"
          x="160"
+         sodipodi:role="line">                    nodes: [0, 5],</tspan><tspan
+         id="tspan1758"
+         style="stroke-width:0.264583"
          y="347.57788"
-         style="stroke-width:0.264583"
-         id="tspan1758">                    ids_to_node_indexes: TreeMap::new(ids_to_node_indexes_id),</tspan><tspan
-         sodipodi:role="line"
          x="160"
+         sodipodi:role="line">                    ids_to_node_indexes: TreeMap::new(ids_to_node_indexes_id),</tspan><tspan
+         id="tspan1760"
+         style="stroke-width:0.264583"
          y="352.42859"
-         style="stroke-width:0.264583"
-         id="tspan1760">                    node_indexes_to_ids: TreeMap::new(node_indexes_to_ids_id),</tspan><tspan
-         sodipodi:role="line"
          x="160"
+         sodipodi:role="line">                    node_indexes_to_ids: TreeMap::new(node_indexes_to_ids_id),</tspan><tspan
+         id="tspan1762"
+         style="stroke-width:0.264583"
          y="357.27927"
-         style="stroke-width:0.264583"
-         id="tspan1762">                };</tspan></text>
+         x="160"
+         sodipodi:role="line">                };</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="150"
+       id="text1766"
        y="363.17505"
-       id="text1766"><tspan
-         sodipodi:role="line"
-         id="tspan1764"
-         x="150"
+       x="150"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="363.17505"
-         style="stroke-width:0.264583">if tree_index != 1 &amp;&amp; (tree_index -1 ) % tree.k == 0 </tspan></text>
+         x="150"
+         id="tspan1764"
+         sodipodi:role="line">if tree_index != 1 &amp;&amp; (tree_index -1 ) % tree.k == 0 </tspan></text>
     <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="150"
+       id="text1770"
        y="303.17505"
-       id="text1770"><tspan
-         sodipodi:role="line"
-         id="tspan1768"
-         x="150"
+       x="150"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="303.17505"
-         style="stroke-width:0.264583">let tree_index = tree.nodes.len() as u128; <tspan
-   style="fill:#ff00ff"
-   id="tspan1778">(tree_index =&gt; 1 which is nodes len)</tspan></tspan></text>
+         x="150"
+         id="tspan1768"
+         sodipodi:role="line">let tree_index = tree.nodes.len() as u128; <tspan
+   id="tspan1778"
+   style="fill:#ff00ff">(tree_index =&gt; 1 which is nodes len)</tspan></tspan></text>
     <text
-       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';white-space:pre;shape-inside:url(#rect1774);"
        id="text1772"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';white-space:pre;shape-inside:url(#rect1774);" />
+       xml:space="preserve" />
     <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="150"
+       id="text1782"
        y="370"
-       id="text1782"><tspan
-         sodipodi:role="line"
-         id="tspan1780"
-         x="150"
-         y="370"
-         style="stroke-width:0.264583">tree_index  -&gt; 1, so tree_index !=1 is true</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
        x="150"
-       y="374.99997"
-       id="text1786"><tspan
-         sodipodi:role="line"
-         id="tspan1784"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="370"
          x="150"
+         id="tspan1780"
+         sodipodi:role="line">tree_index  -&gt; 1, so tree_index !=1 is true</tspan></text>
+    <text
+       id="text1786"
+       y="374.99997"
+       x="150"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="374.99997"
-         style="stroke-width:0.264583">So, this block will not run.</tspan></text>
+         x="150"
+         id="tspan1784"
+         sodipodi:role="line">So, this block will not run.</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="140"
+       id="text1812"
        y="390"
-       id="text1812"><tspan
-         sodipodi:role="line"
-         id="tspan1810"
-         x="140"
+       x="140"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="390"
-         style="stroke-width:0.264583"> tree.ids_to_node_indexes.insert(&amp;_id, &amp;0);</tspan><tspan
-         sodipodi:role="line"
          x="140"
+         id="tspan1810"
+         sodipodi:role="line"> tree.ids_to_node_indexes.insert(&amp;_id, &amp;0);</tspan><tspan
+         id="tspan1814"
+         style="stroke-width:0.264583"
          y="394.85071"
-         style="stroke-width:0.264583"
-         id="tspan1814">tree.node_indexes_to_ids.insert(&amp;0, &amp;_id);</tspan><tspan
-         sodipodi:role="line"
          x="140"
+         sodipodi:role="line">tree.node_indexes_to_ids.insert(&amp;0, &amp;_id);</tspan><tspan
+         id="tspan1816"
+         style="stroke-width:0.264583"
          y="399.70139"
-         style="stroke-width:0.264583"
-         id="tspan1816" /><tspan
-         sodipodi:role="line"
          x="140"
+         sodipodi:role="line" /><tspan
+         id="tspan1822"
+         style="stroke-width:0.264583"
          y="404.55209"
-         style="stroke-width:0.264583"
-         id="tspan1822">println!(&quot;ids_to_node_indexes {:?}&quot;,tree.<tspan
-   style="fill:#aa0000"
-   id="tspan1942">ids_to_node_indexes.</tspan>to_vec() );       <tspan
-   style="fill:#ff00ff"
-   id="tspan1948">[(&quot;Code&quot;, 0)]</tspan></tspan><tspan
-         sodipodi:role="line"
          x="140"
+         sodipodi:role="line">println!(&quot;ids_to_node_indexes {:?}&quot;,tree.<tspan
+   id="tspan1942"
+   style="fill:#aa0000">ids_to_node_indexes.</tspan>to_vec() );       <tspan
+   id="tspan1948"
+   style="fill:#ff00ff">[(&quot;Code&quot;, 0)]</tspan></tspan><tspan
+         id="tspan1938"
+         style="stroke-width:0.264583"
          y="409.4028"
-         style="stroke-width:0.264583"
-         id="tspan1938">println!( &quot;node_indexes_to_ids {:?}&quot;, tree.<tspan
-   style="fill:#d40000"
-   id="tspan1900">node_indexes_to_ids</tspan>.to_vec());     <tspan
-   style="fill:#ff00ff"
-   id="tspan1848"> [(0, &quot;Code&quot;)]</tspan></tspan><tspan
-         sodipodi:role="line"
          x="140"
+         sodipodi:role="line">println!( &quot;node_indexes_to_ids {:?}&quot;, tree.<tspan
+   id="tspan1900"
+   style="fill:#d40000">node_indexes_to_ids</tspan>.to_vec());     <tspan
+   id="tspan1848"
+   style="fill:#ff00ff"> [(0, &quot;Code&quot;)]</tspan></tspan><tspan
+         id="tspan1830"
+         style="stroke-width:0.264583"
          y="414.25351"
-         style="stroke-width:0.264583"
-         id="tspan1830" /></text>
+         x="140"
+         sodipodi:role="line" /></text>
     <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
-       x="140"
+       id="text1912"
        y="420"
-       id="text1912"><tspan
-         sodipodi:role="line"
-         id="tspan1910"
-         x="140"
-         y="420"
-         style="stroke-width:0.264583">Tree will become</tspan><tspan
-         sodipodi:role="line"
-         x="140"
-         y="424.85071"
-         style="stroke-width:0.264583"
-         id="tspan1914" /><tspan
-         sodipodi:role="line"
-         x="140"
-         y="429.70139"
-         style="stroke-width:0.264583"
-         id="tspan1916">tree = SortitionSumTree {</tspan><tspan
-         sodipodi:role="line"
-         x="140"
-         y="434.55209"
-         style="stroke-width:0.264583"
-         id="tspan1918">                    k: 1,</tspan><tspan
-         sodipodi:role="line"
-         x="140"
-         y="439.4028"
-         style="stroke-width:0.264583"
-         id="tspan1920">                    stack: Vector::new(stack_id),</tspan><tspan
-         sodipodi:role="line"
-         x="140"
-         y="444.25351"
-         style="stroke-width:0.264583"
-         id="tspan1922">                    nodes: [0, 5],</tspan><tspan
-         sodipodi:role="line"
-         x="140"
-         y="449.10419"
-         style="stroke-width:0.264583"
-         id="tspan1924">                    ids_to_node_indexes: [(&quot;Code&quot;, 0)],</tspan><tspan
-         sodipodi:role="line"
-         x="140"
-         y="453.9549"
-         style="stroke-width:0.264583"
-         id="tspan1926">                    node_indexes_to_ids: [(0, &quot;Code&quot;)]</tspan><tspan
-         sodipodi:role="line"
-         x="140"
-         y="458.8056"
-         style="stroke-width:0.264583"
-         id="tspan1928">                };</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
        x="140"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="420"
+         x="140"
+         id="tspan1910"
+         sodipodi:role="line">Tree will become</tspan><tspan
+         id="tspan1914"
+         style="stroke-width:0.264583"
+         y="424.85071"
+         x="140"
+         sodipodi:role="line" /><tspan
+         id="tspan1916"
+         style="stroke-width:0.264583"
+         y="429.70139"
+         x="140"
+         sodipodi:role="line">tree = SortitionSumTree {</tspan><tspan
+         id="tspan1918"
+         style="stroke-width:0.264583"
+         y="434.55209"
+         x="140"
+         sodipodi:role="line">                    k: 1,</tspan><tspan
+         id="tspan1920"
+         style="stroke-width:0.264583"
+         y="439.4028"
+         x="140"
+         sodipodi:role="line">                    stack: Vector::new(stack_id),</tspan><tspan
+         id="tspan1922"
+         style="stroke-width:0.264583"
+         y="444.25351"
+         x="140"
+         sodipodi:role="line">                    nodes: [0, 5],</tspan><tspan
+         id="tspan1924"
+         style="stroke-width:0.264583"
+         y="449.10419"
+         x="140"
+         sodipodi:role="line">                    ids_to_node_indexes: [(&quot;Code&quot;, 0)],</tspan><tspan
+         id="tspan1926"
+         style="stroke-width:0.264583"
+         y="453.9549"
+         x="140"
+         sodipodi:role="line">                    node_indexes_to_ids: [(0, &quot;Code&quot;)]</tspan><tspan
+         id="tspan1928"
+         style="stroke-width:0.264583"
+         y="458.8056"
+         x="140"
+         sodipodi:role="line">                };</tspan></text>
+    <text
+       id="text1932"
        y="400"
-       id="text1932"><tspan
-         sodipodi:role="line"
-         id="tspan1930"
-         x="140"
+       x="140"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
          y="400"
-         style="stroke-width:0.264583" /><tspan
-         sodipodi:role="line"
          x="140"
+         id="tspan1930"
+         sodipodi:role="line" /><tspan
+         id="tspan1934"
+         style="stroke-width:0.264583"
          y="404.85071"
-         style="stroke-width:0.264583"
-         id="tspan1934" /><tspan
-         sodipodi:role="line"
          x="140"
-         y="409.70139"
+         sodipodi:role="line" /><tspan
+         id="tspan1936"
          style="stroke-width:0.264583"
-         id="tspan1936" /></text>
+         y="409.70139"
+         x="140"
+         sodipodi:role="line" /></text>
+    <text
+       id="text1004"
+       y="290"
+       x="140"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="290"
+         x="140"
+         id="tspan1002"
+         sodipodi:role="line"> let mut tree_index: u128 = 0;</tspan></text>
   </g>
 </svg>

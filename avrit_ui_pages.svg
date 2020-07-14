@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="avrit_ui_pages.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 210 380.09857"
+   height="380.09857mm"
+   width="210mm"
+   inkscape:export-filename="/home/amiya/Documents/workspace/svg/avrit/avrit_ui_pages.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <defs
+     id="defs2">
+    <rect
+       id="rect918"
+       height="15"
+       width="40"
+       y="270"
+       x="150" />
+    <rect
+       x="150"
+       y="355"
+       width="40"
+       height="10"
+       id="rect964" />
+    <rect
+       x="20"
+       y="35"
+       width="50"
+       height="10"
+       id="rect838" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-maximized="1"
+     inkscape:window-y="27"
+     inkscape:window-x="40"
+     inkscape:window-height="1016"
+     inkscape:window-width="1880"
+     showgrid="true"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="mm"
+     inkscape:cy="548.05507"
+     inkscape:cx="290.33019"
+     inkscape:zoom="0.98994949"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="1"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="10">
+    <inkscape:grid
+       units="mm"
+       spacingy="5"
+       spacingx="10"
+       id="grid839"
+       type="xygrid"
+       originx="0"
+       originy="0.09855777" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1"
+     transform="translate(0,0.09855777)">
+    <g
+       id="g921">
+      <rect
+         style="fill:#ffccaa;stroke:none;stroke-width:0.231223"
+         id="rect833"
+         width="209.8455"
+         height="25.337688"
+         x="0.15449743"
+         y="-0.09855777" />
+      <text
+         xml:space="preserve"
+         style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+         x="186.23634"
+         y="14.256957"
+         id="text837"><tspan
+           sodipodi:role="line"
+           id="tspan835"
+           x="186.23634"
+           y="14.256957"
+           style="stroke-width:0.264583">Login</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;fill:#ff2a2a;stroke-width:0.264583"
+         x="19.416658"
+         y="15"
+         id="text843"><tspan
+           sodipodi:role="line"
+           id="tspan841"
+           x="19.416658"
+           y="15"
+           style="fill:#ff2a2a;stroke-width:0.264583">Add Products</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       id="text836"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;white-space:pre;shape-inside:url(#rect838);" />
+    <rect
+       style="fill:#ffdd55;stroke:none;stroke-width:0.265;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="rect842"
+       width="30.000002"
+       height="10"
+       x="20"
+       y="40" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="20"
+       y="45"
+       id="text846"><tspan
+         sodipodi:role="line"
+         id="tspan844"
+         x="20"
+         y="45"
+         style="stroke-width:0.264583">Tag:</tspan><tspan
+         sodipodi:role="line"
+         x="20"
+         y="49.8507"
+         style="stroke-width:0.264583"
+         id="tspan848" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="30.000002"
+       y="50"
+       id="text852"><tspan
+         sodipodi:role="line"
+         id="tspan850"
+         x="30.000002"
+         y="50"
+         style="stroke-width:0.264583">Teacher</tspan></text>
+    <rect
+       y="40"
+       x="59.158371"
+       height="10"
+       width="30.000002"
+       id="rect854"
+       style="fill:#ffdd55;stroke:none;stroke-width:0.264999" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="60"
+       y="45"
+       id="text858"><tspan
+         sodipodi:role="line"
+         id="tspan856"
+         x="60"
+         y="45"
+         style="stroke-width:0.264583">Tag:</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="30.000002"
+       y="45"
+       id="text862"><tspan
+         sodipodi:role="line"
+         id="tspan860"
+         x="30.000002"
+         y="45"
+         style="stroke-width:0.264583">Profile Type</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="67.883331"
+       y="45"
+       id="text866"><tspan
+         sodipodi:role="line"
+         id="tspan864"
+         x="67.883331"
+         y="45"
+         style="stroke-width:0.264583">Specialization</tspan></text>
+    <rect
+       style="fill:#ffdd55;stroke:none;stroke-width:0.264999"
+       id="rect868"
+       width="30.000002"
+       height="10"
+       x="99.904213"
+       y="40" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="100"
+       y="45"
+       id="text872"><tspan
+         sodipodi:role="line"
+         id="tspan870"
+         x="100"
+         y="45"
+         style="stroke-width:0.264583">Tag: </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="109.99999"
+       y="45"
+       id="text876"><tspan
+         sodipodi:role="line"
+         id="tspan874"
+         x="109.99999"
+         y="45"
+         style="stroke-width:0.264583">Audience</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="109.99999"
+       y="50"
+       id="text880"><tspan
+         sodipodi:role="line"
+         id="tspan878"
+         x="109.99999"
+         y="50"
+         style="stroke-width:0.264583">Novice</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;fill:#ff2a2a;stroke-width:0.264583"
+       x="19.416658"
+       y="35.108349"
+       id="text884"><tspan
+         sodipodi:role="line"
+         id="tspan882"
+         x="19.416658"
+         y="35.108349"
+         style="fill:#ff2a2a;stroke-width:0.264583">Add Products</tspan></text>
+    <rect
+       style="fill:#ffdd55;stroke:none;stroke-width:0.23242;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="rect886"
+       width="109.99999"
+       height="50"
+       x="20"
+       y="60" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="62.170845"
+       y="83.887489"
+       id="text890"><tspan
+         sodipodi:role="line"
+         id="tspan888"
+         x="62.170845"
+         y="83.887489"
+         style="stroke-width:0.264583">Product Image</tspan></text>
+    <rect
+       style="fill:#ffdd55;stroke:none;stroke-width:0.264999;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="rect892"
+       width="109.99999"
+       height="30.000002"
+       x="20"
+       y="118.06678" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="60"
+       y="133.30446"
+       id="text896"><tspan
+         sodipodi:role="line"
+         id="tspan894"
+         x="60"
+         y="133.30446"
+         style="stroke-width:0.264583">Product Description</tspan></text>
+    <rect
+       style="fill:#ffdd55;stroke:none;stroke-width:0.264999;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="rect898"
+       width="109.99999"
+       height="50"
+       x="20"
+       y="163.30446" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="60"
+       y="188.30446"
+       id="text902"><tspan
+         sodipodi:role="line"
+         id="tspan900"
+         x="60"
+         y="188.30446"
+         style="stroke-width:0.264583">Product Details</tspan></text>
+    <rect
+       style="fill:#ffdd55;stroke:none;stroke-width:0.264999"
+       id="rect904"
+       width="30.000002"
+       height="10"
+       x="139.59155"
+       y="40" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="143.17496"
+       y="46.058334"
+       id="text908"><tspan
+         sodipodi:role="line"
+         id="tspan906"
+         x="143.17496"
+         y="46.058334"
+         style="stroke-width:0.264583">GPS Location</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="65.766663"
+       y="50"
+       id="text912"><tspan
+         sodipodi:role="line"
+         id="tspan910"
+         x="65.766663"
+         y="50"
+         style="stroke-width:0.264583">Bioinformatics</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 0,225 H 210"
+       id="path914" />
+    <rect
+       style="fill:#ffccaa;stroke:none;stroke-width:0.231223"
+       id="rect923"
+       width="209.8455"
+       height="25.337688"
+       x="0.15449743"
+       y="224.79813" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="186.23634"
+       y="239.15364"
+       id="text927"><tspan
+         sodipodi:role="line"
+         id="tspan925"
+         x="186.23634"
+         y="239.15364"
+         style="stroke-width:0.264583">Login</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;fill:#ff2a2a;stroke-width:0.264583"
+       x="19.416658"
+       y="239.89668"
+       id="text931"><tspan
+         sodipodi:role="line"
+         id="tspan929"
+         x="19.416658"
+         y="239.89668"
+         style="fill:#ff2a2a;stroke-width:0.264583">Review Products</tspan></text>
+    <text
+       id="text942"
+       y="257.35898"
+       x="63.337532"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;fill:#ff2a2a;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="fill:#ff2a2a;stroke-width:0.264583"
+         y="257.35898"
+         x="63.337532"
+         id="tspan940"
+         sodipodi:role="line">Review Products</tspan></text>
+    <rect
+       y="202.98238"
+       x="139.59155"
+       height="10"
+       width="30.000002"
+       id="rect944"
+       style="fill:#0000ff;stroke:none;stroke-width:0.264999" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;fill:#ffffff;stroke-width:0.264583"
+       x="143.70412"
+       y="209.47084"
+       id="text948"><tspan
+         sodipodi:role="line"
+         id="tspan946"
+         x="143.70412"
+         y="209.47084"
+         style="font-size:4.23333px;fill:#ffffff;stroke-width:0.264583">Review Product</tspan></text>
+    <rect
+       y="285"
+       x="20"
+       height="38.781921"
+       width="109.99999"
+       id="rect950"
+       style="fill:#ffdd55;stroke:none;stroke-width:0.204693;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="60.054176"
+       y="304.2334"
+       id="text954"><tspan
+         sodipodi:role="line"
+         id="tspan952"
+         x="60.054176"
+         y="304.2334"
+         style="stroke-width:0.264583">Review Product</tspan></text>
+    <rect
+       style="fill:#ffdd55;stroke:none;stroke-width:0.199801;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="rect956"
+       width="109.99999"
+       height="36.9505"
+       x="20"
+       y="333.0495" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="62.170845"
+       y="350.23743"
+       id="text960"><tspan
+         sodipodi:role="line"
+         id="tspan958"
+         x="62.170845"
+         y="350.23743"
+         style="stroke-width:0.264583">Comments</tspan></text>
+    <text
+       xml:space="preserve"
+       id="text962"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;white-space:pre;shape-inside:url(#rect964);fill:#8080ff;" />
+    <rect
+       style="fill:#0000d4;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="rect968"
+       width="50"
+       height="15"
+       x="150"
+       y="355" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;fill:#dbdbe3;stroke-width:0.264583"
+       x="160"
+       y="363.94165"
+       id="text972"><tspan
+         sodipodi:role="line"
+         id="tspan970"
+         x="160"
+         y="363.94165"
+         style="fill:#dbdbe3;stroke-width:0.264583">Vote (Schelling Game)</tspan></text>
+    <rect
+       style="fill:#ffdd55;stroke:none;stroke-width:0.146521;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="rect974"
+       width="109.99999"
+       height="19.871216"
+       x="20"
+       y="260.12878" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       x="65.345848"
+       y="270"
+       id="text978"><tspan
+         sodipodi:role="line"
+         id="tspan976"
+         x="65.345848"
+         y="270"
+         style="stroke-width:0.264583">Product ID</tspan></text>
+    <rect
+       y="330.65796"
+       x="150"
+       height="15"
+       width="50"
+       id="rect980"
+       style="fill:#99ff55;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers" />
+    <text
+       id="text984"
+       y="339.59961"
+       x="160"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;fill:#2b2200;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="fill:#2b2200;stroke-width:0.264583"
+         y="339.59961"
+         x="160"
+         id="tspan982"
+         sodipodi:role="line">Account Address</tspan></text>
+    <rect
+       style="fill:#99ff55;stroke:none;stroke-width:0.789029;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="rect986"
+       width="41.64151"
+       height="11.212982"
+       x="138.35849"
+       y="178.78702" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.06188px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;fill:#2b2200;stroke-width:0.208764"
+       x="138.97214"
+       y="195.76692"
+       id="text990"
+       transform="scale(1.0555123,0.94740725)"><tspan
+         sodipodi:role="line"
+         id="tspan988"
+         x="138.97214"
+         y="195.76692"
+         style="fill:#2b2200;stroke-width:0.208764">Account Address</tspan></text>
+    <rect
+       y="160"
+       x="140"
+       height="15"
+       width="40.000004"
+       id="rect906"
+       style="fill:#80ffb3;stroke-width:1.41421;paint-order:stroke fill markers" />
+    <text
+       id="text910"
+       y="165"
+       x="144.76244"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="165"
+         x="144.76244"
+         id="tspan908"
+         sodipodi:role="line">Call for review bounty</tspan></text>
+    <text
+       id="text914"
+       y="170"
+       x="157.40823"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="170"
+         x="157.40823"
+         id="tspan912"
+         sodipodi:role="line">$1</tspan></text>
+    <text
+       style="line-height:1.25;font-family:'Ubuntu Condensed';font-size:3.88055556px;-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;white-space:pre;shape-inside:url(#rect918);fill:#55ff55;"
+       id="text916"
+       xml:space="preserve" />
+    <rect
+       y="265"
+       x="150"
+       height="15"
+       width="40"
+       id="rect922"
+       style="fill:#00ff66;stroke-width:1;paint-order:stroke fill markers" />
+    <text
+       id="text926"
+       y="270"
+       x="160"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="270"
+         x="160"
+         id="tspan924"
+         sodipodi:role="line">Reviewer Stake</tspan></text>
+    <text
+       id="text930"
+       y="275"
+       x="170"
+       style="font-size:3.88056px;line-height:1.25;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';letter-spacing:0px;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="275"
+         x="170"
+         id="tspan928"
+         sodipodi:role="line">$2</tspan></text>
+  </g>
+</svg>

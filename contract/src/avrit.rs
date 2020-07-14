@@ -9,6 +9,8 @@ pub mod avritstructs;
 pub use self::avritstructs::{User,Product, Review};
 pub mod account;
 pub use self::account::{Account};
+pub mod sortitionsumtree;
+pub use self::sortitionsumtree::{SortitionSumTrees};
 
 pub fn get_uuid(seed_vec: Vec<u8>) -> Uuid {
     let mut seed = [0u8; 32];
@@ -59,6 +61,8 @@ pub struct Avrit {
 
     /// Total supply of the all token.
     pub total_supply: Balance,
+
+    pub sortition:SortitionSumTrees,
 }
 
 
@@ -210,6 +214,7 @@ impl Avrit {
             review_map: TreeMap::new(b"5fc2c77f-c84e-4da8-b8ab-ea0524995549".to_vec()),    
             user_products_map: TreeMap::new(b"e7b6e8a6-ccee-4887-9eff-21bb49c5c257".to_vec()), 
             product_reviews_map: TreeMap::new(b"ea4ee217-662f-43f0-8ef0-cf96d411afe7".to_vec()), 
+            sortition: SortitionSumTrees::new(),
         };
         let mut account = ft.get_account(&owner_id);
         account.balance = total_supply;
