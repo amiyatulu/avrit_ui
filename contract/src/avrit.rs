@@ -1,8 +1,6 @@
 use borsh::{BorshSerialize, BorshDeserialize};
 use near_sdk::collections::{TreeMap, UnorderedSet};
 use near_sdk::{env, near_bindgen, Balance, AccountId};
-use rand::{rngs::StdRng, RngCore, SeedableRng};
-use uuid::{Builder, Uuid, Variant, Version};
 use near_sdk::json_types::U128;
 
 pub mod avritstructs;
@@ -11,26 +9,6 @@ pub mod account;
 pub use self::account::{Account};
 pub mod sortitionsumtree;
 pub use self::sortitionsumtree::{SortitionSumTrees};
-
-pub fn get_uuid(seed_vec: Vec<u8>) -> Uuid {
-    let mut seed = [0u8; 32];
-    let mut counter = 0;
-    for v in seed_vec.iter() {
-        seed[counter] = *v;
-        counter += 1;
-    }
-
-    let mut rng: StdRng = SeedableRng::from_seed(seed);
-    let mut bytes = [0u8; 16];
-    rng.fill_bytes(&mut bytes);
-    let uuid = Builder::from_bytes(bytes)
-        .set_variant(Variant::RFC4122)
-        .set_version(Version::Random)
-        .build();
-    return uuid;
-}
-
-
 
 
 #[near_bindgen]
@@ -55,7 +33,8 @@ pub struct Avrit {
     pub user_products_map: TreeMap<u128, UnorderedSet<u128>>, // (user_id, set<product_id>)
     pub product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
     // Fungible Token
-
+    pub product_id_set_ucount: u128,
+    pub review_id_set_ucount: u128,
     // sha256(AccountID) -> Account details.
     pub accounts: TreeMap<Vec<u8>, Account>,
 
@@ -123,8 +102,10 @@ impl Avrit {
                         self.user_products_map.insert(&user_id, &product_ids_set);
                     }
                     None => {
-                        let random_vec = env::random_seed();
-                        let id = get_uuid(random_vec).to_string().into_bytes();
+                        let s = "productidssetkey";
+                        self.product_id_set_ucount = self.product_id_set_ucount + 1;
+                        let t = format!("{}{}", s, self.product_id_set_ucount);
+                        let id = t.to_string().into_bytes();
                         let mut product_ids_set = UnorderedSet::new(id);
                         product_ids_set.insert(&self.product_id);
                         self.user_products_map.insert(&user_id, &product_ids_set);
@@ -172,8 +153,10 @@ impl Avrit {
                             .insert(&product_id, &review_ids_set);
                     }
                     None => {
-                        let random_vec = env::random_seed();
-                        let id = get_uuid(random_vec).to_string().into_bytes();
+                        let s = "reviewidsetkey";
+                        self.review_id_set_ucount = self.review_id_set_ucount + 1;
+                        let t = format!("{}{}", s, self.review_id_set_ucount);
+                        let id = t.to_string().into_bytes();
                         let mut review_ids_set = UnorderedSet::new(id);
                         review_ids_set.insert(&self.review_id);
                         self.product_reviews_map
@@ -215,6 +198,8 @@ impl Avrit {
             user_products_map: TreeMap::new(b"e7b6e8a6-ccee-4887-9eff-21bb49c5c257".to_vec()), 
             product_reviews_map: TreeMap::new(b"ea4ee217-662f-43f0-8ef0-cf96d411afe7".to_vec()), 
             sortition: SortitionSumTrees::new(),
+            product_id_set_ucount: 0,
+            review_id_set_ucount: 0,
         };
         let mut account = ft.get_account(&owner_id);
         account.balance = total_supply;

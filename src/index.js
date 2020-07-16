@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import getConfig from './config.js';
 import * as nearlib from 'near-api-js';
+import { HashRouter } from "react-router-dom"
 
 // Initializing contract
 async function initContract() {
@@ -22,9 +23,9 @@ async function initContract() {
     let acct = await new nearlib.Account(window.near.connection, window.accountId);
     window.contract = await new nearlib.Contract(acct, window.nearConfig.contractName, {
         // View methods are read only. They don't modify the state, but usually return some value.
-        viewMethods: ['welcome'],
+        viewMethods: [''],
         // Change methods can modify the state. But you don't receive the returned value when called.
-        changeMethods: ['set_greeting'],
+        changeMethods: ['create_profile'],
         // Sender is the account ID to initialize transactions.
         sender: window.accountId
     });
@@ -34,7 +35,7 @@ async function initContract() {
 }
 
 window.nearInitPromise = initContract().then(() => {
-  ReactDOM.render(<App contract={window.contract} wallet={window.walletAccount} />,
+  ReactDOM.render( <HashRouter><App contract={window.contract} wallet={window.walletAccount} /></HashRouter>,
     document.getElementById('root')
   );
 }).catch(console.error)
