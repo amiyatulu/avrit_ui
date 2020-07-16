@@ -34,6 +34,7 @@
     "axios": "^0.19.2",
     "formik": "^2.1.5",
     "graphql": "^15.0.0",
+    "ipfs-http-client": "^45.0.0",
     "near-api-js": "^0.24.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

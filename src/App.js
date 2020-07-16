@@ -6,6 +6,7 @@ import near from './assets/near.svg';
 import './App.css';
 import { Route, Switch } from "react-router-dom"
 import CreateProfile from './profile/CreateProfile';
+import { NearContext } from './context/NearContext';
 
 
 class App extends Component {
@@ -92,7 +93,9 @@ class App extends Component {
             : <button onClick={this.requestSignIn}>Log in with NEAR</button>}
         </div>
         <Switch>
+          <NearContext.Provider value={this.props}>
               <Route path="/" exact component={CreateProfile} />
+              </NearContext.Provider>
         </Switch>
       </React.Fragment>
       

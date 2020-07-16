@@ -1,84 +1,99 @@
-import React, { useState } from "react"
+import React, { useState, useContext } from "react"
 import * as Yup from "yup"
 import { Formik, Form, Field } from "formik"
 import { FocusError, SubmittingWheel } from "../commons/FocusWheel"
+import { NearContext } from "../context/NearContext"
+import ipfs from "../commons/ipfs"
 
 function CreateProfile() {
   const [count, setCount] = useState(0)
+  const nearvar = useContext(NearContext)
+  console.log(nearvar)
 
   return (
     <React.Fragment>
       <div className="container">
-      <Formik
-        initialValues={{
-          headline: "",
-          introduction: "",
-          details: "",
-          youAre: "",
-          skills: "",
-        }}
-        validationSchema={Yup.object().shape({
-          headline: Yup.string().required("Headline is required"),
-          introduction: Yup.string().required("Introduction is required"),
-          details: Yup.string().required("Details is required"),
-          youAre: Yup.string().required("You are is required"),
-          skills: Yup.string().required("Skills is required"),
-        })}
-        onSubmit={async (values, actions) => {
-          //values.countvariable = count
-          console.log(values)
-          actions.setSubmitting(false)
-          // console.log(data)
-        }}
-      >
-        {({ handleSubmit, handleBlur, handleChange, errors, touched, isValid, isSubmitting, values, setFieldValue, validateForm }) => (
-          <Form onSubmit={handleSubmit}>
+        <Formik
+          initialValues={{
+            headline: "",
+            introduction: "",
+            details: "",
+            youAre: "",
+            skills: "",
+          }}
+          validationSchema={Yup.object().shape({
+            headline: Yup.string().required("Headline is required"),
+            introduction: Yup.string().required("Introduction is required"),
+            details: Yup.string().required("Details is required"),
+            youAre: Yup.string().required("You are is required"),
+            skills: Yup.string().required("Skills is required"),
+          })}
+          onSubmit={async (values, actions) => {
+            //values.countvariable = count
+            console.log(values)
+            try{
+              const file = await ipfs.add({
+                path: "profile.json",
+                content: JSON.stringify(values),
+              })
+              console.log(file)
+            } catch(e) {
+              console.error(e);
+            }
 
-            <div className="form-group">
-              <label htmlFor="headline">Headline</label>
-              {touched.headline && errors.headline && <p className="alert alert-danger">{errors.headline}</p>}
+            
+            
+            // actions.setSubmitting(false)
+            // console.log(data)
+          }}
+        >
+          {({ handleSubmit, handleBlur, handleChange, errors, touched, isSubmitting, values, setFieldValue, validateForm }) => (
+            <Form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="headline">Headline</label>
+                {touched.headline && errors.headline && <p className="alert alert-danger">{errors.headline}</p>}
 
-              <Field name="headline" className="form-control" />
-            </div>
+                <Field name="headline" className="form-control" />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="introduction">Introduction</label>
-              {touched.introduction && errors.introduction && <p className="alert alert-danger">{errors.introduction}</p>}
+              <div className="form-group">
+                <label htmlFor="introduction">Introduction</label>
+                {touched.introduction && errors.introduction && <p className="alert alert-danger">{errors.introduction}</p>}
 
-              <Field name="introduction" component="textarea" rows="5" className="form-control" />
-            </div>
+                <Field name="introduction" component="textarea" rows="5" className="form-control" />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="details">Details</label>
-              {touched.details && errors.details && <p className="alert alert-danger">{errors.details}</p>}
+              <div className="form-group">
+                <label htmlFor="details">Details</label>
+                {touched.details && errors.details && <p className="alert alert-danger">{errors.details}</p>}
 
-              <Field name="details" component="textarea" rows="5" className="form-control" />
-            </div>
+                <Field name="details" component="textarea" rows="5" className="form-control" />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="youAre">You are a</label>
-              {touched.youAre && errors.youAre && <p className="alert alert-danger">{errors.youAre}</p>}
+              <div className="form-group">
+                <label htmlFor="youAre">You are a</label>
+                {touched.youAre && errors.youAre && <p className="alert alert-danger">{errors.youAre}</p>}
 
-              <Field name="youAre" className="form-control" />
-            </div>
+                <Field name="youAre" className="form-control" />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="skills">Skills</label>
-              {touched.skills && errors.skills && <p className="alert alert-danger">{errors.skills}</p>}
+              <div className="form-group">
+                <label htmlFor="skills">Skills</label>
+                {touched.skills && errors.skills && <p className="alert alert-danger">{errors.skills}</p>}
 
-              <Field name="skills" component="textarea" rows="5" className="form-control" />
-            </div>
+                <Field name="skills" component="textarea" rows="5" className="form-control" />
+              </div>
 
-            <div className="text-center">
-              <button type="submit" className="btn btn-primary">
-                Submit Form
-              </button>
-            </div>
-            <SubmittingWheel isValid={isValid} isSubmitting={isSubmitting} />
-            <FocusError />
-          </Form>
-        )}
-      </Formik>
+              <div className="text-center">
+                <button type="submit" className="btn btn-primary">
+                  Submit Form
+                </button>
+              </div>
+              <SubmittingWheel isSubmitting={isSubmitting} />
+              <FocusError />
+            </Form>
+          )}
+        </Formik>
       </div>
     </React.Fragment>
   )

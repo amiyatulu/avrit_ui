@@ -23,13 +23,13 @@ const FocusError = () => {
 
 function SubmittingWheel(props) {
   const isSubmitting = props.isSubmitting
-  const isValid = props.isVali
-  const error = props.error
-  // console.log(isSubmitting, isValid)
-  if (isSubmitting && isValid) {
+  // console.log(isSubmitting)
+  if (isSubmitting ) {
     return (
-      <div>
-        <br /> Submitting... ⌛
+      <div className="text-center">
+        <br /> 
+        Submitting... Please wait, it will take some time.. <br/>
+        ⌛⌛⌛⌛⌛⌛⌛⌛⌛⌛⌛⌛
       </div>
     )
   } else {
