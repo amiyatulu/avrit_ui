@@ -7,7 +7,7 @@ import ipfs from "../commons/ipfs"
 
 function CreateProfile() {
   const [count, setCount] = useState(0)
-  const nearvar = useContext(NearContext)
+  let nearvar = useContext(NearContext)
   console.log(nearvar)
 
   return (
@@ -36,7 +36,15 @@ function CreateProfile() {
                 path: "profile.json",
                 content: JSON.stringify(values),
               })
+              
               console.log(file)
+              console.log(file.cid.string)
+              console.log(nearvar.contract)
+              await nearvar.contract.create_profile({ profile_hash: file.cid.string})
+
+              const data = await nearvar.contract.get_profile_hash();
+              console.log("data", data)
+              
             } catch(e) {
               console.error(e);
             }
