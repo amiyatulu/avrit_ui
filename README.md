@@ -9,6 +9,9 @@ https://iambrainstorming.wordpress.com/2017/01/14/all-books-that-dont-meet-the-l
 ### Avrit Whitepaper   
 https://avrit.reaudito.com
 
+### Demo App
+https://avritdemo.vercel.app
+
 Video:  
 
 [![Avrit](http://img.youtube.com/vi/HW7kblrIv2M/0.jpg)](http://www.youtube.com/watch?v=HW7kblrIv2M "Avirt")
