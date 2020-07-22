@@ -1,11 +1,8 @@
 import React, { Component } from "react"
-import logo from "./assets/logo.svg"
-import nearlogo from "./assets/gray_near_logo.svg"
-import near from "./assets/near.svg"
-import "./App.css"
 import { Route, Switch } from "react-router-dom"
 import CreateProfile from "./profile/CreateProfile"
 import { NearContext } from "./context/NearContext"
+import Nav from "./components/Nav"
 
 class App extends Component {
   constructor(props) {
@@ -80,20 +77,14 @@ class App extends Component {
     }
     return (
       <React.Fragment>
-        <div>
-          {this.state.login ? (
-            <div>
-              <button onClick={this.requestSignOut}>Log out</button>
-            </div>
-          ) : (
-            <button onClick={this.requestSignIn}>Log in with NEAR</button>
-          )}
-        </div>
-        <Switch>
-          <NearContext.Provider value={this.props}>
-            <Route path="/" exact component={CreateProfile} />
-          </NearContext.Provider>
-        </Switch>
+        {this.state.login ? <Nav onClick={this.requestSignOut} login={this.state.login}/> : <Nav onClick={this.requestSignIn} login={this.state.login}/>}
+        <section className="page-section">
+          <Switch>
+            <NearContext.Provider value={this.props}>
+              <Route path="/" exact component={CreateProfile} />
+            </NearContext.Provider>
+          </Switch>
+        </section>
       </React.Fragment>
     )
   }
