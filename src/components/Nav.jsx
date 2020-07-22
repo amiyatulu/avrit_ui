@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useScrollHandler } from './hooks/ScrollHandle';
 // import Logo from "./image/logobg.png"
+import { Link, NavLink } from "react-router-dom"
    
    
    
@@ -27,6 +28,9 @@ function Nav(props) {
                   </li>
                   <li className="nav-item">
                     <a className="nav-link js-scroll-trigger" href="https://github.com/amiyatulu/avrit_ui">Source Code</a>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link js-scroll-trigger" to="/profile">Profile</Link>
                   </li>
                   {props.login ? <li className="nav-item">
                     <button className="btn nav-link js-scroll-trigger" onClick={props.onClick}>Log out</button>

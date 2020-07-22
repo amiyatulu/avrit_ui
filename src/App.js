@@ -3,6 +3,7 @@ import { Route, Switch } from "react-router-dom"
 import CreateProfile from "./profile/CreateProfile"
 import { NearContext } from "./context/NearContext"
 import Nav from "./components/Nav"
+import ViewProfile from './profile/ViewProfile';
 
 class App extends Component {
   constructor(props) {
@@ -81,7 +82,8 @@ class App extends Component {
         <section className="page-section">
           <Switch>
             <NearContext.Provider value={this.props}>
-              <Route path="/" exact component={CreateProfile} />
+              <Route path="/updateprofile" component={CreateProfile} />
+              <Route path="/profile" component={ViewProfile} />
             </NearContext.Provider>
           </Switch>
         </section>
