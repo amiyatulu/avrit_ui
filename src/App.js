@@ -78,11 +78,11 @@ class App extends Component {
     }
     return (
       <React.Fragment>
-        {this.state.login ? <Nav onClick={this.requestSignOut} login={this.state.login}/> : <Nav onClick={this.requestSignIn} login={this.state.login}/>}
+        {this.state.login ? <NearContext.Provider value={this.props}><Nav onClick={this.requestSignOut} login={this.state.login}/> </NearContext.Provider>: <Nav onClick={this.requestSignIn} login={this.state.login}/>}
         <section className="page-section">
           <Switch>
             <NearContext.Provider value={this.props}>
-              <Route path="/updateprofile" component={CreateProfile} />
+              <Route path="/createprofile" component={CreateProfile} />
               <Route path="/profile" component={ViewProfile} />
             </NearContext.Provider>
           </Switch>

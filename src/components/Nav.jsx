@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext} from "react";
 import { useScrollHandler } from './hooks/ScrollHandle';
 // import Logo from "./image/logobg.png"
 import { Link, NavLink } from "react-router-dom"
-   
+import { NearContext } from "../context/NearContext"
    
    
    
 function Nav(props) {
     const scroll = useScrollHandler()
+    let nearvar = useContext(NearContext)
       return (
           <React.Fragment>
               <nav className={scroll ? "navbar navbar-expand-lg navbar-light fixed-top py-3 bg-info": "navbar navbar-expand-lg navbar-light fixed-top py-3 navbar-scrolled" } id="mainNav">
@@ -33,7 +34,7 @@ function Nav(props) {
                     <Link className="nav-link js-scroll-trigger" to="/profile">Profile</Link>
                   </li>
                   {props.login ? <li className="nav-item">
-                    <button className="btn nav-link js-scroll-trigger" onClick={props.onClick}>Log out</button>
+                    <button className="btn nav-link js-scroll-trigger" onClick={props.onClick}>{nearvar.wallet.getAccountId()} (Log out)</button>
                   </li>:  <li className="nav-item">
                     <button className="btn nav-link js-scroll-trigger" onClick={props.onClick}>Log in</button>
                   </li>}
