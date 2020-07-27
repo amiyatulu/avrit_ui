@@ -1,4 +1,4 @@
-import React, { useState, useContext} from "react";
+import React, { useState, useContext, useEffect} from "react";
 import { useScrollHandler } from './hooks/ScrollHandle';
 // import Logo from "./image/logobg.png"
 import { Link, NavLink } from "react-router-dom"
@@ -9,6 +9,16 @@ import { NearContext } from "../context/NearContext"
 function Nav(props) {
     const scroll = useScrollHandler()
     let nearvar = useContext(NearContext)
+
+    useEffect(() => {
+      const removeProfile = () => {
+        localStorage.removeItem("my-profile")
+      }
+      window.addEventListener("beforeunload", removeProfile);
+  
+      return () => window.removeEventListener("beforeunload", removeProfile);
+  
+    }, [])
       return (
           <React.Fragment>
               <nav className={scroll ? "navbar navbar-expand-lg navbar-light fixed-top py-3 bg-info": "navbar navbar-expand-lg navbar-light fixed-top py-3 navbar-scrolled" } id="mainNav">

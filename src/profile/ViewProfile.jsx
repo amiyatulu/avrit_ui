@@ -4,14 +4,17 @@ import axios from "axios"
 import { Link, NavLink } from "react-router-dom"
 
 function LoadingOrCreateProfile(props) {
-  const noProfile = props.noProfile
+  const { noProfile, fetchError } = props
+  if (fetchError) {
+    return <p className="container">Network Error, referesh the page or check internet connection. </p>
+  }
   if (noProfile) {
     return (
       <React.Fragment>
         <div className="text-center">
-        <Link type="button" className="btn btn-primary" to="createprofile">
-          Create Profile
-        </Link>
+          <Link type="button" className="btn btn-primary" to="createprofile" >
+            Create Profile
+          </Link>
         </div>
       </React.Fragment>
     )
@@ -28,10 +31,9 @@ function LoadingOrCreateProfile(props) {
 
 function ViewProfile() {
   const [profileData, setProfileData] = useState(null)
+  const [fetchError, setFetchError] = useState(false)
   const [noProfile, setNoProfile] = useState(false)
   const nearcontract = useContext(NearContext)
-
-
 
   useEffect(() => {
     async function fetchProfile() {
@@ -41,8 +43,10 @@ function ViewProfile() {
       } catch (e) {
         console.log(e.message)
         const errorboolean = e.message.includes("User profile does not exists")
+        const failedtofetch = e.message.includes("Failed to fetch")
         console.log(errorboolean)
         setNoProfile(errorboolean)
+        setFetchError(failedtofetch)
       }
       if (data) {
         const result = await axios(`https://gateway.ipfs.io/ipfs/${data}`)
@@ -59,21 +63,11 @@ function ViewProfile() {
     }
   }, [nearcontract])
 
-  useEffect(() => {
-    const removeProfile = () => {
-      localStorage.removeItem("my-profile")
-    }
-    window.addEventListener("beforeunload", removeProfile);
-
-    return () => window.removeEventListener("beforeunload", removeProfile);
-
-  }, [])
-
   return (
     <React.Fragment>
       {profileData ? (
         <div className="container">
-          <Link type="button" className="btn btn-primary" to="createprofile">
+          <Link type="button" className="btn btn-primary" to={{ pathname:"/updateprofile", query: {profileData: profileData}}}>
             Update Profile
           </Link>
           <br />
@@ -81,7 +75,7 @@ function ViewProfile() {
           <pre>{JSON.stringify(profileData)}</pre>
         </div>
       ) : (
-        <LoadingOrCreateProfile noProfile={noProfile} />
+        <LoadingOrCreateProfile noProfile={noProfile} fetchError={fetchError} />
       )}
     </React.Fragment>
   )
