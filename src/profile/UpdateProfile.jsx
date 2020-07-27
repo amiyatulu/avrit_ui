@@ -5,6 +5,7 @@ import { FocusError, SubmittingWheel } from "../commons/FocusWheel"
 import { NearContext } from "../context/NearContext"
 import ipfs from "../commons/ipfs"
 import ProfileForm from "./ProfileForm"
+import { useHistory } from 'react-router-dom';
 
 function UpdateProfile(props) {
   let nearvar = useContext(NearContext)
@@ -21,6 +22,7 @@ function UpdateProfile(props) {
     skills: "",
   }
   if (profileData) {
+  
     initialValues = {
       headline: profileData.headline,
       introduction: profileData.introduction,
@@ -29,6 +31,9 @@ function UpdateProfile(props) {
       skills: profileData.skills,
     }
   }
+  const history = useHistory();
+  const [fetchError, setFetchError] = useState(null)
+  
 
   return (
     <React.Fragment>
@@ -55,11 +60,11 @@ function UpdateProfile(props) {
               console.log(file.cid.string)
               console.log(nearvar.contract)
               await nearvar.contract.create_profile({ profile_hash: file.cid.string })
-
-              const data = await nearvar.contract.get_profile_hash()
-              console.log("data", data)
+              localStorage.removeItem("my-profile")
+              history.push('/profile')
             } catch (e) {
               console.error(e)
+              setFetchError("Submission error, try again!")
             }
 
             // actions.setSubmitting(false)
@@ -68,8 +73,11 @@ function UpdateProfile(props) {
         >
           {({ handleSubmit, handleBlur, handleChange, errors, touched, isSubmitting, values, setFieldValue, validateForm }) => (
             <Form onSubmit={handleSubmit}>
-              <ProfileForm errors={errors} touched={touched} />
+              <ProfileForm errors={errors} touched={touched} isSubmitting={isSubmitting} />
+              <br/>
+              <div className="text-center">{fetchError}</div>
               <SubmittingWheel isSubmitting={isSubmitting} />
+
               <FocusError />
             </Form>
           )}

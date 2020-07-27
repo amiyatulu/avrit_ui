@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import { Field } from "formik"
 
 function ProfileForm(props) {
-  const { errors, touched} = props
+  const { errors, touched, isSubmitting} = props
 
   return (
     <React.Fragment>
@@ -42,7 +42,7 @@ function ProfileForm(props) {
       </div>
 
       <div className="text-center">
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
           Submit Form
         </button>
       </div>

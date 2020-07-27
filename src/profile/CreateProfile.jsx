@@ -5,11 +5,12 @@ import { FocusError, SubmittingWheel } from "../commons/FocusWheel"
 import { NearContext } from "../context/NearContext"
 import ipfs from "../commons/ipfs"
 import ProfileForm from './ProfileForm';
+import { useHistory } from 'react-router-dom';
 
 function CreateProfile() {
   const [count, setCount] = useState(0)
   let nearvar = useContext(NearContext)
-  console.log(nearvar)
+  const history = useHistory();
 
   return (
     <React.Fragment>
@@ -42,9 +43,8 @@ function CreateProfile() {
               console.log(file.cid.string)
               console.log(nearvar.contract)
               await nearvar.contract.create_profile({ profile_hash: file.cid.string})
+              history.push('/profile')
 
-              const data = await nearvar.contract.get_profile_hash();
-              console.log("data", data)
               
             } catch(e) {
               console.error(e);
@@ -58,7 +58,7 @@ function CreateProfile() {
         >
           {({ handleSubmit, handleBlur, handleChange, errors, touched, isSubmitting, values, setFieldValue, validateForm }) => (
             <Form onSubmit={handleSubmit}>
-              <ProfileForm errors={errors} touched={touched}/>
+              <ProfileForm errors={errors} touched={touched} isSubmitting={isSubmitting}/>
               <SubmittingWheel isSubmitting={isSubmitting} />
               <FocusError />
             </Form>
