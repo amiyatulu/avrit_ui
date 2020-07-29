@@ -52,6 +52,7 @@ class App extends Component {
 
   requestSignOut() {
     this.props.wallet.signOut()
+    localStorage.removeItem("my-profile")
     setTimeout(this.signedOutFlow, 500)
     console.log("after sign out", this.props.wallet.isSignedIn())
   }

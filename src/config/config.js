@@ -1,5 +1,4 @@
 const CONTRACT_NAME = process.env.NODE_ENV === "production" ? "dev-1594830743303" : "dev-1594830743303"
-// console.log(CONTRACT_NAME)
 
 function getConfig(env) {
   switch (env) {
