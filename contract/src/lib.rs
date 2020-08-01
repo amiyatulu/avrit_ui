@@ -74,12 +74,10 @@ mod tests {
             profile_hash
         );
         contract.create_product(
-            "evidence".to_owned(),
             "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
         );
 
         contract.create_product(
-            "books".to_owned(),
             "Product2xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
         );
         let ids = contract.get_products_of_user();

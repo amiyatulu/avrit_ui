@@ -17,6 +17,6 @@ pub struct Review {
 #[derive(Default, BorshDeserialize, BorshSerialize, Debug)]
 pub struct Product {
     pub user_id: u128,
-    pub product_tag: String,
     pub product_details_hash: String, //IPFS Hash
+    pub product_expired: bool,
 }

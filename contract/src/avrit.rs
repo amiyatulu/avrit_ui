@@ -83,15 +83,15 @@ impl Avrit {
         }
     }
 
-    pub fn create_product(&mut self, product_tag: String, product_details_hash: String) {
+    pub fn create_product(&mut self, product_details_hash: String) {
         let account_id = env::signer_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
         match account_id_exists_option {
             Some(user_id) => {
                 let prod = Product {
                     user_id,
-                    product_tag,
                     product_details_hash,
+                    product_expired: false,
                 };
                 self.product_id += 1;
                 self.product_map.insert(&self.product_id, &prod);

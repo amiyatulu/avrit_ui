@@ -5,6 +5,7 @@ import { NearContext } from "./context/NearContext"
 import Nav from "./components/Nav"
 import ViewProfile from './profile/ViewProfile';
 import UpdateProfile from './profile/UpdateProfile';
+import CreateProduct from './products/CreateProduct';
 
 class App extends Component {
   constructor(props) {
@@ -87,6 +88,7 @@ class App extends Component {
               <Route path="/createprofile" component={CreateProfile} />
               <Route path="/profile" component={ViewProfile} />
               <Route path="/updateprofile" component={UpdateProfile} />
+              <Route path="/createproduct" component={CreateProduct} />
             </NearContext.Provider>
           </Switch>
         </section>
