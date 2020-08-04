@@ -1,15 +1,14 @@
-use borsh::{BorshSerialize, BorshDeserialize};
+use borsh::{BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{TreeMap, UnorderedSet};
-use near_sdk::{env, near_bindgen, Balance, AccountId};
 use near_sdk::json_types::U128;
+use near_sdk::{env, near_bindgen, AccountId, Balance};
 
 pub mod avritstructs;
-pub use self::avritstructs::{User,Product, Review};
+pub use self::avritstructs::{Product, Review, User};
 pub mod account;
-pub use self::account::{Account};
+pub use self::account::Account;
 pub mod sortitionsumtree;
-pub use self::sortitionsumtree::{SortitionSumTrees};
-
+pub use self::sortitionsumtree::SortitionSumTrees;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
@@ -26,10 +25,10 @@ pub struct Avrit {
     pub user_id: u128,
     pub product_id: u128,
     pub review_id: u128,
-    pub user_map: TreeMap<String, u128>,       // (username, user_id)
+    pub user_map: TreeMap<String, u128>, // (username, user_id)
     pub user_profile_map: TreeMap<u128, User>, // (user_id, User)
-    pub product_map: TreeMap<u128, Product>,   // (product_id, Product)
-    pub review_map: TreeMap<u128, Review>,     // (review_id, Review)
+    pub product_map: TreeMap<u128, Product>, // (product_id, Product)
+    pub review_map: TreeMap<u128, Review>, // (review_id, Review)
     pub user_products_map: TreeMap<u128, UnorderedSet<u128>>, // (user_id, set<product_id>)
     pub product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
     // Fungible Token
@@ -41,9 +40,8 @@ pub struct Avrit {
     /// Total supply of the all token.
     pub total_supply: Balance,
 
-    pub sortition:SortitionSumTrees,
+    pub sortition: SortitionSumTrees,
 }
-
 
 #[near_bindgen]
 impl Avrit {
@@ -88,12 +86,13 @@ impl Avrit {
         let account_id_exists_option = self.user_map.get(&account_id);
         match account_id_exists_option {
             Some(user_id) => {
+                self.product_id += 1;
                 let prod = Product {
                     user_id,
                     product_details_hash,
                     product_expired: false,
+                    product_id: self.product_id,
                 };
-                self.product_id += 1;
                 self.product_map.insert(&self.product_id, &prod);
                 let user_products_option = self.user_products_map.get(&user_id);
                 match user_products_option {
@@ -131,6 +130,20 @@ impl Avrit {
             }
         }
     }
+
+    pub fn update_product(&mut self, product_id: u128, product_details_hash: String) {
+        let account_id = env::signer_account_id();
+        let mut product = self.product_map.get(&product_id).unwrap();
+        // println!("{:?} user_id", product.user_id);
+        let user_id = self.user_map.get(&account_id).unwrap();
+        // println!("{:?} user_id from account", user_id);
+        if user_id == product.user_id {
+            product.product_details_hash = product_details_hash
+        }
+        // println!("{:?} product", product);
+        self.product_map.insert(&product_id, &product);
+    }
+
     pub fn create_review(&mut self, product_id: u128, review_hash: String) {
         let account_id = env::signer_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
@@ -191,12 +204,12 @@ impl Avrit {
             user_id: 0,
             product_id: 0,
             review_id: 0,
-            user_map: TreeMap::new(b"061af613-4e63-4fc8-9b16-a30a7aa3a8b9".to_vec()),       
-            user_profile_map: TreeMap::new(b"589d167f-fc96-4299-89d0-b6d57fb41803".to_vec()), 
-            product_map: TreeMap::new(b"cf27d94f-6066-4aa0-90fd-a9bf7ac9dc3b".to_vec()),   
-            review_map: TreeMap::new(b"5fc2c77f-c84e-4da8-b8ab-ea0524995549".to_vec()),    
-            user_products_map: TreeMap::new(b"e7b6e8a6-ccee-4887-9eff-21bb49c5c257".to_vec()), 
-            product_reviews_map: TreeMap::new(b"ea4ee217-662f-43f0-8ef0-cf96d411afe7".to_vec()), 
+            user_map: TreeMap::new(b"061af613-4e63-4fc8-9b16-a30a7aa3a8b9".to_vec()),
+            user_profile_map: TreeMap::new(b"589d167f-fc96-4299-89d0-b6d57fb41803".to_vec()),
+            product_map: TreeMap::new(b"cf27d94f-6066-4aa0-90fd-a9bf7ac9dc3b".to_vec()),
+            review_map: TreeMap::new(b"5fc2c77f-c84e-4da8-b8ab-ea0524995549".to_vec()),
+            user_products_map: TreeMap::new(b"e7b6e8a6-ccee-4887-9eff-21bb49c5c257".to_vec()),
+            product_reviews_map: TreeMap::new(b"ea4ee217-662f-43f0-8ef0-cf96d411afe7".to_vec()),
             sortition: SortitionSumTrees::new(),
             product_id_set_ucount: 0,
             review_id_set_ucount: 0,
