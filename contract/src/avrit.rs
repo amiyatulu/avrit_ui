@@ -144,6 +144,11 @@ impl Avrit {
         self.product_map.insert(&product_id, &product);
     }
 
+    pub fn get_product(&self, product_id: u128) -> (String, bool) {
+        let product = self.product_map.get(&product_id).unwrap();
+        (product.product_details_hash, product.product_expired)
+    }
+
     pub fn create_review(&mut self, product_id: u128, review_hash: String) {
         let account_id = env::signer_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
