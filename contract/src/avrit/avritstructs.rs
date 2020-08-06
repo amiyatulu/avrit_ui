@@ -16,6 +16,7 @@ pub struct Review {
 
 
 #[derive(Default, BorshDeserialize, BorshSerialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct Product {
     pub user_id: u128,
     pub product_details_hash: String, //IPFS Hash

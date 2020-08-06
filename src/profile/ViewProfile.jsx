@@ -7,9 +7,6 @@ import styles from "./ViewProfile.module.css"
 
 function LoadingOrCreateProfile(props) {
   const { noProfile, fetchError } = props
-  if (fetchError) {
-    return <p className="container">{fetchError}</p>
-  }
   if (noProfile) {
     return (
       <React.Fragment>
@@ -21,6 +18,10 @@ function LoadingOrCreateProfile(props) {
       </React.Fragment>
     )
   }
+  if (fetchError) {
+    return <p className="container">{fetchError}</p>
+  }
+
   return (
     <p className="container">
       Loading

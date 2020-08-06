@@ -1,4 +1,4 @@
-const CONTRACT_NAME = process.env.NODE_ENV === "production" ? "dev-1594830743303" : "dev-1594830743303"
+const CONTRACT_NAME = process.env.NODE_ENV === "production" ? "dev-1596733083520-5954561" : "dev-1596733083520-5954561"
 
 function getConfig(env) {
   switch (env) {

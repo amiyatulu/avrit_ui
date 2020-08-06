@@ -78,8 +78,8 @@ mod tests {
         );
 
         contract.update_product(1, "ProductupdatexeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
-        let (hash, _exp) = contract.get_product(1);
-        assert_eq!("ProductupdatexeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), hash);
+        let product = contract.get_product(1);
+        assert_eq!("ProductupdatexeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), product.product_details_hash);
         contract.create_product(
             "Product2xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
         );

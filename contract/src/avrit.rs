@@ -138,15 +138,15 @@ impl Avrit {
         let user_id = self.user_map.get(&account_id).unwrap();
         // println!("{:?} user_id from account", user_id);
         if user_id == product.user_id {
-            product.product_details_hash = product_details_hash
+            product.product_details_hash = product_details_hash;
         }
         // println!("{:?} product", product);
         self.product_map.insert(&product_id, &product);
     }
 
-    pub fn get_product(&self, product_id: u128) -> (String, bool) {
+    pub fn get_product(&self, product_id: u128) -> Product {
         let product = self.product_map.get(&product_id).unwrap();
-        (product.product_details_hash, product.product_expired)
+        product
     }
 
     pub fn create_review(&mut self, product_id: u128, review_hash: String) {
