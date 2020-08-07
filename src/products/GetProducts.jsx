@@ -3,6 +3,7 @@ import { NearContext } from "../context/NearContext"
 import axios from "axios"
 import { Link, NavLink } from "react-router-dom"
 import { IPFS_URL } from "../config/configvar"
+import ProductDetails from "./ProductDetails"
 
 function GetProducts() {
   const nearcontract = useContext(NearContext)
@@ -20,8 +21,7 @@ function GetProducts() {
           console.log(x)
           let hash = await nearcontract.contract.get_product({ product_id: x })
           console.log(hash)
-          setProductsData(oldProducts => [...oldProducts, hash])
-
+          setProductsData((oldProducts) => [...oldProducts, hash])
         })
       } catch (e) {
         console.error(e)
@@ -33,8 +33,14 @@ function GetProducts() {
   return (
     <React.Fragment>
       <div className="container">
-        <p>Hello World!</p>
-  <div>{JSON.stringify(productsData)}</div>
+        <div>
+          {productsData &&
+            productsData.map((data) => (
+              <React.Fragment key={data.product_id}>
+                <ProductDetails ipfshash={data.product_details_hash} />
+              </React.Fragment>
+            ))}
+        </div>
       </div>
     </React.Fragment>
   )
