@@ -5,6 +5,7 @@ import { Link, NavLink } from "react-router-dom"
 import { IPFS_URL } from "../config/configvar"
 import ProductDetails from "./ProductDetails"
 
+
 function GetProducts() {
   const nearcontract = useContext(NearContext)
   const [productsData, setProductsData] = useState([])
