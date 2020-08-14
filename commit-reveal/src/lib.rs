@@ -53,7 +53,7 @@ impl CommitRevealElection {
         let timestamp = env::block_timestamp();
         println!("{}, timestamp", timestamp);
         let naive = NaiveDateTime::from_timestamp(timestamp as i64, 0);
-        println!("{}, datetime", naive);
+        println!("{}, now", naive);
         let seconds = Duration::seconds(commit_phase_length_in_secs as i64);
         let endtime = naive + seconds;
         println!("{}, time after addition", endtime);
@@ -69,6 +69,31 @@ impl CommitRevealElection {
             vote_statuses: TreeMap::new(b"1e443a7b-e7de-4e26-b4d6-9a8f6aa92076".to_vec()),
         };
         commitreveal
+    }
+
+    pub fn commit_vote(mut self, vote_commit: String) {
+        let timestamp = env::block_timestamp();
+        let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
+        println!("{}, now2", naive_now);
+        let naive_end_time =
+            NaiveDateTime::parse_from_str(&self.commit_phase_end_time, "%Y-%m-%d %H:%M:%S")
+                .unwrap();
+        println!("{}, naive_end_time", naive_end_time);
+        if naive_now > naive_end_time {
+            panic!("Commiting time has ended")
+        }
+        let votecommit = self.vote_statuses.get(&vote_commit);
+        match votecommit {
+            Some(_commit) => {
+                panic!("Vote commit is already done")
+            }
+            None => {
+                self.vote_commits.push(&vote_commit);
+                self.vote_statuses.insert(&vote_commit, &"Commited".to_owned());
+                self.number_of_votes_cast = self.number_of_votes_cast + 1;
+
+            }
+        }
     }
 }
 
@@ -89,6 +114,7 @@ mod tests {
     use chrono::{DateTime, Utc};
     use near_sdk::MockedBlockchain;
     use near_sdk::{testing_env, VMContext};
+    use std::{thread, time};
 
     fn get_timstamp() -> u64 {
         let now: DateTime<Utc> = Utc::now();
@@ -121,6 +147,12 @@ mod tests {
     fn contract_test() {
         let context = get_context(vec![], false);
         testing_env!(context);
-        let contract = CommitRevealElection::new(120, "choice1".to_owned(), "choice2".to_owned());
+        let contract = CommitRevealElection::new(60, "choice1".to_owned(), "choice2".to_owned());
+
+        let breaktime = time::Duration::from_secs(30);
+        thread::sleep(breaktime);
+        let context = get_context(vec![], false);
+        testing_env!(context);
+        contract.commit_vote("Hello".to_owned());
     }
 }
