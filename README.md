@@ -31,6 +31,6 @@ Pages:
 Build with near protocol blockchain, ipfs and react
 <p>
 <img src="https://nearprotocol.com/wp-content/themes/near-19/assets/img/logo.svg?t=1553011311" width="240">
-![ifps](ipfs.png)
 </p>
 
+![ifps](ipfs.png)
