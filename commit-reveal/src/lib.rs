@@ -1,11 +1,4 @@
 /*
- * This is an example of a Rust smart contract with two simple, symmetric functions:
- *
- * 1. set_greeting: accepts a greeting, such as "howdy", and records it for the user (account_id)
- *    who sent the request
- * 2. get_greeting: accepts an account_id and returns the greeting saved for it, defaulting to
- *    "Hello"
- *
  * Learn more about writing NEAR smart contracts with Rust:
  * https://github.com/near/near-sdk-rs
  *
@@ -13,10 +6,12 @@
 
 // To conserve gas, efficient serialization is achieved through Borsh (http://borsh.io/)
 use chrono::{Duration, NaiveDateTime};
+use hex;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{TreeMap, Vector};
 use near_sdk::wee_alloc;
 use near_sdk::{env, near_bindgen};
+use sha3::{Digest, Keccak256};
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -33,7 +28,7 @@ pub struct CommitRevealElection {
     commit_phase_end_time: String,
     number_of_votes_cast: u128,
     vote_commits: Vector<String>,
-    vote_statuses: TreeMap<String, String>,
+    vote_statuses: TreeMap<String, bool>,
 }
 
 impl Default for CommitRevealElection {
@@ -71,7 +66,7 @@ impl CommitRevealElection {
         commitreveal
     }
 
-    pub fn commit_vote(mut self, vote_commit: String) {
+    pub fn commit_vote(&mut self, vote_commit: String) {
         let timestamp = env::block_timestamp();
         let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
         println!("{}, now2", naive_now);
@@ -84,16 +79,64 @@ impl CommitRevealElection {
         }
         let votecommit = self.vote_statuses.get(&vote_commit);
         match votecommit {
-            Some(_commit) => {
-                panic!("Vote commit is already done")
-            }
+            Some(_commit) => panic!("Vote commit is already done"),
             None => {
+                println!("{} vote commit in commit fn", vote_commit);
                 self.vote_commits.push(&vote_commit);
-                self.vote_statuses.insert(&vote_commit, &"Commited".to_owned());
+                self.vote_statuses.insert(&vote_commit, &true);
                 self.number_of_votes_cast = self.number_of_votes_cast + 1;
-
             }
         }
+    }
+
+    pub fn reveal_vote(&mut self, vote: String, vote_commit: String) {
+       
+        let timestamp = env::block_timestamp();
+        let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
+        let naive_end_time =
+            NaiveDateTime::parse_from_str(&self.commit_phase_end_time, "%Y-%m-%d %H:%M:%S")
+                .unwrap();
+        if naive_now < naive_end_time {
+            panic!("Commiting time has not ended");
+        }
+        println!("{} vote commit in reveal fn", vote_commit);
+        
+        let votecommit = self.vote_statuses.get(&vote_commit);
+        match votecommit {
+            Some(commit) => {
+                if commit == false {
+                    panic!("The vote was already casted");
+                }
+            }
+            None => {
+                panic!("Vote with this commit was not cast");
+            }
+        }
+      
+        let mut hasher = Keccak256::new();
+        hasher.update(vote.as_bytes());
+        let result = hasher.finalize();
+        let vote_hex = hex::encode(result);
+        println!("{} vote hex in reveal fn", vote_hex);
+        if vote_commit == vote_hex {
+            println!("commit and vote matches");
+        }
+        if vote_commit != vote_hex {
+            panic!("Vote hash doesn't match the vote commit");
+        }
+
+        if &vote[0..1] == "1" {
+            println!("Voted for choice 1");
+            self.votes_for_choice1 = self.votes_for_choice1 + 1;
+        } else if &vote[0..1] == "2" {
+            println!("Voted for choice 2");
+            self.votes_for_choice2 = self.votes_for_choice2 + 1;
+        } else {
+            panic!("You have not voted to any one");
+        }
+
+        // self.vote_statuses.insert(&vote_commit, &false);
+        
     }
 }
 
@@ -112,8 +155,10 @@ impl CommitRevealElection {
 mod tests {
     use super::*;
     use chrono::{DateTime, Utc};
+    use hex;
     use near_sdk::MockedBlockchain;
     use near_sdk::{testing_env, VMContext};
+    use sha3::{Digest, Keccak256};
     use std::{thread, time};
 
     fn get_timstamp() -> u64 {
@@ -145,14 +190,28 @@ mod tests {
 
     #[test]
     fn contract_test() {
-        let context = get_context(vec![], false);
-        testing_env!(context);
-        let contract = CommitRevealElection::new(60, "choice1".to_owned(), "choice2".to_owned());
-
-        let breaktime = time::Duration::from_secs(30);
+        let mut context = get_context(vec![], false);
+        testing_env!(context.clone());
+        let mut contract =
+            CommitRevealElection::new(20, "choice1".to_owned(), "choice2".to_owned());
+        let breaktime = time::Duration::from_secs(10);
         thread::sleep(breaktime);
-        let context = get_context(vec![], false);
-        testing_env!(context);
-        contract.commit_vote("Hello".to_owned());
+        let vote = "1password".to_owned();
+        let mut hasher = Keccak256::new();
+        hasher.update(vote.as_bytes());
+        let result = hasher.finalize();
+        let commit = hex::encode(result);
+        println!("{} commit in test", commit);
+        context.block_timestamp = get_timstamp();
+        testing_env!(context.clone());
+        contract.commit_vote("7dd665a9bc223d04ca148ce991aa3fe01f638b3fd70b720fef3f46f2d801919f".to_owned());
+        let breaktime2 = time::Duration::from_secs(15);
+        thread::sleep(breaktime2);
+        context.block_timestamp = get_timstamp();
+        testing_env!(context.clone());
+        contract.reveal_vote(
+            "1password".to_owned(),
+            "7dd665a9bc223d04ca148ce991aa3fe01f638b3fd70b720fef3f46f2d801919f".to_owned(),
+        )
     }
 }

@@ -1,5 +1,5 @@
 [package]
-name = "greeter"
+name = "commit-reveal"
 version = "0.1.0"
 authors = ["Near Inc <hello@near.org>"]
 edition = "2018"
@@ -10,6 +10,8 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 near-sdk = "1.0.0"
 chrono = "0.4.13"
+sha3 = "0.9.1"
+hex = "0.4.2"
 
 [profile.release]
 codegen-units = 1
