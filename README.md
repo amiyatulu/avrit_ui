@@ -16,9 +16,8 @@ Video:
 
 [![Avrit](http://img.youtube.com/vi/HW7kblrIv2M/0.jpg)](http://www.youtube.com/watch?v=HW7kblrIv2M "Avirt")
 
+<img src="logo.png" height="240">
 
-
-![logo](logo.png)
 
 
 Pages:
