@@ -135,7 +135,7 @@ impl CommitRevealElection {
             panic!("You have not voted to any one");
         }
 
-        // self.vote_statuses.insert(&vote_commit, &false);
+        self.vote_statuses.insert(&vote_commit, &false);
         
     }
 }
@@ -178,7 +178,7 @@ mod tests {
             block_timestamp: get_timstamp(),
             account_balance: 0,
             account_locked_balance: 0,
-            storage_usage: 0,
+            storage_usage: 1000,
             attached_deposit: 0,
             prepaid_gas: 10u64.pow(18),
             random_seed: vec![0, 1, 2],
