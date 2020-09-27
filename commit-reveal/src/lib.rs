@@ -177,7 +177,11 @@ mod tests {
             block_timestamp: get_timstamp(),
             account_balance: 0,
             account_locked_balance: 0,
+<<<<<<< HEAD
             storage_usage: 500,
+=======
+            storage_usage: 1000,
+>>>>>>> d7caa77de1855baaa9f1af016fdb8172585ad550
             attached_deposit: 0,
             prepaid_gas: 10u64.pow(18),
             random_seed: vec![0, 1, 2],
