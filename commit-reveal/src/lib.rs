@@ -6,7 +6,6 @@
 
 // To conserve gas, efficient serialization is achieved through Borsh (http://borsh.io/)
 use chrono::{Duration, NaiveDateTime};
-use hex;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{TreeMap, Vector};
 use near_sdk::wee_alloc;
@@ -116,7 +115,7 @@ impl CommitRevealElection {
         let mut hasher = Keccak256::new();
         hasher.update(vote.as_bytes());
         let result = hasher.finalize();
-        let vote_hex = hex::encode(result);
+        let vote_hex = format!("{:x}",result);
         println!("{} vote hex in reveal fn", vote_hex);
         if vote_commit == vote_hex {
             println!("commit and vote matches");
@@ -135,7 +134,7 @@ impl CommitRevealElection {
             panic!("You have not voted to any one");
         }
 
-        // self.vote_statuses.insert(&vote_commit, &false);
+        self.vote_statuses.insert(&vote_commit, &false);
         
     }
 }
@@ -178,7 +177,7 @@ mod tests {
             block_timestamp: get_timstamp(),
             account_balance: 0,
             account_locked_balance: 0,
-            storage_usage: 0,
+            storage_usage: 500,
             attached_deposit: 0,
             prepaid_gas: 10u64.pow(18),
             random_seed: vec![0, 1, 2],

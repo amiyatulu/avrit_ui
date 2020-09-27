@@ -6,6 +6,7 @@ import { NearContext } from "../context/NearContext"
 import ipfs from "../commons/ipfs"
 import ProfileForm from "./ProfileForm"
 import { useHistory } from 'react-router-dom';
+import Ipfsadd from '../commons/TextileIO';
 
 function UpdateProfile(props) {
   let nearvar = useContext(NearContext)
@@ -51,15 +52,21 @@ function UpdateProfile(props) {
             //values.countvariable = count
             console.log(values)
             try {
-              const file = await ipfs.add({
-                path: "profile.json",
-                content: JSON.stringify(values),
-              })
+              // const file = await ipfs.add({
+              //   path: "profile.json",
+              //   content: JSON.stringify(values),
+              // })
 
-              console.log(file)
-              console.log(file.cid.string)
-              console.log(nearvar.contract)
-              await nearvar.contract.create_profile({ profile_hash: file.cid.string })
+              // console.log(file)
+              // console.log(file.cid.string)
+              // console.log(nearvar.contract)
+              // await nearvar.contract.create_profile({ profile_hash: file.cid.string })
+
+              const content = JSON.stringify(values);
+              const filename = "profile.json"
+              const data = await Ipfsadd(content, filename)
+              // console.log(data, "mydata")
+              await nearvar.contract.create_profile({ profile_hash: data.path.cid.string })
               localStorage.removeItem("my-profile")
               history.push('/profile')
             } catch (e) {
