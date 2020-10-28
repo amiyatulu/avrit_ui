@@ -1,7 +1,7 @@
-use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{TreeMap};
+use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::collections::UnorderedMap;
 use near_sdk::{env, AccountId, Balance};
-// Fungible token
+
 /// Contains balance and allowances information for one account.
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Account {
@@ -10,7 +10,7 @@ pub struct Account {
     /// Escrow Account ID hash to the allowance amount.
     /// Allowance is the amount of tokens the Escrow Account ID can spent on behalf of the account
     /// owner.
-    pub allowances: TreeMap<Vec<u8>, Balance>,
+    pub allowances: UnorderedMap<Vec<u8>, Balance>,
 }
 
 impl Account {
@@ -18,7 +18,7 @@ impl Account {
     pub fn new(account_hash: Vec<u8>) -> Self {
         Self {
             balance: 0,
-            allowances: TreeMap::new(account_hash),
+            allowances: UnorderedMap::new(account_hash),
         }
     }
 

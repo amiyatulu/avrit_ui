@@ -1,18 +1,21 @@
-use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{TreeMap, UnorderedSet};
+use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::collections::{UnorderedMap, TreeMap, UnorderedSet};
 use near_sdk::json_types::U128;
-use near_sdk::{env, near_bindgen, AccountId, Balance};
+use near_sdk::{env, near_bindgen, AccountId, Balance, Promise, StorageUsage};
 
-pub mod avritstructs;
-pub use self::avritstructs::{Product, Review, User};
 pub mod account;
 pub use self::account::Account;
-pub mod sortitionsumtree;
-pub use self::sortitionsumtree::SortitionSumTrees;
+pub mod avritstructs;
+pub use self::avritstructs::{Product, Review, User};
+
+/// Price per 1 byte of storage from mainnet genesis config.
+pub const STORAGE_PRICE_PER_BYTE: Balance = 100000000000000000000;
+
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Avrit {
+
     // UserId
     // ProductId
     // ReviewId
@@ -22,25 +25,24 @@ pub struct Avrit {
     // Map(ProductId, Product)
     // Map(ProductId, Set(ReviewId))
     // Map(ReviewId, Review)
-    pub user_id: u128,
-    pub product_id: u128,
-    pub review_id: u128,
-    pub user_map: TreeMap<String, u128>, // (username, user_id)
-    pub user_profile_map: TreeMap<u128, User>, // (user_id, User)
-    pub product_map: TreeMap<u128, Product>, // (product_id, Product)
-    pub review_map: TreeMap<u128, Review>, // (review_id, Review)
-    pub user_products_map: TreeMap<u128, UnorderedSet<u128>>, // (user_id, set<product_id>)
-    pub product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
+    user_id: u128,
+    product_id: u128,
+    review_id: u128,
+    user_map: TreeMap<String, u128>, // (username, user_id)
+    user_profile_map: TreeMap<u128, User>, // (user_id, User)
+    product_map: TreeMap<u128, Product>, // (product_id, Product)
+    review_map: TreeMap<u128, Review>, // (review_id, Review)
+    user_products_map: TreeMap<u128, UnorderedSet<u128>>, // (user_id, set<product_id>)
+    product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
     // Fungible Token
-    pub product_id_set_ucount: u128,
-    pub review_id_set_ucount: u128,
-    // sha256(AccountID) -> Account details.
-    pub accounts: TreeMap<Vec<u8>, Account>,
+    product_id_set_ucount: u128,
+    review_id_set_ucount: u128,
+
+    /// sha256(AccountID) -> Account details.
+    accounts: UnorderedMap<Vec<u8>, Account>,
 
     /// Total supply of the all token.
-    pub total_supply: Balance,
-
-    pub sortition: SortitionSumTrees,
+    total_supply: Balance,
 }
 
 #[near_bindgen]
@@ -202,9 +204,9 @@ impl Avrit {
     #[init]
     pub fn new(owner_id: AccountId, total_supply: U128) -> Self {
         let total_supply = total_supply.into();
-        assert!(env::state_read::<Self>().is_none(), "Already initialized");
+        assert!(!env::state_exists(), "Already initialized");
         let mut ft = Self {
-            accounts: TreeMap::new(b"2d965fc1-874a-4240-a328-9c3c4b00be2a".to_vec()),
+            accounts: UnorderedMap::new(b"2d965fc1-874a-4240-a328-9c3c4b00be2a".to_vec()),
             total_supply,
             user_id: 0,
             product_id: 0,
@@ -215,7 +217,6 @@ impl Avrit {
             review_map: TreeMap::new(b"5fc2c77f-c84e-4da8-b8ab-ea0524995549".to_vec()),
             user_products_map: TreeMap::new(b"e7b6e8a6-ccee-4887-9eff-21bb49c5c257".to_vec()),
             product_reviews_map: TreeMap::new(b"ea4ee217-662f-43f0-8ef0-cf96d411afe7".to_vec()),
-            sortition: SortitionSumTrees::new(),
             product_id_set_ucount: 0,
             review_id_set_ucount: 0,
         };
@@ -225,18 +226,56 @@ impl Avrit {
         ft
     }
 
-    /// Sets the `allowance` for `escrow_account_id` on the account of the caller of this contract
+    /// Increments the `allowance` for `escrow_account_id` by `amount` on the account of the caller of this contract
     /// (`predecessor_id`) who is the balance owner.
-    pub fn set_allowance(&mut self, escrow_account_id: AccountId, allowance: U128) {
-        let allowance = allowance.into();
+    /// Requirements:
+    /// * Caller of the method has to attach deposit enough to cover storage difference at the
+    ///   fixed storage price defined in the contract.
+    #[payable]
+    pub fn inc_allowance(&mut self, escrow_account_id: AccountId, amount: U128) {
+        let initial_storage = env::storage_usage();
+        assert!(
+            env::is_valid_account_id(escrow_account_id.as_bytes()),
+            "Escrow account ID is invalid"
+        );
         let owner_id = env::predecessor_account_id();
         if escrow_account_id == owner_id {
-            env::panic(b"Can't set allowance for yourself");
+            env::panic(b"Can not increment allowance for yourself");
         }
         let mut account = self.get_account(&owner_id);
-
-        account.set_allowance(&escrow_account_id, allowance);
+        let current_allowance = account.get_allowance(&escrow_account_id);
+        account.set_allowance(
+            &escrow_account_id,
+            current_allowance.saturating_add(amount.0),
+        );
         self.set_account(&owner_id, &account);
+        self.refund_storage(initial_storage);
+    }
+
+    /// Decrements the `allowance` for `escrow_account_id` by `amount` on the account of the caller of this contract
+    /// (`predecessor_id`) who is the balance owner.
+    /// Requirements:
+    /// * Caller of the method has to attach deposit enough to cover storage difference at the
+    ///   fixed storage price defined in the contract.
+    #[payable]
+    pub fn dec_allowance(&mut self, escrow_account_id: AccountId, amount: U128) {
+        let initial_storage = env::storage_usage();
+        assert!(
+            env::is_valid_account_id(escrow_account_id.as_bytes()),
+            "Escrow account ID is invalid"
+        );
+        let owner_id = env::predecessor_account_id();
+        if escrow_account_id == owner_id {
+            env::panic(b"Can not decrement allowance for yourself");
+        }
+        let mut account = self.get_account(&owner_id);
+        let current_allowance = account.get_allowance(&escrow_account_id);
+        account.set_allowance(
+            &escrow_account_id,
+            current_allowance.saturating_sub(amount.0),
+        );
+        self.set_account(&owner_id, &account);
+        self.refund_storage(initial_storage);
     }
 
     /// Transfers the `amount` of tokens from `owner_id` to the `new_owner_id`.
@@ -246,11 +285,23 @@ impl Avrit {
     /// * If this function is called by an escrow account (`owner_id != predecessor_account_id`),
     ///   then the allowance of the caller of the function (`predecessor_account_id`) on
     ///   the account of `owner_id` should be greater or equal than the transfer `amount`.
+    /// * Caller of the method has to attach deposit enough to cover storage difference at the
+    ///   fixed storage price defined in the contract.
+    #[payable]
     pub fn transfer_from(&mut self, owner_id: AccountId, new_owner_id: AccountId, amount: U128) {
+        let initial_storage = env::storage_usage();
+        assert!(
+            env::is_valid_account_id(new_owner_id.as_bytes()),
+            "New owner's account ID is invalid"
+        );
         let amount = amount.into();
         if amount == 0 {
             env::panic(b"Can't transfer 0 tokens");
         }
+        assert_ne!(
+            owner_id, new_owner_id,
+            "The new owner should be different from the current owner"
+        );
         // Retrieving the account from the state.
         let mut account = self.get_account(&owner_id);
 
@@ -277,13 +328,20 @@ impl Avrit {
         let mut new_account = self.get_account(&new_owner_id);
         new_account.balance += amount;
         self.set_account(&new_owner_id, &new_account);
+        self.refund_storage(initial_storage);
     }
 
     /// Transfer `amount` of tokens from the caller of the contract (`predecessor_id`) to
     /// `new_owner_id`.
     /// Act the same was as `transfer_from` with `owner_id` equal to the caller of the contract
     /// (`predecessor_id`).
+    /// Requirements:
+    /// * Caller of the method has to attach deposit enough to cover storage difference at the
+    ///   fixed storage price defined in the contract.
+    #[payable]
     pub fn transfer(&mut self, new_owner_id: AccountId, amount: U128) {
+        // NOTE: New owner's Account ID checked in transfer_from.
+        // Storage fees are also refunded in transfer_from.
         self.transfer_from(env::predecessor_account_id(), new_owner_id, amount);
     }
 
@@ -303,6 +361,10 @@ impl Avrit {
     /// receives this information, the allowance may already be changed by the owner.
     /// So this method should only be used on the front-end to see the current allowance.
     pub fn get_allowance(&self, owner_id: AccountId, escrow_account_id: AccountId) -> U128 {
+        assert!(
+            env::is_valid_account_id(escrow_account_id.as_bytes()),
+            "Escrow account ID is invalid"
+        );
         self.get_account(&owner_id)
             .get_allowance(&escrow_account_id)
             .into()
@@ -312,6 +374,10 @@ impl Avrit {
 impl Avrit {
     /// Helper method to get the account details for `owner_id`.
     fn get_account(&self, owner_id: &AccountId) -> Account {
+        assert!(
+            env::is_valid_account_id(owner_id.as_bytes()),
+            "Owner's account ID is invalid"
+        );
         let account_hash = env::sha256(owner_id.as_bytes());
         self.accounts
             .get(&account_hash)
@@ -321,6 +387,33 @@ impl Avrit {
     /// Helper method to set the account details for `owner_id` to the state.
     fn set_account(&mut self, owner_id: &AccountId, account: &Account) {
         let account_hash = env::sha256(owner_id.as_bytes());
-        self.accounts.insert(&account_hash, &account);
+        if account.balance > 0 || !account.allowances.is_empty() {
+            self.accounts.insert(&account_hash, &account);
+        } else {
+            self.accounts.remove(&account_hash);
+        }
+    }
+
+    fn refund_storage(&self, initial_storage: StorageUsage) {
+        let current_storage = env::storage_usage();
+        let attached_deposit = env::attached_deposit();
+        let refund_amount = if current_storage > initial_storage {
+            let required_deposit =
+                Balance::from(current_storage - initial_storage) * STORAGE_PRICE_PER_BYTE;
+            assert!(
+                required_deposit <= attached_deposit,
+                "The required attached deposit is {}, but the given attached deposit is is {}",
+                required_deposit,
+                attached_deposit,
+            );
+            attached_deposit - required_deposit
+        } else {
+            attached_deposit
+                + Balance::from(initial_storage - current_storage) * STORAGE_PRICE_PER_BYTE
+        };
+        if refund_amount > 0 {
+            env::log(format!("Refunding {} tokens for storage", refund_amount).as_bytes());
+            Promise::new(env::predecessor_account_id()).transfer(refund_amount);
+        }
     }
 }
