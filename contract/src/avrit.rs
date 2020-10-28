@@ -1,5 +1,5 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{UnorderedMap, TreeMap, UnorderedSet};
+use near_sdk::collections::{LookupMap, TreeMap, UnorderedMap, UnorderedSet, Vector};
 use near_sdk::json_types::U128;
 use near_sdk::{env, near_bindgen, AccountId, Balance, Promise, StorageUsage};
 
@@ -11,11 +11,9 @@ pub use self::avritstructs::{Product, Review, User};
 /// Price per 1 byte of storage from mainnet genesis config.
 pub const STORAGE_PRICE_PER_BYTE: Balance = 100000000000000000000;
 
-
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Avrit {
-
     // UserId
     // ProductId
     // ReviewId
@@ -28,15 +26,17 @@ pub struct Avrit {
     user_id: u128,
     product_id: u128,
     review_id: u128,
-    user_map: TreeMap<String, u128>, // (username, user_id)
+    user_map: TreeMap<String, u128>,       // (username, user_id)
     user_profile_map: TreeMap<u128, User>, // (user_id, User)
-    product_map: TreeMap<u128, Product>, // (product_id, Product)
-    review_map: TreeMap<u128, Review>, // (review_id, Review)
+    product_map: TreeMap<u128, Product>,   // (product_id, Product)
+    review_map: TreeMap<u128, Review>,     // (review_id, Review)
     user_products_map: TreeMap<u128, UnorderedSet<u128>>, // (user_id, set<product_id>)
     product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
+    product_review_bounty: LookupMap<u128, Vector<u64>>, // (product_id, bounty -> 0 index + timestamp -> 1 index)
     // Fungible Token
     product_id_set_ucount: u128,
     review_id_set_ucount: u128,
+    product_review_bounty_vector_ucount: u128,
 
     /// sha256(AccountID) -> Account details.
     accounts: UnorderedMap<Vec<u8>, Account>,
@@ -47,6 +47,20 @@ pub struct Avrit {
 
 #[near_bindgen]
 impl Avrit {
+    pub fn get_user_id(&self, account_id: &AccountId) -> u128 {
+        let user_id_option = self.user_map.get(&account_id);
+        match user_id_option {
+            Some(user_id) => user_id,
+            None => {
+                panic!("User id doesnot exist for AccountId");
+            }
+        }
+    }
+    pub fn get_user_details(&self, user_id: u128) -> User {
+        let user_profile_option = self.user_profile_map.get(&user_id);
+        let user = user_profile_option.unwrap();
+        user
+    }
     pub fn create_profile(&mut self, profile_hash: String) {
         let account_id = env::signer_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
@@ -190,6 +204,26 @@ impl Avrit {
             }
         }
     }
+
+    pub fn add_product_bounty(&mut self, bounty: u64, product_id: u128) {
+        let account_id = env::signer_account_id();
+        let product_bounty_exists_option = self.product_review_bounty.get(&product_id);
+        match product_bounty_exists_option {
+            Some(bountyvector) => {}
+            None => {
+                let bountyvectorstring =
+                    format!("bountyid{}", self.product_review_bounty_vector_ucount);
+                let boutyvectorstrindid = bountyvectorstring.to_string().into_bytes();
+                let mut bountyvector: Vector<u64> = Vector::new(boutyvectorstrindid);
+                self.product_review_bounty_vector_ucount += 1;
+                self.burn(&account_id, bounty as u128);
+                bountyvector.push(&bounty);
+                bountyvector.push(&env::block_timestamp());
+                self.product_review_bounty
+                    .insert(&product_id, &bountyvector);
+            }
+        }
+    }
 }
 
 impl Default for Avrit {
@@ -217,8 +251,10 @@ impl Avrit {
             review_map: TreeMap::new(b"5fc2c77f-c84e-4da8-b8ab-ea0524995549".to_vec()),
             user_products_map: TreeMap::new(b"e7b6e8a6-ccee-4887-9eff-21bb49c5c257".to_vec()),
             product_reviews_map: TreeMap::new(b"ea4ee217-662f-43f0-8ef0-cf96d411afe7".to_vec()),
+            product_review_bounty: LookupMap::new(b"0566cfb4-19e1-4895-b50c-68f6c0b90e40".to_vec()),
             product_id_set_ucount: 0,
             review_id_set_ucount: 0,
+            product_review_bounty_vector_ucount: 0,
         };
         let mut account = ft.get_account(&owner_id);
         account.balance = total_supply;
@@ -414,6 +450,47 @@ impl Avrit {
         if refund_amount > 0 {
             env::log(format!("Refunding {} tokens for storage", refund_amount).as_bytes());
             Promise::new(env::predecessor_account_id()).transfer(refund_amount);
+        }
+    }
+}
+
+// Burn and mint
+#[near_bindgen]
+impl Avrit {
+    fn _mint(&mut self, owner_id: &AccountId, amount: u128) {
+        if !owner_id.is_empty() {
+            let initial_storage = env::storage_usage();
+            if amount == 0 {
+                env::panic(b"Can't transfer 0 tokens");
+            }
+            assert!(
+                env::is_valid_account_id(owner_id.as_bytes()),
+                "New owner's account ID is invalid"
+            );
+            let mut account = self.get_account(&owner_id);
+            account.balance += amount;
+            self.set_account(&owner_id, &account);
+            self.total_supply = self.total_supply + amount;
+            self.refund_storage(initial_storage);
+        }
+    }
+
+    fn burn(&mut self, owner_id: &AccountId, amount: u128) {
+        if !owner_id.is_empty() {
+            let initial_storage = env::storage_usage();
+            if amount == 0 {
+                env::panic(b"Can't transfer 0 tokens");
+            }
+            assert!(
+                env::is_valid_account_id(owner_id.as_bytes()),
+                "Owner's account ID is invalid"
+            );
+            let mut account = self.get_account(&owner_id);
+
+            account.balance -= amount;
+            self.set_account(&owner_id, &account);
+            self.total_supply = self.total_supply - amount;
+            self.refund_storage(initial_storage);
         }
     }
 }
