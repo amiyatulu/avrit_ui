@@ -384,6 +384,12 @@ mod tests {
         let totalsupply_after_bounty = contract.get_total_supply().0;
         assert_eq!(totalsupply_after_bounty , total_supply - 10);
         assert_eq!(150-10, contract.get_balance(alice()).0);
+        let get_bounty = contract.get_product_bounty(1);
+        assert_eq!(10, get_bounty.get(0).unwrap());
+        contract.add_product_bounty(15, 1);
+        let totalsupply_after_bounty2 = contract.get_total_supply().0;
+        assert_eq!(totalsupply_after_bounty2 , totalsupply_after_bounty - 5);
+        assert_eq!(150-10-5, contract.get_balance(alice()).0);
     }
 
 }
