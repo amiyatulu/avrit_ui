@@ -207,6 +207,7 @@ impl Avrit {
 
     pub fn add_product_bounty(&mut self, bounty: u64, product_id: u128) {
         let account_id = env::signer_account_id();
+        println!(">>>>add product bounty{}<<<<<<<<<<", account_id);
         let product_bounty_exists_option = self.product_review_bounty.get(&product_id);
         match product_bounty_exists_option {
             Some(bountyvector) => {}

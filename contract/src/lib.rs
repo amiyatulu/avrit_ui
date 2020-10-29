@@ -311,6 +311,8 @@ mod tests {
         );
     }
 
+  
+
     #[test]
     fn profile() {
         let context = get_context(carol());
@@ -351,4 +353,37 @@ mod tests {
             "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
         );
     }
+
+    #[test]
+    fn product_bounty() {
+        let mut context = get_context(carol());
+        testing_env!(context.clone());
+        let total_supply = 1_000_000_000_000_000u128;
+        let mut contract = Avrit::new(carol(), total_supply.into());
+        context.signer_account_id = alice();
+        testing_env!(context.clone());
+        context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
+        testing_env!(context.clone());
+        contract.transfer(alice(), 150.into()); 
+        assert_eq!(150, contract.get_balance(alice()).0);
+        let hash_string = "QmZeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4z".to_owned();
+        let hash_string2 = hash_string.clone();
+        contract.create_profile(hash_string);
+        let profile_hash = contract.get_profile_hash();
+        assert_eq!(hash_string2, profile_hash);
+        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
+        let product = contract.get_product(1);
+        assert_eq!(
+            "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            product.product_details_hash
+        );
+        let initialtotalsupply = contract.get_total_supply().0;
+        assert_eq!(initialtotalsupply, total_supply);
+        // println!(">>>>>>intial supply{}<<<<<<<<<<", initialtotalsupply);
+        contract.add_product_bounty(10, 1);
+        let totalsupply_after_bounty = contract.get_total_supply().0;
+        assert_eq!(totalsupply_after_bounty , total_supply - 10);
+        assert_eq!(150-10, contract.get_balance(alice()).0);
+    }
+
 }
