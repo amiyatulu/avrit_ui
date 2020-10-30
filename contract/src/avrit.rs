@@ -32,11 +32,13 @@ pub struct Avrit {
     review_map: TreeMap<u128, Review>,     // (review_id, Review)
     user_products_map: TreeMap<u128, UnorderedSet<u128>>, // (user_id, set<product_id>)
     product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
-    product_review_bounty: LookupMap<u128, Vector<u64>>, // (product_id, bounty -> 0 index +  0_bountyperiodover 1_bountyperiodexists -> 1 index)
+    product_check_bounty: LookupMap<u128, Vector<u64>>, // (product_id, bounty -> 0 index +  0_bountyperiodover 1_bountyperiodexists -> 1 index)
+    review_check_bounty: LookupMap<u128, Vector<u64>>, // (review_id, bounty -> 0 index +  0_bountyperiodover 1_bountyperiodexists -> 1 index)
     // Fungible Token
     product_id_set_ucount: u128,
     review_id_set_ucount: u128,
-    product_review_bounty_vector_ucount: u128,
+    product_check_bounty_vector_ucount: u128,
+    review_check_bounty_vector_ucount: u128,
 
     /// sha256(AccountID) -> Account details.
     accounts: UnorderedMap<Vec<u8>, Account>,
@@ -205,10 +207,15 @@ impl Avrit {
         }
     }
 
+    pub fn get_review(&self, review_id: u128) -> Review {
+        let review = self.review_map.get(&review_id).unwrap();
+        review
+    }
+
     pub fn add_product_bounty(&mut self, bounty: u64, product_id: u128) {
         let account_id = env::signer_account_id();
         // println!(">>>>add product bounty{}<<<<<<<<<<", account_id);
-        let product_bounty_exists_option = self.product_review_bounty.get(&product_id);
+        let product_bounty_exists_option = self.product_check_bounty.get(&product_id);
         match product_bounty_exists_option {
             Some(mut bountyvector) => {
                 let bountyperiod = bountyvector.get(1).unwrap();
@@ -217,8 +224,7 @@ impl Avrit {
                     if bounty > bountyvalue {
                         self.burn(&account_id, (bounty - bountyvalue) as u128);
                         bountyvector.replace(0, &bounty);
-                        self.product_review_bounty
-                            .insert(&product_id, &bountyvector);
+                        self.product_check_bounty.insert(&product_id, &bountyvector);
                     } else {
                         panic!("Bounty period has not ended, please enter amount of higher value");
                     }
@@ -227,31 +233,65 @@ impl Avrit {
                     self.burn(&account_id, bounty as u128);
                     bountyvector.replace(0, &bounty);
                     bountyvector.replace(1, &1);
-                    self.product_review_bounty
-                        .insert(&product_id, &bountyvector);
+                    self.product_check_bounty.insert(&product_id, &bountyvector);
                 }
             }
             None => {
                 let bountyvectorstring =
-                    format!("bountyid{}", self.product_review_bounty_vector_ucount);
+                    format!("bountyproductid{}", self.product_check_bounty_vector_ucount);
                 let boutyvectorstrindid = bountyvectorstring.to_string().into_bytes();
                 let mut bountyvector: Vector<u64> = Vector::new(boutyvectorstrindid);
-                self.product_review_bounty_vector_ucount += 1;
+                self.product_check_bounty_vector_ucount += 1;
                 self.burn(&account_id, bounty as u128);
                 bountyvector.push(&bounty);
                 bountyvector.push(&1);
-                self.product_review_bounty
-                    .insert(&product_id, &bountyvector);
+                self.product_check_bounty.insert(&product_id, &bountyvector);
             }
         }
     }
 
     pub fn get_product_bounty(&mut self, product_id: u128) -> Vector<u64> {
-        let bounty_option = self.product_review_bounty.get(&product_id);
+        let bounty_option = self.product_check_bounty.get(&product_id);
         match bounty_option {
             Some(bountyvector) => bountyvector,
             None => {
                 panic!("Bounty doesn't exists");
+            }
+        }
+    }
+    pub fn add_review_bounty(&mut self, bounty: u64, review_id: u128) {
+        let account_id = env::signer_account_id();
+        let review_bounty_exists_option = self.review_check_bounty.get(&review_id);
+        match review_bounty_exists_option {
+            Some(mut bountyvector) => {
+                let bountyperiod = bountyvector.get(1).unwrap();
+                if bountyperiod == 1 {
+                    let bountyvalue = bountyvector.get(0).unwrap();
+                    if bounty > bountyvalue {
+                        self.burn(&account_id, (bounty - bountyvalue) as u128);
+                        bountyvector.replace(0, &bounty);
+                        self.review_check_bounty.insert(&review_id, &bountyvector);
+                    } else {
+                        panic!("Bounty period has not ended, please enter amount of higher value");
+                    }
+                }
+                if bountyperiod == 0 {
+                    self.burn(&account_id, bounty as u128);
+                    bountyvector.replace(0, &bounty);
+                    bountyvector.replace(1, &1);
+                    self.review_check_bounty.insert(&review_id, &bountyvector);
+                }
+            }
+            None => {
+                let bountyvectorstring =
+                    format!("bountyreviewid{}", self.review_check_bounty_vector_ucount);
+                let boutyvectorstrindid = bountyvectorstring.to_string().into_bytes();
+                let mut bountyvector: Vector<u64> = Vector::new(boutyvectorstrindid);
+                self.review_check_bounty_vector_ucount += 1;
+                self.burn(&account_id, bounty as u128);
+                bountyvector.push(&bounty);
+                bountyvector.push(&1);
+                self.review_check_bounty.insert(&review_id, &bountyvector);
             }
         }
     }
@@ -282,10 +322,12 @@ impl Avrit {
             review_map: TreeMap::new(b"5fc2c77f-c84e-4da8-b8ab-ea0524995549".to_vec()),
             user_products_map: TreeMap::new(b"e7b6e8a6-ccee-4887-9eff-21bb49c5c257".to_vec()),
             product_reviews_map: TreeMap::new(b"ea4ee217-662f-43f0-8ef0-cf96d411afe7".to_vec()),
-            product_review_bounty: LookupMap::new(b"0566cfb4-19e1-4895-b50c-68f6c0b90e40".to_vec()),
+            product_check_bounty: LookupMap::new(b"0566cfb4-19e1-4895-b50c-68f6c0b90e40".to_vec()),
+            review_check_bounty: LookupMap::new(b"00423f89-b178-4697-9ea7-316d08504b0a".to_vec()),
             product_id_set_ucount: 0,
             review_id_set_ucount: 0,
-            product_review_bounty_vector_ucount: 0,
+            product_check_bounty_vector_ucount: 0,
+            review_check_bounty_vector_ucount: 0,
         };
         let mut account = ft.get_account(&owner_id);
         account.balance = total_supply;
