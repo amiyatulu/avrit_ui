@@ -1,5 +1,5 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap, TreeMap, UnorderedMap, UnorderedSet, Vector};
+use near_sdk::collections::{LookupMap, TreeMap, UnorderedMap, UnorderedSet, Vector, LookupSet};
 use near_sdk::json_types::U128;
 use near_sdk::{env, near_bindgen, AccountId, Balance, Promise, StorageUsage};
 
@@ -7,6 +7,7 @@ pub mod account;
 pub use self::account::Account;
 pub mod avritstructs;
 pub use self::avritstructs::{Product, Review, User};
+pub mod schelling_game;
 
 /// Price per 1 byte of storage from mainnet genesis config.
 pub const STORAGE_PRICE_PER_BYTE: Balance = 100000000000000000000;
@@ -34,6 +35,10 @@ pub struct Avrit {
     product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
     product_check_bounty: LookupMap<u128, Vector<u64>>, // (product_id, bounty -> 0 index +  0_bountyperiodover 1_bountyperiodexists -> 1 index)
     review_check_bounty: LookupMap<u128, Vector<u64>>, // (review_id, bounty -> 0 index +  0_bountyperiodover 1_bountyperiodexists -> 1 index)
+    user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>>
+    user_juror_stakes_clone: LookupMap<u128, TreeMap<u128, u128>>,
+    juror_stake_unique_id: u128,
+    selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>
     // Fungible Token
     product_id_set_ucount: u128,
     review_id_set_ucount: u128,
@@ -54,7 +59,7 @@ impl Avrit {
         match user_id_option {
             Some(user_id) => user_id,
             None => {
-                panic!("User id doesnot exist for AccountId");
+                panic!("User id doesnot exist for AccountId {}", account_id);
             }
         }
     }
@@ -64,7 +69,7 @@ impl Avrit {
         user
     }
     pub fn create_profile(&mut self, profile_hash: String) {
-        let account_id = env::signer_account_id();
+        let account_id = env::predecessor_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
         let u = User {
             profile_hash,
@@ -84,7 +89,7 @@ impl Avrit {
     }
 
     pub fn get_profile_hash(&self) -> String {
-        let account_id = env::signer_account_id();
+        let account_id = env::predecessor_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
         match account_id_exists_option {
             Some(user_id) => {
@@ -100,7 +105,7 @@ impl Avrit {
     }
 
     pub fn create_product(&mut self, product_details_hash: String) {
-        let account_id = env::signer_account_id();
+        let account_id = env::predecessor_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
         match account_id_exists_option {
             Some(user_id) => {
@@ -136,7 +141,7 @@ impl Avrit {
     }
 
     pub fn get_products_of_user(&self) -> Vec<u128> {
-        let account_id = env::signer_account_id();
+        let account_id = env::predecessor_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
         match account_id_exists_option {
             Some(user_id) => {
@@ -150,7 +155,7 @@ impl Avrit {
     }
 
     pub fn update_product(&mut self, product_id: u128, product_details_hash: String) {
-        let account_id = env::signer_account_id();
+        let account_id = env::predecessor_account_id();
         let mut product = self.product_map.get(&product_id).unwrap();
         // println!("{:?} user_id", product.user_id);
         let user_id = self.user_map.get(&account_id).unwrap();
@@ -168,7 +173,7 @@ impl Avrit {
     }
 
     pub fn create_review(&mut self, product_id: u128, review_hash: String) {
-        let account_id = env::signer_account_id();
+        let account_id = env::predecessor_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
         let _product_exist = self.product_map.get(&product_id).unwrap();
 
@@ -213,7 +218,7 @@ impl Avrit {
     }
 
     pub fn add_product_bounty(&mut self, bounty: u64, product_id: u128) {
-        let account_id = env::signer_account_id();
+        let account_id = env::predecessor_account_id();
         // println!(">>>>add product bounty{}<<<<<<<<<<", account_id);
         let product_bounty_exists_option = self.product_check_bounty.get(&product_id);
         match product_bounty_exists_option {
@@ -260,7 +265,7 @@ impl Avrit {
         }
     }
     pub fn add_review_bounty(&mut self, bounty: u64, review_id: u128) {
-        let account_id = env::signer_account_id();
+        let account_id = env::predecessor_account_id();
         let review_bounty_exists_option = self.review_check_bounty.get(&review_id);
         match review_bounty_exists_option {
             Some(mut bountyvector) => {
@@ -328,6 +333,10 @@ impl Avrit {
             review_id_set_ucount: 0,
             product_check_bounty_vector_ucount: 0,
             review_check_bounty_vector_ucount: 0,
+            user_juror_stakes: LookupMap::new(b"e56291ef-2806-4298-8646-054d5d116a70".to_vec()),
+            user_juror_stakes_clone: LookupMap::new(b"4e74c845-0608-4c55-af1e-86eb8bf01687".to_vec()),
+            juror_stake_unique_id: 0,
+            selected_juror: LookupMap::new(b"89390257-80c2-446a-bc21-fac4885250ee".to_vec()),
         };
         let mut account = ft.get_account(&owner_id);
         account.balance = total_supply;

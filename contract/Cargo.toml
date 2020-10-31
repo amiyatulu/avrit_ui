@@ -10,6 +10,7 @@ edition = "2018"
 near-sdk = "2.0.0"
 wee_alloc = "0.4.5"
 serde = "1.0.117"
+rand = "0.7.3"
 
 
 

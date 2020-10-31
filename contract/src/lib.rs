@@ -12,6 +12,25 @@ mod tests {
     use avrit::{Avrit, STORAGE_PRICE_PER_BYTE};
     use near_sdk::MockedBlockchain;
     use near_sdk::{env, testing_env, AccountId, Balance, VMContext};
+    use rand::Rng;
+
+    fn rand_vector() -> Vec<u8> {
+        let mut rng = rand::thread_rng();
+
+        let mut randvec: Vec<u8> = Vec::new();
+        let mut counter = 0;
+        let result = loop {
+            counter += 1;
+            let n1: u8 = rng.gen();
+            randvec.push(n1);
+
+            if counter == 32 {
+                break randvec;
+            }
+        };
+        return result;
+    }
+
 
     fn alice() -> AccountId {
         "alice.near".to_string()
@@ -358,12 +377,12 @@ mod tests {
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
         let mut contract = Avrit::new(carol(), total_supply.into());
-        context.signer_account_id = alice();
-        testing_env!(context.clone());
         context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
         testing_env!(context.clone());
         contract.transfer(alice(), 150.into());
         assert_eq!(150, contract.get_balance(alice()).0);
+        context.predecessor_account_id = alice();
+        testing_env!(context.clone());
         let hash_string = "QmZeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4z".to_owned();
         let hash_string2 = hash_string.clone();
         contract.create_profile(hash_string);
@@ -396,12 +415,12 @@ mod tests {
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
         let mut contract = Avrit::new(carol(), total_supply.into());
-        context.signer_account_id = alice();
-        testing_env!(context.clone());
         context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
         testing_env!(context.clone());
         contract.transfer(alice(), 150.into());
         assert_eq!(150, contract.get_balance(alice()).0);
+        context.predecessor_account_id = alice();
+        testing_env!(context.clone());
         let hash_string = "QmZeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4z".to_owned();
         let hash_string2 = hash_string.clone();
         contract.create_profile(hash_string);
@@ -426,5 +445,156 @@ mod tests {
         let totalsupply_after_bounty = contract.get_total_supply().0;
         assert_eq!(totalsupply_after_bounty, total_supply - 25);
         assert_eq!(150 - 25, contract.get_balance(alice()).0);
+    }
+
+    fn create_a_user(
+        username: AccountId,
+        predecessoraccountid: AccountId,
+        profilehash: String,
+        mut contract: Avrit,
+        mut context: VMContext,
+    ) -> (Avrit, VMContext) {
+        context.predecessor_account_id = username.clone();
+        testing_env!(context.clone());
+        contract.create_profile(profilehash);
+        context.predecessor_account_id = predecessoraccountid;
+        testing_env!(context.clone());
+        context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;        
+        contract.transfer(username, 150.into());
+        (contract, context)
+    }
+
+    fn apply_jurors_for_test_function(
+        reviewerid: u128,
+        predecessoraccountid: AccountId,
+        stake: u128,
+        mut contract: Avrit,
+        mut context: VMContext,
+    ) -> (Avrit, VMContext) {
+        context.predecessor_account_id = predecessoraccountid;
+        testing_env!(context.clone());
+        contract.apply_jurors(reviewerid, stake);
+        (contract, context)
+    }
+
+    #[test]
+    fn draw_juror() {
+
+        let mut context = get_context(carol());
+        testing_env!(context.clone());
+        let total_supply = 1_000_000_000_000_000u128;
+        let mut contract = Avrit::new(carol(), total_supply.into());
+        context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
+        testing_env!(context.clone());
+        contract.transfer(alice(), 150.into());
+        assert_eq!(150, contract.get_balance(alice()).0);
+        context.predecessor_account_id = alice();
+        testing_env!(context.clone());
+        let hash_string = "QmZeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4z".to_owned();
+        let hash_string2 = hash_string.clone();
+        contract.create_profile(hash_string);
+        let profile_hash = contract.get_profile_hash();
+        assert_eq!(hash_string2, profile_hash);
+        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
+        let product = contract.get_product(1);
+        assert_eq!(
+            "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            product.product_details_hash
+        );
+        contract.create_review(
+            1,
+            "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+        );
+        
+        let (contract, context) = create_a_user(
+            "juror1".to_owned(),
+            carol(),
+            "juror1######XXXXX".to_owned(),
+            contract,
+            context,
+        );
+        let (contract, context) = create_a_user(
+            "juror2".to_owned(),
+            carol(),
+            "juror2######XXXXX".to_owned(),
+            contract,
+            context,
+        );
+        let (contract, context) = create_a_user(
+            "juror3".to_owned(),
+            carol(),
+            "juror3######XXXXX".to_owned(),
+            contract,
+            context,
+        );
+        let (contract, context) = create_a_user(
+            "juror4".to_owned(),
+            carol(),
+            "juror4######XXXXX".to_owned(),
+            contract,
+            context,
+        );
+        let (contract, context) = create_a_user(
+            "juror5".to_owned(),
+            carol(),
+            "juror5######XXXXX".to_owned(),
+            contract,
+            context,
+        );
+
+        let (contract, context) = apply_jurors_for_test_function(
+            1,
+            "juror1".to_owned(),
+            60,
+            contract,
+            context.clone(),
+        );
+        let (contract, context) = apply_jurors_for_test_function(
+            1,
+            "juror2".to_owned(),
+            40,
+            contract,
+            context.clone(),
+        );
+        let (contract, context) = apply_jurors_for_test_function(
+            1,
+            "juror3".to_owned(),
+            30,
+            contract,
+            context.clone(),
+        );
+        let (contract, context) = apply_jurors_for_test_function(
+            1,
+            "juror4".to_owned(),
+            20,
+            contract,
+            context.clone(),
+        );
+        let (mut contract, mut context) = apply_jurors_for_test_function(
+            1,
+            "juror5".to_owned(),
+            20,
+            contract,
+            context.clone(),
+        );
+
+        context.random_seed = rand_vector();
+        testing_env!(context.clone());
+        contract.draw_jurors(1);
+        let jurylist = contract.get_selected_jurors(1);
+        let four = jurylist.contains(&4);
+        println!("{:?}", four);
+        let two = jurylist.contains(&2);
+        println!("{:?}", two);
+        let three = jurylist.contains(&3);
+        println!("{:?}", three);
+        let seven = jurylist.contains(&7);
+        println!("{:?}", seven);
+        let five = jurylist.contains(&5);
+        println!("{:?}", five);
+        let six = jurylist.contains(&6);
+        println!("{:?}", six);
+        let ten = jurylist.contains(&10);
+        println!("{:?}", ten);
     }
 }
