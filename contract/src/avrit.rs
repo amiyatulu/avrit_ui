@@ -1,5 +1,5 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap, TreeMap, UnorderedMap, UnorderedSet, Vector, LookupSet};
+use near_sdk::collections::{LookupMap, LookupSet, TreeMap, UnorderedMap, UnorderedSet, Vector};
 use near_sdk::json_types::U128;
 use near_sdk::{env, near_bindgen, AccountId, Balance, Promise, StorageUsage};
 
@@ -24,6 +24,7 @@ pub struct Avrit {
     // Map(ProductId, Product)
     // Map(ProductId, Set(ReviewId))
     // Map(ReviewId, Review)
+    owner_id: AccountId,
     user_id: u128,
     product_id: u128,
     review_id: u128,
@@ -50,6 +51,24 @@ pub struct Avrit {
 
     /// Total supply of the all token.
     total_supply: Balance,
+}
+
+#[near_bindgen]
+impl Avrit {
+    pub fn assert_owner(&self) {
+        assert_eq!(
+            env::predecessor_account_id(),
+            self.owner_id,
+            "Can only be called by the owner"
+        );
+    }
+    pub fn change_owner(&mut self, new_owner: AccountId) {
+        self.assert_owner();
+        self.owner_id = new_owner;
+    }
+    pub fn get_owner(&self) -> AccountId {
+        self.owner_id.clone()
+    }
 }
 
 #[near_bindgen]
@@ -318,6 +337,7 @@ impl Avrit {
         let mut ft = Self {
             accounts: UnorderedMap::new(b"2d965fc1-874a-4240-a328-9c3c4b00be2a".to_vec()),
             total_supply,
+            owner_id: owner_id.clone(),
             user_id: 0,
             product_id: 0,
             review_id: 0,
@@ -334,7 +354,9 @@ impl Avrit {
             product_check_bounty_vector_ucount: 0,
             review_check_bounty_vector_ucount: 0,
             user_juror_stakes: LookupMap::new(b"e56291ef-2806-4298-8646-054d5d116a70".to_vec()),
-            user_juror_stakes_clone: LookupMap::new(b"4e74c845-0608-4c55-af1e-86eb8bf01687".to_vec()),
+            user_juror_stakes_clone: LookupMap::new(
+                b"4e74c845-0608-4c55-af1e-86eb8bf01687".to_vec(),
+            ),
             juror_stake_unique_id: 0,
             selected_juror: LookupMap::new(b"89390257-80c2-446a-bc21-fac4885250ee".to_vec()),
         };

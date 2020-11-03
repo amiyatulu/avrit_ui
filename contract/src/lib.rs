@@ -31,7 +31,6 @@ mod tests {
         return result;
     }
 
-
     fn alice() -> AccountId {
         "alice.near".to_string()
     }
@@ -331,6 +330,22 @@ mod tests {
     }
 
     #[test]
+    fn test_admin() {
+        let mut context = get_context(carol());
+        testing_env!(context.clone());
+        let total_supply = 1_000_000_000_000_000u128;
+        let mut contract = Avrit::new(bob(), total_supply.into());
+        let owner = contract.get_owner();
+        assert_eq!(owner, bob());
+        context.predecessor_account_id = bob();
+        testing_env!(context.clone());
+        contract.assert_owner();
+        contract.change_owner(alice());
+        let owner2 = contract.get_owner();
+        assert_eq!(owner2, alice());
+    }
+
+    #[test]
     fn profile() {
         let context = get_context(carol());
         testing_env!(context);
@@ -459,7 +474,7 @@ mod tests {
         contract.create_profile(profilehash);
         context.predecessor_account_id = predecessoraccountid;
         testing_env!(context.clone());
-        context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;        
+        context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
         contract.transfer(username, 150.into());
         (contract, context)
     }
@@ -479,7 +494,6 @@ mod tests {
 
     #[test]
     fn draw_juror() {
-
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
@@ -505,7 +519,6 @@ mod tests {
             1,
             "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
         );
-        
         let (contract, context) = create_a_user(
             "juror1".to_owned(),
             carol(),
@@ -542,41 +555,16 @@ mod tests {
             context,
         );
 
-        let (contract, context) = apply_jurors_for_test_function(
-            1,
-            "juror1".to_owned(),
-            60,
-            contract,
-            context.clone(),
-        );
-        let (contract, context) = apply_jurors_for_test_function(
-            1,
-            "juror2".to_owned(),
-            40,
-            contract,
-            context.clone(),
-        );
-        let (contract, context) = apply_jurors_for_test_function(
-            1,
-            "juror3".to_owned(),
-            30,
-            contract,
-            context.clone(),
-        );
-        let (contract, context) = apply_jurors_for_test_function(
-            1,
-            "juror4".to_owned(),
-            20,
-            contract,
-            context.clone(),
-        );
-        let (mut contract, mut context) = apply_jurors_for_test_function(
-            1,
-            "juror5".to_owned(),
-            20,
-            contract,
-            context.clone(),
-        );
+        let (contract, context) =
+            apply_jurors_for_test_function(1, "juror1".to_owned(), 60, contract, context.clone());
+        let (contract, context) =
+            apply_jurors_for_test_function(1, "juror2".to_owned(), 40, contract, context.clone());
+        let (contract, context) =
+            apply_jurors_for_test_function(1, "juror3".to_owned(), 30, contract, context.clone());
+        let (contract, context) =
+            apply_jurors_for_test_function(1, "juror4".to_owned(), 20, contract, context.clone());
+        let (mut contract, mut context) =
+            apply_jurors_for_test_function(1, "juror5".to_owned(), 20, contract, context.clone());
 
         context.random_seed = rand_vector();
         testing_env!(context.clone());
