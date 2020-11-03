@@ -568,7 +568,11 @@ mod tests {
 
         context.random_seed = rand_vector();
         testing_env!(context.clone());
-        contract.draw_jurors(1);
+        context.predecessor_account_id = carol();
+        testing_env!(context.clone());
+        contract.set_jury_count(3);
+        contract.draw_jurors(1, 2);
+        contract.draw_jurors(1, 5);
         let jurylist = contract.get_selected_jurors(1);
         let four = jurylist.contains(&4);
         println!("{:?}", four);
