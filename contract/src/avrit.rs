@@ -41,13 +41,15 @@ pub struct Avrit {
     juror_stake_unique_id: u128,
     selected_juror_count: LookupMap<u128, u64>, // <review_id, selected_juror_count>
     selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>
-    // Fungible Token
+    juror_selection_time: LookupMap<u128, u64>,
     product_id_set_ucount: u128,
     review_id_set_ucount: u128,
     product_check_bounty_vector_ucount: u128,
     review_check_bounty_vector_ucount: u128,
     jury_count: u64,
-    commit_phase_time: u128, // Commit phase time in seconds
+    commit_phase_time: u64, // Commit phase time in seconds
+
+    // Fungible Token
     /// sha256(AccountID) -> Account details.
     accounts: UnorderedMap<Vec<u8>, Account>,
 
@@ -72,7 +74,7 @@ impl Avrit {
     pub fn get_owner(&self) -> AccountId {
         self.owner_id.clone()
     }
-    pub fn set_commit_phase_time(&mut self, time_in_secs: u128) {
+    pub fn set_commit_phase_time(&mut self, time_in_secs: u64) {
         self.assert_owner();
         self.commit_phase_time = time_in_secs;
     }
@@ -373,6 +375,7 @@ impl Avrit {
             jury_count: 20,
             commit_phase_time: 2592000, // 30 days in secs
             selected_juror_count: LookupMap::new(b"532caf99-c5e5-4be5-8e23-802388aa86d5".to_vec()),
+            juror_selection_time: LookupMap::new(b"5942be3d-b37f-4cb0-afaa-9ec8a831df00".to_vec()),
         };
         let mut account = ft.get_account(&owner_id);
         account.balance = total_supply;

@@ -13,6 +13,12 @@ mod tests {
     use near_sdk::MockedBlockchain;
     use near_sdk::{env, testing_env, AccountId, Balance, VMContext};
     use rand::Rng;
+    use chrono::{DateTime, Utc};
+
+    fn get_timestamp() -> u64 {
+        let now: DateTime<Utc> = Utc::now();
+        now.timestamp() as u64
+    }
 
     fn rand_vector() -> Vec<u8> {
         let mut rng = rand::thread_rng();
@@ -567,12 +573,15 @@ mod tests {
             apply_jurors_for_test_function(1, "juror5".to_owned(), 20, contract, context.clone());
 
         context.random_seed = rand_vector();
-        testing_env!(context.clone());
         context.predecessor_account_id = carol();
+        context.block_timestamp = get_timestamp();
         testing_env!(context.clone());
-        contract.set_jury_count(3);
-        contract.draw_jurors(1, 2);
-        contract.draw_jurors(1, 5);
+        contract.set_jury_count(4);
+        contract.draw_jurors(1, 4);
+        // contract.draw_jurors(1, 5);
+
+        let time = contract.get_juror_selection_time(&1);
+        println!(">>>>>>time{}<<<<<<<<<", time);
         let jurylist = contract.get_selected_jurors(1);
         let four = jurylist.contains(&4);
         println!("{:?}", four);
