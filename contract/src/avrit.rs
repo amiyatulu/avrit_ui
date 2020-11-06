@@ -48,6 +48,7 @@ pub struct Avrit {
     review_check_bounty_vector_ucount: u128,
     jury_count: u64,
     commit_phase_time: u64, // Commit phase time in seconds
+    voter_status: LookupMap<u128, LookupMap<String, bool>>, // review_id, vote_commit, bool true if commited, bool false if revealed
 
     // Fungible Token
     /// sha256(AccountID) -> Account details.
@@ -376,6 +377,7 @@ impl Avrit {
             commit_phase_time: 2592000, // 30 days in secs
             selected_juror_count: LookupMap::new(b"532caf99-c5e5-4be5-8e23-802388aa86d5".to_vec()),
             juror_selection_time: LookupMap::new(b"5942be3d-b37f-4cb0-afaa-9ec8a831df00".to_vec()),
+            voter_status: LookupMap::new(b"a11fe88d-be47-4709-8a54-58da79218c3e".to_vec()),
         };
         let mut account = ft.get_account(&owner_id);
         account.balance = total_supply;
