@@ -10,10 +10,11 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 mod tests {
     use super::*;
     use avrit::{Avrit, STORAGE_PRICE_PER_BYTE};
+    use chrono::{DateTime, Utc};
     use near_sdk::MockedBlockchain;
     use near_sdk::{env, testing_env, AccountId, Balance, VMContext};
     use rand::Rng;
-    use chrono::{DateTime, Utc};
+    use sha3::{Digest, Keccak256};
 
     fn get_timestamp() -> u64 {
         let now: DateTime<Utc> = Utc::now();
@@ -498,8 +499,7 @@ mod tests {
         (contract, context)
     }
 
-    #[test]
-    fn draw_juror() {
+    fn draw_juror_function() -> (Avrit, VMContext) {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
@@ -576,9 +576,15 @@ mod tests {
         context.predecessor_account_id = carol();
         context.block_timestamp = get_timestamp();
         testing_env!(context.clone());
-        contract.set_jury_count(4);
-        contract.draw_jurors(1, 4);
+        contract.set_jury_count(5);
+        contract.draw_jurors(1, 5);
+        (contract, context)
+    }
+
+    #[test]
+    fn test_draw_juror() {
         // contract.draw_jurors(1, 5);
+        let (contract, _context) = draw_juror_function();
 
         let time = contract.get_juror_selection_time(&1);
         println!(">>>>>>time{}<<<<<<<<<", time);
@@ -597,5 +603,42 @@ mod tests {
         println!("{:?}", six);
         let ten = jurylist.contains(&10);
         println!("{:?}", ten);
+    }
+
+    fn commit_votes_function(mut contract: Avrit,
+        mut context: VMContext, vote:String, predecessor_account: AccountId, reviewer_id: u128 ) -> (Avrit, VMContext) {
+        let mut hasher = Keccak256::new();
+        hasher.update(vote.as_bytes());
+        let result = hasher.finalize();
+        let commit = format!("{:x}", result);
+        context.block_timestamp = get_timestamp();
+        context.predecessor_account_id = predecessor_account;
+        testing_env!(context.clone());
+        contract.commit_vote(reviewer_id, commit);
+        (contract, context)
+    } 
+
+    #[test]
+    #[should_panic(expected = "You are not juror of the review")]
+    fn test_not_a_juror_commit_vote() {
+        let (contract, context) = draw_juror_function();
+        let (contract, context) = commit_votes_function(contract,context, "1password".to_owned(), "juror1".to_owned(), 1);
+        let (_contract, _context) = commit_votes_function(contract,context, "1password".to_owned(), alice(), 1);
+    }
+
+    #[test]
+    #[should_panic(expected = "This vote is already commited")]
+    fn test_two_same_commit_vote() {
+        let (contract, context) = draw_juror_function();
+        let (contract, context) = commit_votes_function(contract,context, "1password".to_owned(), "juror1".to_owned(), 1);
+        let (_contract, _context) = commit_votes_function(contract,context, "1password".to_owned(), "juror2".to_owned(), 1);
+    }
+
+    #[test]
+    #[should_panic(expected = "Voter has already commited")]
+    fn test_same_juror_commit_vote() {
+        let (contract, context) = draw_juror_function();
+        let (contract, context) = commit_votes_function(contract,context, "1password".to_owned(), "juror1".to_owned(), 1);
+        let (_contract, _context) = commit_votes_function(contract,context, "1password".to_owned(), "juror1".to_owned(), 1);
     }
 }

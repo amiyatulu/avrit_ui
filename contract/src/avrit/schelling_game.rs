@@ -228,6 +228,8 @@ impl Avrit {
     }
 
     pub fn commit_vote(&mut self, review_id: u128, vote_commit: String) {
+        let account_id = env::predecessor_account_id();
+        let user_id = self.get_user_id(&account_id);
         let timestamp = env::block_timestamp();
         let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
         // println!("{}, now2", naive_now);
@@ -239,31 +241,69 @@ impl Avrit {
         if naive_now > endtime {
             panic!("Commiting time has ended");
         }
-        self.can_juror_vote(review_id);
-        let mut vote_commit_all = self.get_vote_status(review_id);
+        self.can_juror_vote(review_id, user_id);
+        self.add_juror_voting_status(review_id, user_id);
+        let mut vote_commit_all = self.get_vote_commits_lookup(review_id);
         let votecommit = vote_commit_all.get(&vote_commit);
         match votecommit {
-            Some(_commit) => panic!("vote commit is already done"),
+            Some(_commit) => panic!("This vote is already commited"),
             None => {
-                vote_commit_all.insert(&vote_commit, &true);
-                self.voter_status.insert(&review_id, &vote_commit_all);
+                vote_commit_all.insert(&vote_commit, &1);
+                self.voter_commit.insert(&review_id, &vote_commit_all);
+            }
+        }
+
+    }
+    fn add_juror_voting_status(&mut self,review_id: u128, user_id: u128 ) {
+        let juror_voting_status_option = self.juror_voting_status.get(&review_id);
+        match juror_voting_status_option {
+            Some(mut juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 1 || value == 2 {
+                            panic!("Voter has already commited");
+                        } else {
+                            panic!("Not at valid voter status");
+                        }
+                    }
+                    None => {
+                        juror_voting_status_lookup.insert(&user_id, &1);
+                        self.juror_voting_status
+                            .insert(&review_id, &juror_voting_status_lookup);
+                    }
+                }
+            }
+            None => {
+                let votestatusstring = format!("juror_voting_status{}uniqueid", review_id);
+                let votestatusid = votestatusstring.to_string().into_bytes();
+                let mut votestatus_lookup = LookupMap::new(votestatusid);
+                votestatus_lookup.insert(&user_id, &1);
+                self.juror_voting_status
+                    .insert(&review_id, &votestatus_lookup);
+            }
+        }
+        
+    }
+    fn get_vote_commits_lookup(&self, review_id: u128) -> LookupMap<String, u8> {
+        let vote_status_option = self.voter_commit.get(&review_id);
+        match vote_status_option {
+            Some(votecommits) => votecommits,
+            None => {
+                let votestatusstring = format!("votecommit{}uniqueid", review_id);
+                let votestatusid = votestatusstring.to_string().into_bytes();
+                let votecommits = LookupMap::new(votestatusid);
+                votecommits
             }
         }
     }
-    pub fn get_vote_status(&self, review_id: u128) -> LookupMap<String, bool> {
-        let vote_status_option = self.voter_status.get(&review_id);
-        match vote_status_option {
-            Some(votecommits) => votecommits,
-            None => panic!("Review id not found"),
-        }
-    }
-    pub fn can_juror_vote(&self, review_id: u128) {
-        let account_id = env::predecessor_account_id();
-        let user_id = self.get_user_id(&account_id);
+    pub fn can_juror_vote(&self, review_id: u128, user_id: u128) {
         let selected_juror_option = self.selected_juror.get(&review_id);
         match selected_juror_option {
             Some(jurysetentries) => {
                 let juryexists = jurysetentries.contains(&user_id);
+                // if user id exists in selected_juror (<review_id, juror_id_set>) it will
+                // return true else false, look at the contains
                 if juryexists == false {
                     panic!("You are not juror of the review");
                 }
@@ -274,6 +314,8 @@ impl Avrit {
         }
     }
     pub fn reveal_vote(&mut self, review_id: u128, vote: String, vote_commit: String) {
+        let account_id = env::predecessor_account_id();
+        let user_id = self.get_user_id(&account_id);
         let timestamp = env::block_timestamp();
         let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
         let timestamp_juror_selection_time = self.get_juror_selection_time(&review_id);
@@ -284,20 +326,20 @@ impl Avrit {
         if naive_now < endtime {
             panic!("Commiting time has not ended");
         }
-        let user_id = self.get_user_id(&env::predecessor_account_id());
         // Also add reveal phase time, when the reveal time ends
 
-        self.can_juror_vote(review_id);
-        let vote_commit_all = self.get_vote_status(review_id);
+        self.can_juror_vote(review_id, user_id);
+        let vote_commit_all = self.get_vote_commits_lookup(review_id);
         let votecommit = vote_commit_all.get(&vote_commit);
+
         match votecommit {
-            Some(commit) => {
-                if commit == false {
+            Some(commitstatus) => {
+                if commitstatus == 2 {
                     panic!("The vote has be already revealed and added");
                 }
             }
             None => {
-                panic!("Vote withe this commit is not present");
+                panic!("Vote with this commit is not present");
             }
         }
         let mut hasher = Keccak256::new();
