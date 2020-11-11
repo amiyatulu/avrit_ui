@@ -242,7 +242,7 @@ impl Avrit {
             panic!("Commiting time has ended");
         }
         self.can_juror_vote(review_id, user_id);
-        self.add_juror_voting_status(review_id, user_id);
+        self.add_juror_voting_status_commit(review_id, user_id);
         let mut vote_commit_all = self.get_vote_commits_lookup(review_id);
         let votecommit = vote_commit_all.get(&vote_commit);
         match votecommit {
@@ -252,9 +252,8 @@ impl Avrit {
                 self.voter_commit.insert(&review_id, &vote_commit_all);
             }
         }
-
     }
-    fn add_juror_voting_status(&mut self,review_id: u128, user_id: u128 ) {
+    fn add_juror_voting_status_commit(&mut self, review_id: u128, user_id: u128) {
         let juror_voting_status_option = self.juror_voting_status.get(&review_id);
         match juror_voting_status_option {
             Some(mut juror_voting_status_lookup) => {
@@ -283,7 +282,6 @@ impl Avrit {
                     .insert(&review_id, &votestatus_lookup);
             }
         }
-        
     }
     fn get_vote_commits_lookup(&self, review_id: u128) -> LookupMap<String, u8> {
         let vote_status_option = self.voter_commit.get(&review_id);
@@ -323,12 +321,16 @@ impl Avrit {
             NaiveDateTime::from_timestamp(timestamp_juror_selection_time as i64, 0);
         let seconds = Duration::seconds(self.commit_phase_time as i64);
         let endtime = native_juror_selection_time + seconds;
+        let reveal_end_seconds = Duration::seconds(self.reveal_phase_time as i64);
+        let reveal_endtime = native_juror_selection_time + seconds + reveal_end_seconds;
         if naive_now < endtime {
             panic!("Commiting time has not ended");
         }
-        // Also add reveal phase time, when the reveal time ends
-
+        if naive_now > reveal_endtime {
+            panic!("Reveal time has ended"); // reveal phase time, when the reveal time ends
+        }
         self.can_juror_vote(review_id, user_id);
+        self.add_juror_voting_status_reveal(review_id, user_id);
         let vote_commit_all = self.get_vote_commits_lookup(review_id);
         let votecommit = vote_commit_all.get(&vote_commit);
 
@@ -395,6 +397,34 @@ impl Avrit {
         }
     }
 
+    fn add_juror_voting_status_reveal(&mut self, review_id: u128, user_id: u128) {
+        let juror_voting_status_option = self.juror_voting_status.get(&review_id);
+        match juror_voting_status_option {
+            Some(mut juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 2 {
+                            panic!("Voter has already revealed");
+                        } else if value == 1 {
+                            juror_voting_status_lookup.insert(&user_id, &2);
+                            self.juror_voting_status
+                                .insert(&review_id, &juror_voting_status_lookup);
+                        } else {
+                            panic!("Not at valid voter status");
+                        }
+                    }
+                    None => {
+                        panic!("Voting status doesnot exists, commit the vote first.");
+                    }
+                }
+            }
+            None => {
+                panic!("Voting status lookup doesnot exists, commit the vote first.");
+            }
+        }
+    }
+
     fn add_true_or_false_count(&mut self, review_id: u128, value: u8) {
         if value == 0 {
             let schelling_decision_false_count_option =
@@ -422,6 +452,26 @@ impl Avrit {
                 None => {
                     self.schelling_decision_true_count.insert(&review_id, &0);
                 }
+            }
+        }
+    }
+
+    pub fn get_true_count(self, review_id: u128) -> u128 {
+        let count_option = self.schelling_decision_true_count.get(&review_id);
+        match count_option {
+            Some(count) => count,
+            None => {
+                panic!("Count is not set");
+            }
+        }
+    }
+
+    pub fn get_false_count(self, review_id: u128) -> u128 {
+        let count_option = self.schelling_decision_false_count.get(&review_id);
+        match count_option {
+            Some(count) => count,
+            None => {
+                panic!("Count is not set");
             }
         }
     }

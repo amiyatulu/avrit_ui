@@ -641,4 +641,15 @@ mod tests {
         let (contract, context) = commit_votes_function(contract,context, "1password".to_owned(), "juror1".to_owned(), 1);
         let (_contract, _context) = commit_votes_function(contract,context, "1password".to_owned(), "juror1".to_owned(), 1);
     }
+
+    #[test]
+    fn test_vote_commit() {
+        let (contract, context) = draw_juror_function();
+        let (contract, context) = commit_votes_function(contract,context, "1passwordjuror1".to_owned(), "juror1".to_owned(), 1);
+        let (contract, context) = commit_votes_function(contract,context, "0passwordjuror2".to_owned(), "juror2".to_owned(), 1);
+        let (contract, context) = commit_votes_function(contract,context, "0passwordjuror3".to_owned(), "juror3".to_owned(), 1);
+        let (contract, context) = commit_votes_function(contract,context, "0passwordjuror4".to_owned(), "juror4".to_owned(), 1);
+        let (_contract, _context) = commit_votes_function(contract,context, "0passwordjuror5".to_owned(), "juror5".to_owned(), 1);
+
+    }
 }

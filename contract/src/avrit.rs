@@ -48,12 +48,12 @@ pub struct Avrit {
     review_check_bounty_vector_ucount: u128,
     jury_count: u64,
     commit_phase_time: u64, // Commit phase time in seconds
+    reveal_phase_time: u64, // Reveal phase time in seconds
     voter_commit: LookupMap<u128, LookupMap<String, u8>>, // review_id, vote_commits, 1 if commited, 2 if revealed
     juror_voting_status: LookupMap<u128, LookupMap<u128, u8>>, // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed>
     schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <reviewer_id, <jurorid, true_or_false>>
-    schelling_decision_true_count: LookupMap<u128, u128>, // <reviewer_id, true_count>
-    schelling_decision_false_count: LookupMap<u128, u128>, // <reviewer_id, false_count>
-
+    schelling_decision_true_count: LookupMap<u128, u128>,            // <reviewer_id, true_count>
+    schelling_decision_false_count: LookupMap<u128, u128>,           // <reviewer_id, false_count>
     // Fungible Token
     /// sha256(AccountID) -> Account details.
     accounts: UnorderedMap<Vec<u8>, Account>,
@@ -82,6 +82,10 @@ impl Avrit {
     pub fn set_commit_phase_time(&mut self, time_in_secs: u64) {
         self.assert_owner();
         self.commit_phase_time = time_in_secs;
+    }
+    pub fn set_reveal_phase_time(&mut self, time_in_secs: u64) {
+        self.assert_owner();
+        self.reveal_phase_time = time_in_secs;
     }
     pub fn set_jury_count(&mut self, jury_count: u64) {
         self.assert_owner();
@@ -379,13 +383,20 @@ impl Avrit {
             selected_juror: LookupMap::new(b"89390257-80c2-446a-bc21-fac4885250ee".to_vec()),
             jury_count: 20,
             commit_phase_time: 2592000, // 30 days in secs
+            reveal_phase_time: 1296000, // 15 days in secs
             selected_juror_count: LookupMap::new(b"532caf99-c5e5-4be5-8e23-802388aa86d5".to_vec()),
             juror_selection_time: LookupMap::new(b"5942be3d-b37f-4cb0-afaa-9ec8a831df00".to_vec()),
             voter_commit: LookupMap::new(b"a11fe88d-be47-4709-8a54-58da79218c3e".to_vec()),
             juror_voting_status: LookupMap::new(b"4c4879f8-096b-4201-8ce3-64141c2eebf6".to_vec()),
-            schelling_decisions_juror: LookupMap::new(b"8c7b8f85-1ba6-4a2a-83e8-3cfc07d7355e".to_vec()),
-            schelling_decision_true_count: LookupMap::new(b"4bf8d29d-aadc-4c62-89ce-fe2382197ae2".to_vec()),
-            schelling_decision_false_count: LookupMap::new(b"98396f41-606d-4cf0-b06f-2668db6f6238".to_vec()),
+            schelling_decisions_juror: LookupMap::new(
+                b"8c7b8f85-1ba6-4a2a-83e8-3cfc07d7355e".to_vec(),
+            ),
+            schelling_decision_true_count: LookupMap::new(
+                b"4bf8d29d-aadc-4c62-89ce-fe2382197ae2".to_vec(),
+            ),
+            schelling_decision_false_count: LookupMap::new(
+                b"98396f41-606d-4cf0-b06f-2668db6f6238".to_vec(),
+            ),
         };
         let mut account = ft.get_account(&owner_id);
         account.balance = total_supply;
