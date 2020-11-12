@@ -21,6 +21,11 @@ mod tests {
         now.timestamp() as u64
     }
 
+    fn get_timestamp_add(add: u64) -> u64 {
+        let now: DateTime<Utc> = Utc::now();
+        now.timestamp() as u64 + add
+    }
+
     fn rand_vector() -> Vec<u8> {
         let mut rng = rand::thread_rng();
 
@@ -605,8 +610,13 @@ mod tests {
         println!("{:?}", ten);
     }
 
-    fn commit_votes_function(mut contract: Avrit,
-        mut context: VMContext, vote:String, predecessor_account: AccountId, reviewer_id: u128 ) -> (Avrit, VMContext) {
+    fn commit_votes_function(
+        mut contract: Avrit,
+        mut context: VMContext,
+        vote: String,
+        predecessor_account: AccountId,
+        reviewer_id: u128,
+    ) -> (Avrit, VMContext) {
         let mut hasher = Keccak256::new();
         hasher.update(vote.as_bytes());
         let result = hasher.finalize();
@@ -616,40 +626,406 @@ mod tests {
         testing_env!(context.clone());
         contract.commit_vote(reviewer_id, commit);
         (contract, context)
-    } 
+    }
+
+    fn reveal_votes_function(
+        mut contract: Avrit,
+        mut context: VMContext,
+        vote: String,
+        predecessor_account: AccountId,
+        reviewer_id: u128,
+    ) -> (Avrit, VMContext) {
+        context.block_timestamp = get_timestamp_add(2592000);
+        context.predecessor_account_id = predecessor_account;
+        testing_env!(context.clone());
+        let mut hasher = Keccak256::new();
+        hasher.update(vote.as_bytes());
+        let result = hasher.finalize();
+        let commit = format!("{:x}", result);
+        contract.reveal_vote(reviewer_id, vote, commit.clone());
+        (contract, context)
+    }
 
     #[test]
     #[should_panic(expected = "You are not juror of the review")]
     fn test_not_a_juror_commit_vote() {
         let (contract, context) = draw_juror_function();
-        let (contract, context) = commit_votes_function(contract,context, "1password".to_owned(), "juror1".to_owned(), 1);
-        let (_contract, _context) = commit_votes_function(contract,context, "1password".to_owned(), alice(), 1);
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1password".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (_contract, _context) =
+            commit_votes_function(contract, context, "1password".to_owned(), alice(), 1);
     }
 
     #[test]
     #[should_panic(expected = "This vote is already commited")]
     fn test_two_same_commit_vote() {
         let (contract, context) = draw_juror_function();
-        let (contract, context) = commit_votes_function(contract,context, "1password".to_owned(), "juror1".to_owned(), 1);
-        let (_contract, _context) = commit_votes_function(contract,context, "1password".to_owned(), "juror2".to_owned(), 1);
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1password".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (_contract, _context) = commit_votes_function(
+            contract,
+            context,
+            "1password".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
     }
 
     #[test]
     #[should_panic(expected = "Voter has already commited")]
     fn test_same_juror_commit_vote() {
         let (contract, context) = draw_juror_function();
-        let (contract, context) = commit_votes_function(contract,context, "1password".to_owned(), "juror1".to_owned(), 1);
-        let (_contract, _context) = commit_votes_function(contract,context, "1password".to_owned(), "juror1".to_owned(), 1);
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1password".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (_contract, _context) = commit_votes_function(
+            contract,
+            context,
+            "1password".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
     }
 
     #[test]
     fn test_vote_commit() {
         let (contract, context) = draw_juror_function();
-        let (contract, context) = commit_votes_function(contract,context, "1passwordjuror1".to_owned(), "juror1".to_owned(), 1);
-        let (contract, context) = commit_votes_function(contract,context, "0passwordjuror2".to_owned(), "juror2".to_owned(), 1);
-        let (contract, context) = commit_votes_function(contract,context, "0passwordjuror3".to_owned(), "juror3".to_owned(), 1);
-        let (contract, context) = commit_votes_function(contract,context, "0passwordjuror4".to_owned(), "juror4".to_owned(), 1);
-        let (_contract, _context) = commit_votes_function(contract,context, "0passwordjuror5".to_owned(), "juror5".to_owned(), 1);
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror2".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror3".to_owned(),
+            "juror3".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror4".to_owned(),
+            "juror4".to_owned(),
+            1,
+        );
+        let (_contract, _context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror5".to_owned(),
+            "juror5".to_owned(),
+            1,
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "Vote with this commit is not present")]
+    fn test_vote_reveal_not_present() {
+        let (contract, context) = draw_juror_function();
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror2".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror3".to_owned(),
+            "juror3".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror4".to_owned(),
+            "juror4".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror5".to_owned(),
+            "juror5".to_owned(),
+            1,
+        );
+        let (_contract, _context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "You are not juror of the review")]
+    fn test_vote_reveal_not_juror() {
+        let (contract, context) = draw_juror_function();
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror2".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror3".to_owned(),
+            "juror3".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror4".to_owned(),
+            "juror4".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror5".to_owned(),
+            "juror5".to_owned(),
+            1,
+        );
+        let (_contract, _context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            alice(),
+            1,
+        );
+    }
+    #[test]
+    #[should_panic(expected = "The juror has already been revealed a vote.")]
+    fn test_vote_reveal_again() {
+        let (contract, context) = draw_juror_function();
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror2".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror3".to_owned(),
+            "juror3".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror4".to_owned(),
+            "juror4".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror5".to_owned(),
+            "juror5".to_owned(),
+            1,
+        );
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (_contract, _context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+    }
+
+    #[test]
+    
+    #[should_panic(expected = "The vote has be already revealed and added.")]
+    fn test_vote_reveal_already() {
+        let (contract, context) = draw_juror_function();
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror2".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror3".to_owned(),
+            "juror3".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror4".to_owned(),
+            "juror4".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror5".to_owned(),
+            "juror5".to_owned(),
+            1,
+        );
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (_contract, _context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+    }
+
+    #[test]
+    
+    fn test_vote_reveal() {
+        let (contract, context) = draw_juror_function();
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror2".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror3".to_owned(),
+            "juror3".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror4".to_owned(),
+            "juror4".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror5".to_owned(),
+            "juror5".to_owned(),
+            1,
+        );
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror2".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "0passwordjuror3".to_owned(),
+            "juror3".to_owned(),
+            1,
+        );
+
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "0passwordjuror4".to_owned(),
+            "juror4".to_owned(),
+            1,
+        );
+        let (contract, _context) = reveal_votes_function(
+            contract,
+            context,
+            "0passwordjuror5".to_owned(),
+            "juror5".to_owned(),
+            1,
+        );
+        let data_true = contract.get_true_count(1);
+        assert_eq!(data_true, 2);
+        let data_false = contract.get_false_count(1);
+        assert_eq!(data_false, 3);
 
     }
 }

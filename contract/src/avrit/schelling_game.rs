@@ -243,7 +243,7 @@ impl Avrit {
         }
         self.can_juror_vote(review_id, user_id);
         self.add_juror_voting_status_commit(review_id, user_id);
-        let mut vote_commit_all = self.get_vote_commits_lookup(review_id);
+        let mut vote_commit_all = self.get_voter_commits_lookup(review_id);
         let votecommit = vote_commit_all.get(&vote_commit);
         match votecommit {
             Some(_commit) => panic!("This vote is already commited"),
@@ -283,7 +283,7 @@ impl Avrit {
             }
         }
     }
-    fn get_vote_commits_lookup(&self, review_id: u128) -> LookupMap<String, u8> {
+    fn get_voter_commits_lookup(&self, review_id: u128) -> LookupMap<String, u8> {
         let vote_status_option = self.voter_commit.get(&review_id);
         match vote_status_option {
             Some(votecommits) => votecommits,
@@ -331,13 +331,16 @@ impl Avrit {
         }
         self.can_juror_vote(review_id, user_id);
         self.add_juror_voting_status_reveal(review_id, user_id);
-        let vote_commit_all = self.get_vote_commits_lookup(review_id);
+        let mut vote_commit_all = self.get_voter_commits_in_reveal(review_id);
         let votecommit = vote_commit_all.get(&vote_commit);
 
         match votecommit {
             Some(commitstatus) => {
                 if commitstatus == 2 {
-                    panic!("The vote has be already revealed and added");
+                    panic!("The vote has be already revealed and added.");
+                } else if commitstatus == 1 {
+                    vote_commit_all.insert(&vote_commit, &2);
+                    self.voter_commit.insert(&review_id, &vote_commit_all);
                 }
             }
             None => {
@@ -397,6 +400,16 @@ impl Avrit {
         }
     }
 
+    fn get_voter_commits_in_reveal(&self, review_id: u128) -> LookupMap<String, u8> {
+        let vote_status_option = self.voter_commit.get(&review_id);
+        match vote_status_option {
+            Some(votecommits) => votecommits,
+            None => {
+                panic!("Voter commit doesnot exist for review_id");
+            }
+        }
+    }
+
     fn add_juror_voting_status_reveal(&mut self, review_id: u128, user_id: u128) {
         let juror_voting_status_option = self.juror_voting_status.get(&review_id);
         match juror_voting_status_option {
@@ -405,7 +418,7 @@ impl Avrit {
                 match juror_voting_status_lookup_option {
                     Some(value) => {
                         if value == 2 {
-                            panic!("Voter has already revealed");
+                            panic!("The juror has already been revealed a vote.");
                         } else if value == 1 {
                             juror_voting_status_lookup.insert(&user_id, &2);
                             self.juror_voting_status
@@ -436,7 +449,7 @@ impl Avrit {
                         .insert(&review_id, &count);
                 }
                 None => {
-                    self.schelling_decision_false_count.insert(&review_id, &0);
+                    self.schelling_decision_false_count.insert(&review_id, &1);
                 }
             }
         }
@@ -450,13 +463,13 @@ impl Avrit {
                         .insert(&review_id, &count);
                 }
                 None => {
-                    self.schelling_decision_true_count.insert(&review_id, &0);
+                    self.schelling_decision_true_count.insert(&review_id, &1);
                 }
             }
         }
     }
 
-    pub fn get_true_count(self, review_id: u128) -> u128 {
+    pub fn get_true_count(&self, review_id: u128) -> u128 {
         let count_option = self.schelling_decision_true_count.get(&review_id);
         match count_option {
             Some(count) => count,
@@ -466,7 +479,7 @@ impl Avrit {
         }
     }
 
-    pub fn get_false_count(self, review_id: u128) -> u128 {
+    pub fn get_false_count(&self, review_id: u128) -> u128 {
         let count_option = self.schelling_decision_false_count.get(&review_id);
         match count_option {
             Some(count) => count,
