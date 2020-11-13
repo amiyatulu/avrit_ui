@@ -488,4 +488,28 @@ impl Avrit {
             }
         }
     }
+    pub fn get_winning_decision(&self, review_id: u128) -> u8 {
+        let timestamp = env::block_timestamp();
+        let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
+        let timestamp_juror_selection_time = self.get_juror_selection_time(&review_id);
+        let native_juror_selection_time =
+            NaiveDateTime::from_timestamp(timestamp_juror_selection_time as i64, 0);
+        let seconds = Duration::seconds(self.commit_phase_time as i64);
+        let reveal_end_seconds = Duration::seconds(self.reveal_phase_time as i64);
+        let reveal_endtime = native_juror_selection_time + seconds + reveal_end_seconds;
+        if naive_now < reveal_endtime {
+            panic!("Reveal time has not yet ended."); // when the reveal time ends
+        }
+        let truecount = self.get_true_count(review_id);
+        let falsecount = self.get_false_count(review_id);
+        if truecount > falsecount {
+            1
+        } else if falsecount > truecount {
+            0
+        } else if falsecount == truecount {
+            2
+        } else {
+            3
+        }
+    }
 }

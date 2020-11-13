@@ -12,6 +12,7 @@ pub mod schelling_game;
 /// Price per 1 byte of storage from mainnet genesis config.
 pub const STORAGE_PRICE_PER_BYTE: Balance = 100000000000000000000;
 
+
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Avrit {

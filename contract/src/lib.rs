@@ -1028,4 +1028,90 @@ mod tests {
         assert_eq!(data_false, 3);
 
     }
+
+    #[test]
+    fn test_winning_decisions() {
+
+        let (contract, context) = draw_juror_function();
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror2".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror3".to_owned(),
+            "juror3".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror4".to_owned(),
+            "juror4".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror5".to_owned(),
+            "juror5".to_owned(),
+            1,
+        );
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror2".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "0passwordjuror3".to_owned(),
+            "juror3".to_owned(),
+            1,
+        );
+
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "0passwordjuror4".to_owned(),
+            "juror4".to_owned(),
+            1,
+        );
+        let (contract, mut context) = reveal_votes_function(
+            contract,
+            context,
+            "0passwordjuror5".to_owned(),
+            "juror5".to_owned(),
+            1,
+        );
+        let data_true = contract.get_true_count(1);
+        assert_eq!(data_true, 2);
+        let data_false = contract.get_false_count(1);
+        assert_eq!(data_false, 3);
+        context.block_timestamp = get_timestamp_add(2592000+1296001);
+        testing_env!(context.clone());
+        let winingdecision = contract.get_winning_decision(1);
+        assert_eq!(0, winingdecision);
+
+    }
 }
