@@ -531,6 +531,7 @@ impl Avrit {
                         }
                         // else if winning_decision == 2{   }
                         else if decision != winning_decision && winning_decision != 3 {
+                            self.add_juror_voting_status_got_incentives(review_id, user_id);
                             let mut mint_value = (juror_stake as f64).sqrt() as u128 + 1;
                             if mint_value < self.jury_incentives {
                                 mint_value = juror_stake;
