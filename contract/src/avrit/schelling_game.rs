@@ -512,4 +512,70 @@ impl Avrit {
             3
         }
     }
+
+    pub fn incentives_distribution(&mut self, review_id: u128) {
+        let account_id = env::predecessor_account_id();
+        let user_id = self.get_user_id(&account_id);
+        let winning_decision = self.get_winning_decision(review_id);
+        let juror_stake = self.get_juror_stakes(review_id, user_id);
+        let schelling_decisions_juror_option = self.schelling_decisions_juror.get(&review_id);
+        match schelling_decisions_juror_option {
+            Some(decisionlookup) => {
+                let decisionlookup_option = decisionlookup.get(&user_id);
+                match decisionlookup_option {
+                    Some(decision) => {
+                        if decision == winning_decision {
+                            let mint_value = juror_stake + self.jury_incentives;
+                            self.add_juror_voting_status_got_incentives(review_id, user_id);
+                            self.mint(&account_id, mint_value);
+                        }
+                        // else if winning_decision == 2{   }
+                        else if decision != winning_decision && winning_decision != 3 {
+                            let mut mint_value = (juror_stake as f64).sqrt() as u128 + 1;
+                            if mint_value < self.jury_incentives {
+                                mint_value = juror_stake;
+                            }
+                            self.mint(&account_id, mint_value);
+                        }
+                    }
+                    None => {
+                        panic!("Decision doesnot exists for the user id");
+                    }
+                }
+            }
+            None => {
+                panic!("Juror decisions don't exist for this review id.");
+            }
+        }
+    }
+
+    fn add_juror_voting_status_got_incentives(&mut self, review_id: u128, user_id: u128) {
+        let juror_voting_status_option = self.juror_voting_status.get(&review_id);
+        match juror_voting_status_option {
+            Some(mut juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 3 {
+                            panic!("Juror already got the incentives");
+                        } else if value == 2 {
+                            juror_voting_status_lookup.insert(&user_id, &3);
+                            self.juror_voting_status
+                                .insert(&review_id, &juror_voting_status_lookup);
+                        } else if value == 1 {
+                            panic!("You have not yet revealed the vote");
+                        } else {
+                            panic!("Not at valid voter status");
+                        }
+                    }
+                    None => {
+                        panic!("Voting status doesnot exists, commit the vote first.");
+                    }
+                }
+            }
+            None => {
+                panic!("Voting status lookup doesnot exists, commit the vote first.");
+            }
+        }
+    }
 }

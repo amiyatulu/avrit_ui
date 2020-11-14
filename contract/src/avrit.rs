@@ -51,10 +51,11 @@ pub struct Avrit {
     commit_phase_time: u64, // Commit phase time in seconds
     reveal_phase_time: u64, // Reveal phase time in seconds
     voter_commit: LookupMap<u128, LookupMap<String, u8>>, // review_id, vote_commits, 1 if commited, 2 if revealed
-    juror_voting_status: LookupMap<u128, LookupMap<u128, u8>>, // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed>
-    schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <reviewer_id, <jurorid, true_or_false>>
+    juror_voting_status: LookupMap<u128, LookupMap<u128, u8>>, // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed, 3=got the incentives>
+    schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <reviewer_id, <jurorid, 1=true 0=false>>
     schelling_decision_true_count: LookupMap<u128, u128>,            // <reviewer_id, true_count>
     schelling_decision_false_count: LookupMap<u128, u128>,           // <reviewer_id, false_count>
+    jury_incentives: u128,
     // Fungible Token
     /// sha256(AccountID) -> Account details.
     accounts: UnorderedMap<Vec<u8>, Account>,
@@ -91,6 +92,10 @@ impl Avrit {
     pub fn set_jury_count(&mut self, jury_count: u64) {
         self.assert_owner();
         self.jury_count = jury_count;
+    }
+    pub fn set_jury_incentives(&mut self, incentives: u128) {
+        self.assert_owner();
+        self.jury_incentives = incentives;
     }
 }
 
@@ -385,6 +390,7 @@ impl Avrit {
             jury_count: 20,
             commit_phase_time: 2592000, // 30 days in secs
             reveal_phase_time: 1296000, // 15 days in secs
+            jury_incentives: 10,
             selected_juror_count: LookupMap::new(b"532caf99-c5e5-4be5-8e23-802388aa86d5".to_vec()),
             juror_selection_time: LookupMap::new(b"5942be3d-b37f-4cb0-afaa-9ec8a831df00".to_vec()),
             voter_commit: LookupMap::new(b"a11fe88d-be47-4709-8a54-58da79218c3e".to_vec()),
@@ -600,8 +606,7 @@ impl Avrit {
 // Burn and mint
 #[near_bindgen]
 impl Avrit {
-    fn _mint(&mut self, owner_id: &AccountId, amount: u128) {
-        if !owner_id.is_empty() {
+    fn mint(&mut self, owner_id: &AccountId, amount: u128) {
             let initial_storage = env::storage_usage();
             if amount == 0 {
                 env::panic(b"Can't transfer 0 tokens");
@@ -615,11 +620,9 @@ impl Avrit {
             self.set_account(&owner_id, &account);
             self.total_supply = self.total_supply + amount;
             self.refund_storage(initial_storage);
-        }
     }
 
     fn burn(&mut self, owner_id: &AccountId, amount: u128) {
-        if !owner_id.is_empty() {
             let initial_storage = env::storage_usage();
             if amount == 0 {
                 env::panic(b"Can't transfer 0 tokens");
@@ -635,5 +638,4 @@ impl Avrit {
             self.total_supply = self.total_supply - amount;
             self.refund_storage(initial_storage);
         }
-    }
 }
