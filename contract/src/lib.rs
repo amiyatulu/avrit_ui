@@ -1114,4 +1114,106 @@ mod tests {
         assert_eq!(0, winingdecision);
 
     }
+
+    #[test]
+
+    fn test_incentives_distribution() {
+
+        let (contract, context) = draw_juror_function();
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "1passwordjuror2".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror3".to_owned(),
+            "juror3".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror4".to_owned(),
+            "juror4".to_owned(),
+            1,
+        );
+        let (contract, context) = commit_votes_function(
+            contract,
+            context,
+            "0passwordjuror5".to_owned(),
+            "juror5".to_owned(),
+            1,
+        );
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror1".to_owned(),
+            "juror1".to_owned(),
+            1,
+        );
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "1passwordjuror2".to_owned(),
+            "juror2".to_owned(),
+            1,
+        );
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "0passwordjuror3".to_owned(),
+            "juror3".to_owned(),
+            1,
+        );
+
+        let (contract, context) = reveal_votes_function(
+            contract,
+            context,
+            "0passwordjuror4".to_owned(),
+            "juror4".to_owned(),
+            1,
+        );
+        let (mut contract, mut context) = reveal_votes_function(
+            contract,
+            context,
+            "0passwordjuror5".to_owned(),
+            "juror5".to_owned(),
+            1,
+        );
+        let data_true = contract.get_true_count(1);
+        assert_eq!(data_true, 2);
+        let data_false = contract.get_false_count(1);
+        assert_eq!(data_false, 3);
+        context.block_timestamp = get_timestamp_add(2592000+1296001);
+        testing_env!(context.clone());
+        let winingdecision = contract.get_winning_decision(1);
+        assert_eq!(0, winingdecision);
+        assert_eq!(90, contract.get_balance("juror1".to_owned()).0 );
+        context.predecessor_account_id = "juror1".to_owned();
+        testing_env!(context.clone());
+        contract.incentives_distribution(1);
+        // Stake was 60, so incentive became 60^0.8 = 27
+        assert_eq!(90+27, contract.get_balance("juror1".to_owned()).0);
+        // println!(">>>>>>>juror4balance={}<<<<<<<<<<<", contract.get_balance("juror4".to_owned()).0);
+        assert_eq!(130, contract.get_balance("juror4".to_owned()).0 );
+        context.predecessor_account_id = "juror4".to_owned();
+        testing_env!(context.clone());
+        contract.incentives_distribution(1);
+        // println!(">>>>>>>juror4balance_NEXT={}<<<<<<<<<<<", contract.get_balance("juror4".to_owned()).0);
+        assert_eq!(130+20+10, contract.get_balance("juror4".to_owned()).0);
+
+    }
+
+
 }

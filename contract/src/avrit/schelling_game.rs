@@ -515,7 +515,9 @@ impl Avrit {
 
     pub fn incentives_distribution(&mut self, review_id: u128) {
         let account_id = env::predecessor_account_id();
+        // println!(">>>>>>>>>>>>>>>>>>>>>>>>>accountid {}<<<<<<<<<<<<<<<<<<<<<", account_id);
         let user_id = self.get_user_id(&account_id);
+        self.can_juror_vote(review_id, user_id);
         let winning_decision = self.get_winning_decision(review_id);
         let juror_stake = self.get_juror_stakes(review_id, user_id);
         let schelling_decisions_juror_option = self.schelling_decisions_juror.get(&review_id);
@@ -532,11 +534,12 @@ impl Avrit {
                         // else if winning_decision == 2{   }
                         else if decision != winning_decision && winning_decision != 3 {
                             self.add_juror_voting_status_got_incentives(review_id, user_id);
-                            let mut mint_value = (juror_stake as f64).sqrt() as u128 + 1;
-                            if mint_value < self.jury_incentives {
-                                mint_value = juror_stake;
+                            let mint_value = (juror_stake as f64).powf(0.8) as u128 + 1;
+                            println!(">>>>>>>>>>>>>mintvalue{}<<<<<<<<<<<<<<<<<<<", mint_value);
+                            if mint_value > self.jury_incentives {
+                                self.mint(&account_id, mint_value);
                             }
-                            self.mint(&account_id, mint_value);
+                           
                         }
                     }
                     None => {
