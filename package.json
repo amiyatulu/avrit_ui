@@ -20,7 +20,7 @@
   },
   "scripts": {
     "build:contract": "node ./contract/build",
-    "dev:deploy:contract": "near dev-deploy --wasmFile ./contract/res/status_message.wasm",
+    "dev:deploy:contract": "near dev-deploy --wasmFile ./contract/res/avrit.wasm",
     "prestart": "npm run build:contract && npm run dev:deploy:contract",
     "start": "react-scripts start",
     "build": "react-scripts build",

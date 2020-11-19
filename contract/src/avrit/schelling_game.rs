@@ -1,7 +1,7 @@
 use super::Avrit;
 use chrono::{Duration, NaiveDateTime};
 use near_sdk::collections::{LookupMap, LookupSet, TreeMap};
-use near_sdk::{env, near_bindgen};
+use near_sdk::{env};
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::{rngs::StdRng, SeedableRng};
@@ -19,7 +19,6 @@ pub fn get_rng(seed_vec: Vec<u8>) -> StdRng {
     rng
 }
 
-#[near_bindgen]
 impl Avrit {
     /// Apply Jurors with stake
     pub fn apply_jurors(&mut self, review_id: u128, stake: u128) {
@@ -197,15 +196,15 @@ impl Avrit {
         }
     }
 
-    pub fn get_selected_jurors(&self, review_id: u128) -> LookupSet<u128> {
-        let selected_juror_option = self.selected_juror.get(&review_id);
-        match selected_juror_option {
-            Some(jurysetentries) => jurysetentries,
-            None => {
-                panic!("No selected jurors");
-            }
-        }
-    }
+    // pub fn get_selected_jurors(&self, review_id: u128) -> LookupSet<u128> {
+    //     let selected_juror_option = self.selected_juror.get(&review_id);
+    //     match selected_juror_option {
+    //         Some(jurysetentries) => jurysetentries,
+    //         None => {
+    //             panic!("No selected jurors");
+    //         }
+    //     }
+    // }
     pub fn get_juror_stakes(&self, review_id: u128, juror_user_id: u128) -> u128 {
         let juror_list_option = self.user_juror_stakes.get(&review_id);
         match juror_list_option {

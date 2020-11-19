@@ -65,7 +65,6 @@ pub struct Avrit {
 }
 
 // Owner functions
-#[near_bindgen]
 impl Avrit {
     pub fn assert_owner(&self) {
         assert_eq!(
@@ -99,7 +98,6 @@ impl Avrit {
     }
 }
 
-#[near_bindgen]
 impl Avrit {
     pub fn get_user_id(&self, account_id: &AccountId) -> u128 {
         let user_id_option = self.user_map.get(&account_id);
@@ -302,15 +300,15 @@ impl Avrit {
         }
     }
 
-    pub fn get_product_bounty(&mut self, product_id: u128) -> Vector<u64> {
-        let bounty_option = self.product_check_bounty.get(&product_id);
-        match bounty_option {
-            Some(bountyvector) => bountyvector,
-            None => {
-                panic!("Bounty doesn't exists");
-            }
-        }
-    }
+    // pub fn get_product_bounty(&mut self, product_id: u128) -> Vector<u64> {
+    //     let bounty_option = self.product_check_bounty.get(&product_id);
+    //     match bounty_option {
+    //         Some(bountyvector) => bountyvector,
+    //         None => {
+    //             panic!("Bounty doesn't exists");
+    //         }
+    //     }
+    // }
     pub fn add_review_bounty(&mut self, bounty: u64, review_id: u128) {
         let account_id = env::predecessor_account_id();
         let review_bounty_exists_option = self.review_check_bounty.get(&review_id);
@@ -604,7 +602,6 @@ impl Avrit {
 }
 
 // Burn and mint
-#[near_bindgen]
 impl Avrit {
     fn mint(&mut self, owner_id: &AccountId, amount: u128) {
             let initial_storage = env::storage_usage();

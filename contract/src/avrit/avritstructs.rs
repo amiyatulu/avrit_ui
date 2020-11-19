@@ -1,13 +1,16 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 
 
+
 #[derive(Default, BorshDeserialize, BorshSerialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct User {
     pub profile_hash: String, //IPFS Hash
     pub kyc_done: bool,
 }
 
 #[derive(Default, BorshDeserialize, BorshSerialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct Review {
     pub product_id: u128,
     pub user_id: u128,

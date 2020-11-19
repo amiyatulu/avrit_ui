@@ -1,6 +1,8 @@
-const CONTRACT_NAME = process.env.NODE_ENV === "production" ? "dev-1596733083520-5954561" : "dev-1596733083520-5954561"
+import { CONTRACT_NAME } from "./configvar";
 
-function getConfig(env) {
+console.log(CONTRACT_NAME)
+
+const getConfig = (env) => {
   switch (env) {
     case "production":
       return {
@@ -73,4 +75,4 @@ function getConfig(env) {
   }
 }
 
-module.exports = getConfig
+export default getConfig;

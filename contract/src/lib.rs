@@ -428,8 +428,8 @@ mod tests {
         let totalsupply_after_bounty = contract.get_total_supply().0;
         assert_eq!(totalsupply_after_bounty, total_supply - 10);
         assert_eq!(150 - 10, contract.get_balance(alice()).0);
-        let get_bounty = contract.get_product_bounty(1);
-        assert_eq!(10, get_bounty.get(0).unwrap());
+        // let get_bounty = contract.get_product_bounty(1);
+        // assert_eq!(10, get_bounty.get(0).unwrap());
         contract.add_product_bounty(15, 1);
         let totalsupply_after_bounty2 = contract.get_total_supply().0;
         assert_eq!(totalsupply_after_bounty2, totalsupply_after_bounty - 5);
@@ -593,21 +593,21 @@ mod tests {
 
         let time = contract.get_juror_selection_time(&1);
         println!(">>>>>>time{}<<<<<<<<<", time);
-        let jurylist = contract.get_selected_jurors(1);
-        let four = jurylist.contains(&4);
-        println!("{:?}", four);
-        let two = jurylist.contains(&2);
-        println!("{:?}", two);
-        let three = jurylist.contains(&3);
-        println!("{:?}", three);
-        let seven = jurylist.contains(&7);
-        println!("{:?}", seven);
-        let five = jurylist.contains(&5);
-        println!("{:?}", five);
-        let six = jurylist.contains(&6);
-        println!("{:?}", six);
-        let ten = jurylist.contains(&10);
-        println!("{:?}", ten);
+        // let jurylist = contract.get_selected_jurors(1);
+        // let four = jurylist.contains(&4);
+        // println!("{:?}", four);
+        // let two = jurylist.contains(&2);
+        // println!("{:?}", two);
+        // let three = jurylist.contains(&3);
+        // println!("{:?}", three);
+        // let seven = jurylist.contains(&7);
+        // println!("{:?}", seven);
+        // let five = jurylist.contains(&5);
+        // println!("{:?}", five);
+        // let six = jurylist.contains(&6);
+        // println!("{:?}", six);
+        // let ten = jurylist.contains(&10);
+        // println!("{:?}", ten);
     }
 
     fn commit_votes_function(
