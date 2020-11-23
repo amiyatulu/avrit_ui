@@ -22,8 +22,8 @@ function Nav(props) {
       <nav
         className={
           scroll
-            ? "navbar navbar-expand-lg navbar-light fixed-top py-3 bg-info"
-            : "navbar navbar-expand-lg navbar-light fixed-top py-3 navbar-scrolled"
+            ? "navbar navbar-expand-lg navbar-default fixed-top py-3 bg-warning mainbrand"
+            : "navbar navbar-expand-lg navbar-default fixed-top py-3 navbar-scrolled"
         }
         id="mainNav"
       >

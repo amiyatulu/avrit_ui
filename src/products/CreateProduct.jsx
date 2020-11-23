@@ -35,16 +35,16 @@ function CreateProduct(props) {
           onSubmit={async (values, actions) => {
             //   values.countvariable = count
             try {
-              // const file = await ipfs.add({
-              //   path: "product.json",
-              //   content: JSON.stringify(values),
-              // })
-              // await nearvar.contract.create_product({ product_details_hash: file.cid.string })
+              const file = await ipfs.add({
+                path: "product.json",
+                content: JSON.stringify(values),
+              })
+              await nearvar.contract.create_product({ product_details_hash: file.cid.string })
 
-              const content = JSON.stringify(values);
-              const filename = "product.json"
-              const data = await Ipfsadd(content, filename)
-              await nearvar.contract.create_product({ product_details_hash: data.path.cid.string })
+              // const content = JSON.stringify(values);
+              // const filename = "product.json"
+              // const data = await Ipfsadd(content, filename)
+              // await nearvar.contract.create_product({ product_details_hash: data.path.cid.string })
             } catch (e) {
               console.error(e)
             }
