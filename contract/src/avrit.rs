@@ -284,13 +284,18 @@ impl Avrit {
         let account_id = env::predecessor_account_id();
         let mut product = self.product_map.get(&product_id).unwrap();
         // println!("{:?} user_id", product.user_id);
-        let user_id = self.user_map.get(&account_id).unwrap();
+        let user_id = self.get_user_id(&account_id);
         // println!("{:?} user_id from account", user_id);
         if user_id == product.user_id {
             product.product_details_hash = product_details_hash;
+        } else {
+            panic!("You are not the product owner");
         }
         // println!("{:?} product", product);
         self.product_map.insert(&product_id, &product);
+        self.update_product_id_time_counter += 1;
+        self.update_product_ids
+                    .insert(&self.update_product_id_time_counter, &product_id);
     }
 
     pub fn get_product(&self, product_id: u128) -> Product {
@@ -336,6 +341,25 @@ impl Avrit {
                 panic!("User profile does not exists");
             }
         }
+    }
+    
+    pub fn update_review(&mut self, review_id: u128, review_hash: String) {
+        let account_id = env::predecessor_account_id();
+        let mut review = self.review_map.get(&review_id).unwrap();
+        let user_id = self.get_user_id(&account_id);
+        if user_id == review.user_id {
+            review.review_hash = review_hash;
+        } else {
+            panic!("You are not the review owner");
+        }
+
+        self.review_map.insert(&review_id, &review);
+        self.update_review_id_time_counter += 1;
+        self.update_review_ids
+                    .insert(&self.update_review_id_time_counter, &review_id);
+
+
+
     }
 
     pub fn get_review(&self, review_id: u128) -> Review {
