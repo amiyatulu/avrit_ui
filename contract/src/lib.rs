@@ -368,12 +368,6 @@ mod tests {
         contract.create_profile(hash_string);
         let profile_hash = contract.get_profile_hash();
         assert_eq!(hash_string2, profile_hash);
-        contract.create_profile("QmxeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
-        let profile_hash = contract.get_profile_hash();
-        assert_eq!(
-            "QmxeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
-            profile_hash
-        );
         contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
 
         contract.update_product(
@@ -396,6 +390,34 @@ mod tests {
             2,
             "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
         );
+    }
+
+    #[test]
+    fn update_profiles() {
+        let mut context = get_context(carol());
+        testing_env!(context.clone());
+        let total_supply = 1_000_000_000_000_000u128;
+        let mut contract = Avrit::new(bob(), total_supply.into());
+        let hash_string = "QmZeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4z".to_owned();
+        let hash_string2 = hash_string.clone();
+        contract.create_profile(hash_string);
+        let profile_hash = contract.get_profile_hash();
+        assert_eq!(hash_string2, profile_hash);
+        contract.update_profile("QmxeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
+        let profile_hash = contract.get_profile_hash();
+        assert_eq!(
+            "QmxeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            profile_hash
+        );
+        let updated_id = contract.get_update_user_id_time_counter();
+        assert_eq!(1, updated_id);
+        let user_id = contract.get_update_user_ids(updated_id);
+        assert_eq!(1, user_id);
+        context.predecessor_account_id = bob();
+        testing_env!(context.clone());
+        contract.set_update_user_id_time_counter_zero();        
+        let updated_id = contract.get_update_user_id_time_counter();
+        assert_eq!(0, updated_id); 
     }
 
     #[test]

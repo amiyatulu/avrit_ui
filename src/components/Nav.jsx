@@ -51,12 +51,18 @@ function Nav(props) {
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link js-scroll-trigger" href="paper/AvritWhitePaper.pdf">
+                <a
+                  className="nav-link js-scroll-trigger"
+                  href="paper/AvritWhitePaper.pdf"
+                >
                   WHITEPAPER
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link js-scroll-trigger" href="https://github.com/amiyatulu/avrit_ui">
+                <a
+                  className="nav-link js-scroll-trigger"
+                  href="https://github.com/amiyatulu/avrit_ui"
+                >
                   Source Code
                 </a>
               </li>
@@ -67,16 +73,30 @@ function Nav(props) {
                     <Link className="nav-link js-scroll-trigger" to="/profile">
                       Profile
                     </Link>
-                  </li>{" "}
+                  </li>
                   <li className="nav-item">
-                    <button className="btn nav-link js-scroll-trigger" onClick={props.onClick}>
+                    <Link
+                      className="nav-link js-scroll-trigger"
+                      to="/myproducts"
+                    >
+                      Products
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <button
+                      className="btn nav-link js-scroll-trigger"
+                      onClick={props.onClick}
+                    >
                       {nearvar.wallet.getAccountId()} (Log out)
                     </button>
-                  </li>{" "}
+                  </li>
                 </React.Fragment>
               ) : (
                 <li className="nav-item">
-                  <button className="btn nav-link js-scroll-trigger" onClick={props.onClick}>
+                  <button
+                    className="btn nav-link js-scroll-trigger"
+                    onClick={props.onClick}
+                  >
                     Log in
                   </button>
                 </li>

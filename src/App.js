@@ -3,10 +3,11 @@ import { Route, Switch } from "react-router-dom"
 import CreateProfile from "./profile/CreateProfile"
 import { NearContext } from "./context/NearContext"
 import Nav from "./components/Nav"
-import ViewProfile from './profile/ViewProfile';
-import UpdateProfile from './profile/UpdateProfile';
-import CreateProduct from './products/CreateProduct';
-import GetProducts from './products/GetProducts';
+import ViewProfile from "./profile/ViewProfile"
+import UpdateProfile from "./profile/UpdateProfile"
+import CreateProduct from "./products/CreateProduct"
+import GetProducts from "./products/GetProducts"
+import ProductById from "./products/ProductById"
 
 class App extends Component {
   constructor(props) {
@@ -49,7 +50,10 @@ class App extends Component {
 
   async requestSignIn() {
     const appTitle = "NEAR React template"
-    await this.props.wallet.requestSignIn(window.nearConfig.contractName, appTitle)
+    await this.props.wallet.requestSignIn(
+      window.nearConfig.contractName,
+      appTitle
+    )
   }
 
   requestSignOut() {
@@ -82,7 +86,13 @@ class App extends Component {
     }
     return (
       <React.Fragment>
-        {this.state.login ? <NearContext.Provider value={this.props}><Nav onClick={this.requestSignOut} login={this.state.login}/> </NearContext.Provider>: <Nav onClick={this.requestSignIn} login={this.state.login}/>}
+        {this.state.login ? (
+          <NearContext.Provider value={this.props}>
+            <Nav onClick={this.requestSignOut} login={this.state.login} />{" "}
+          </NearContext.Provider>
+        ) : (
+          <Nav onClick={this.requestSignIn} login={this.state.login} />
+        )}
         <section className="page-section">
           <Switch>
             <NearContext.Provider value={this.props}>
@@ -91,6 +101,7 @@ class App extends Component {
               <Route path="/updateprofile" component={UpdateProfile} />
               <Route path="/createproduct" component={CreateProduct} />
               <Route path="/myproducts" component={GetProducts} />
+              <Route path="/product/:id" component={ProductById} />
             </NearContext.Provider>
           </Switch>
         </section>

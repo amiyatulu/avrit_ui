@@ -1,6 +1,6 @@
 import { CONTRACT_NAME } from "./configvar";
 
-console.log(CONTRACT_NAME)
+// console.log(CONTRACT_NAME)
 
 const getConfig = (env) => {
   switch (env) {

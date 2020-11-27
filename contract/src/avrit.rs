@@ -1,8 +1,8 @@
+use chrono::{Duration, NaiveDateTime};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, LookupSet, TreeMap, UnorderedMap, UnorderedSet, Vector};
 use near_sdk::json_types::U128;
 use near_sdk::{env, near_bindgen, AccountId, Balance, Promise, StorageUsage};
-use chrono::{Duration, NaiveDateTime};
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::{rngs::StdRng, SeedableRng};
@@ -15,7 +15,6 @@ pub use self::avritstructs::{Product, Review, User};
 
 /// Price per 1 byte of storage from mainnet genesis config.
 pub const STORAGE_PRICE_PER_BYTE: Balance = 100000000000000000000;
-
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
@@ -33,6 +32,12 @@ pub struct Avrit {
     user_id: u128,
     product_id: u128,
     review_id: u128,
+    update_user_ids: LookupMap<u128, u128>, //(incremental time number, update_user_id)
+    update_user_id_time_counter: u128,
+    update_product_ids: LookupMap<u128, u128>, //(incremental time number, updated_product_id)
+    update_product_id_time_counter: u128,
+    update_review_ids: LookupMap<u128, u128>, //(incremental time number, updated_review_id)
+    update_review_id_time_counter: u128,
     user_map: TreeMap<String, u128>,       // (username, user_id)
     user_profile_map: TreeMap<u128, User>, // (user_id, User)
     product_map: TreeMap<u128, Product>,   // (product_id, Product)
@@ -101,6 +106,55 @@ impl Avrit {
         self.assert_owner();
         self.jury_incentives = incentives;
     }
+    pub fn get_update_user_id_time_counter(&self) -> u128 {
+        self.update_user_id_time_counter
+    }
+    pub fn get_update_product_id_time_counter(&self) -> u128 {
+        self.update_product_id_time_counter
+    }
+    pub fn get_update_review_id_time_counter(&self) -> u128 {
+        self.update_review_id_time_counter
+    }
+
+    pub fn set_update_user_id_time_counter_zero(&mut self) {
+        self.assert_owner();
+        self.update_user_id_time_counter = 0;
+    }
+    pub fn set_update_product_id_time_counter_zero(&mut self) {
+        self.assert_owner();
+        self.update_product_id_time_counter = 0;
+    }
+    pub fn set_update_review_id_time_counter_zero(&mut self) {
+        self.assert_owner();
+        self.update_review_id_time_counter = 0;
+    }
+    pub fn get_update_user_ids(&self, counter: u128) -> u128 {
+        let update_user_ids_options = self.update_user_ids.get(&counter);
+        match update_user_ids_options {
+            Some(user_id) => user_id,
+            None => {
+                panic!("The counter value key don't exists");
+            }
+        }
+    }
+    pub fn get_update_product_ids(&self, counter: u128) -> u128 {
+        let update_product_ids_options = self.update_product_ids.get(&counter);
+        match update_product_ids_options {
+            Some(product_id) => product_id,
+            None => {
+                panic!("The counter value key don't exists");
+            }
+        }
+    }
+    pub fn get_update_review_ids(&self, counter: u128) -> u128 {
+        let update_review_ids_options = self.update_review_ids.get(&counter);
+        match update_review_ids_options {
+            Some(review_id) => review_id,
+            None => {
+                panic!("The counter value key don't exists");
+            }
+        }
+    }
 }
 
 #[near_bindgen]
@@ -127,14 +181,35 @@ impl Avrit {
             kyc_done: false,
         };
         match account_id_exists_option {
-            Some(user_id) => {
-                self.user_profile_map.insert(&user_id, &u);
+            Some(_user_id) => {
+                // self.user_profile_map.insert(&user_id, &u);
+                panic!("User profile already exists");
             }
             None => {
                 self.user_id += 1;
                 self.user_map.insert(&account_id, &self.user_id);
                 println!("{:?}: {:?}", account_id, self.user_id);
                 self.user_profile_map.insert(&self.user_id, &u);
+            }
+        }
+    }
+
+    pub fn update_profile(&mut self, profile_hash: String) {
+        let account_id = env::predecessor_account_id();
+        let account_id_exists_option = self.user_map.get(&account_id);
+        let u = User {
+            profile_hash,
+            kyc_done: false,
+        };
+        match account_id_exists_option {
+            Some(user_id) => {
+                self.user_profile_map.insert(&user_id, &u);
+                self.update_user_id_time_counter += 1;
+                self.update_user_ids
+                    .insert(&self.update_user_id_time_counter, &user_id);                
+            }
+            None => {
+                panic!("Create user profile first");
             }
         }
     }
@@ -367,47 +442,45 @@ impl Avrit {
         let total_supply = total_supply.into();
         assert!(!env::state_exists(), "Already initialized");
         let mut ft = Self {
-            accounts: UnorderedMap::new(b"2d965fc1-874a-4240-a328-9c3c4b00be2a".to_vec()),
+            accounts: UnorderedMap::new(b"2d965fc1".to_vec()),
             total_supply,
             owner_id: owner_id.clone(),
             user_id: 0,
             product_id: 0,
             review_id: 0,
-            user_map: TreeMap::new(b"061af613-4e63-4fc8-9b16-a30a7aa3a8b9".to_vec()),
-            user_profile_map: TreeMap::new(b"589d167f-fc96-4299-89d0-b6d57fb41803".to_vec()),
-            product_map: TreeMap::new(b"cf27d94f-6066-4aa0-90fd-a9bf7ac9dc3b".to_vec()),
-            review_map: TreeMap::new(b"5fc2c77f-c84e-4da8-b8ab-ea0524995549".to_vec()),
-            user_products_map: TreeMap::new(b"e7b6e8a6-ccee-4887-9eff-21bb49c5c257".to_vec()),
-            product_reviews_map: TreeMap::new(b"ea4ee217-662f-43f0-8ef0-cf96d411afe7".to_vec()),
-            product_check_bounty: LookupMap::new(b"0566cfb4-19e1-4895-b50c-68f6c0b90e40".to_vec()),
-            review_check_bounty: LookupMap::new(b"00423f89-b178-4697-9ea7-316d08504b0a".to_vec()),
+            update_user_ids: LookupMap::new(b"f657bf68".to_vec()),
+            update_user_id_time_counter: 0,
+            update_product_ids: LookupMap::new(b"ef434fcd".to_vec()),
+            update_product_id_time_counter: 0,
+            update_review_ids: LookupMap::new(b"099e3a0a".to_vec()),
+            update_review_id_time_counter: 0,
+            user_map: TreeMap::new(b"061af613".to_vec()),
+            user_profile_map: TreeMap::new(b"589d167f".to_vec()),
+            product_map: TreeMap::new(b"cf27d94f".to_vec()),
+            review_map: TreeMap::new(b"5fc2c77f".to_vec()),
+            user_products_map: TreeMap::new(b"e7b6e8a6".to_vec()),
+            product_reviews_map: TreeMap::new(b"ea4ee217".to_vec()),
+            product_check_bounty: LookupMap::new(b"0566cfb4".to_vec()),
+            review_check_bounty: LookupMap::new(b"00423f89".to_vec()),
             product_id_set_ucount: 0,
             review_id_set_ucount: 0,
             product_check_bounty_vector_ucount: 0,
             review_check_bounty_vector_ucount: 0,
-            user_juror_stakes: LookupMap::new(b"e56291ef-2806-4298-8646-054d5d116a70".to_vec()),
-            user_juror_stakes_clone: LookupMap::new(
-                b"4e74c845-0608-4c55-af1e-86eb8bf01687".to_vec(),
-            ),
+            user_juror_stakes: LookupMap::new(b"e56291ef".to_vec()),
+            user_juror_stakes_clone: LookupMap::new(b"4e74c845".to_vec()),
             juror_stake_unique_id: 0,
-            selected_juror: LookupMap::new(b"89390257-80c2-446a-bc21-fac4885250ee".to_vec()),
+            selected_juror: LookupMap::new(b"89390257".to_vec()),
             jury_count: 20,
             commit_phase_time: 2592000, // 30 days in secs
             reveal_phase_time: 1296000, // 15 days in secs
             jury_incentives: 10,
-            selected_juror_count: LookupMap::new(b"532caf99-c5e5-4be5-8e23-802388aa86d5".to_vec()),
-            juror_selection_time: LookupMap::new(b"5942be3d-b37f-4cb0-afaa-9ec8a831df00".to_vec()),
-            voter_commit: LookupMap::new(b"a11fe88d-be47-4709-8a54-58da79218c3e".to_vec()),
-            juror_voting_status: LookupMap::new(b"4c4879f8-096b-4201-8ce3-64141c2eebf6".to_vec()),
-            schelling_decisions_juror: LookupMap::new(
-                b"8c7b8f85-1ba6-4a2a-83e8-3cfc07d7355e".to_vec(),
-            ),
-            schelling_decision_true_count: LookupMap::new(
-                b"4bf8d29d-aadc-4c62-89ce-fe2382197ae2".to_vec(),
-            ),
-            schelling_decision_false_count: LookupMap::new(
-                b"98396f41-606d-4cf0-b06f-2668db6f6238".to_vec(),
-            ),
+            selected_juror_count: LookupMap::new(b"532caf99".to_vec()),
+            juror_selection_time: LookupMap::new(b"5942be3d".to_vec()),
+            voter_commit: LookupMap::new(b"a11fe88d".to_vec()),
+            juror_voting_status: LookupMap::new(b"4c4879f8".to_vec()),
+            schelling_decisions_juror: LookupMap::new(b"8c7b8f85".to_vec()),
+            schelling_decision_true_count: LookupMap::new(b"4bf8d29d".to_vec()),
+            schelling_decision_false_count: LookupMap::new(b"98396f41".to_vec()),
         };
         let mut account = ft.get_account(&owner_id);
         account.balance = total_supply;
@@ -612,39 +685,38 @@ impl Avrit {
 #[near_bindgen]
 impl Avrit {
     fn mint(&mut self, owner_id: &AccountId, amount: u128) {
-            let initial_storage = env::storage_usage();
-            if amount == 0 {
-                env::panic(b"Can't transfer 0 tokens");
-            }
-            assert!(
-                env::is_valid_account_id(owner_id.as_bytes()),
-                "New owner's account ID is invalid"
-            );
-            let mut account = self.get_account(&owner_id);
-            account.balance += amount;
-            self.set_account(&owner_id, &account);
-            self.total_supply = self.total_supply + amount;
-            self.refund_storage(initial_storage);
+        let initial_storage = env::storage_usage();
+        if amount == 0 {
+            env::panic(b"Can't transfer 0 tokens");
+        }
+        assert!(
+            env::is_valid_account_id(owner_id.as_bytes()),
+            "New owner's account ID is invalid"
+        );
+        let mut account = self.get_account(&owner_id);
+        account.balance += amount;
+        self.set_account(&owner_id, &account);
+        self.total_supply = self.total_supply + amount;
+        self.refund_storage(initial_storage);
     }
 
     fn burn(&mut self, owner_id: &AccountId, amount: u128) {
-            let initial_storage = env::storage_usage();
-            if amount == 0 {
-                env::panic(b"Can't transfer 0 tokens");
-            }
-            assert!(
-                env::is_valid_account_id(owner_id.as_bytes()),
-                "Owner's account ID is invalid"
-            );
-            let mut account = self.get_account(&owner_id);
-
-            account.balance -= amount;
-            self.set_account(&owner_id, &account);
-            self.total_supply = self.total_supply - amount;
-            self.refund_storage(initial_storage);
+        let initial_storage = env::storage_usage();
+        if amount == 0 {
+            env::panic(b"Can't transfer 0 tokens");
         }
-}
+        assert!(
+            env::is_valid_account_id(owner_id.as_bytes()),
+            "Owner's account ID is invalid"
+        );
+        let mut account = self.get_account(&owner_id);
 
+        account.balance -= amount;
+        self.set_account(&owner_id, &account);
+        self.total_supply = self.total_supply - amount;
+        self.refund_storage(initial_storage);
+    }
+}
 
 //shelling game
 #[near_bindgen]
@@ -656,7 +728,6 @@ impl Avrit {
             seed[counter] = *v;
             counter += 1;
         }
-    
         let rng: StdRng = SeedableRng::from_seed(seed);
         rng
     }
@@ -1178,7 +1249,6 @@ impl Avrit {
                             if mint_value > self.jury_incentives {
                                 self.mint(&account_id, mint_value);
                             }
-                           
                         }
                     }
                     None => {
@@ -1222,4 +1292,3 @@ impl Avrit {
         }
     }
 }
-
