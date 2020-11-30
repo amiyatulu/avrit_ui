@@ -23,6 +23,7 @@ pub struct Review {
 pub struct Product {
     pub user_id: u128,
     pub product_details_hash: String, //IPFS Hash
+    pub product_type: String,
     pub product_expired: bool,
     pub product_id: u128,
 }

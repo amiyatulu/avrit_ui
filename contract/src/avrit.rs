@@ -71,6 +71,7 @@ pub struct Avrit {
 
     /// Total supply of the all token.
     total_supply: Balance,
+    cap: Balance,
 }
 
 // Owner functions
@@ -230,7 +231,7 @@ impl Avrit {
         }
     }
 
-    pub fn create_product(&mut self, product_details_hash: String) {
+    pub fn create_product(&mut self, product_details_hash: String, product_type: String) {
         let account_id = env::predecessor_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
         match account_id_exists_option {
@@ -239,6 +240,7 @@ impl Avrit {
                 let prod = Product {
                     user_id,
                     product_details_hash,
+                    product_type,
                     product_expired: false,
                     product_id: self.product_id,
                 };
@@ -462,12 +464,15 @@ impl Default for Avrit {
 impl Avrit {
     /// Initializes the contract with the given total supply owned by the given `owner_id`.
     #[init]
-    pub fn new(owner_id: AccountId, total_supply: U128) -> Self {
+    pub fn new(owner_id: AccountId, total_supply: U128, cap: U128) -> Self {
         let total_supply = total_supply.into();
+        let cap = cap.into();
+        assert!(total_supply <= cap, "Total supply should be less than or equal to cap.");
         assert!(!env::state_exists(), "Already initialized");
         let mut ft = Self {
             accounts: UnorderedMap::new(b"2d965fc1".to_vec()),
             total_supply,
+            cap,
             owner_id: owner_id.clone(),
             user_id: 0,
             product_id: 0,
@@ -709,7 +714,6 @@ impl Avrit {
 #[near_bindgen]
 impl Avrit {
     fn mint(&mut self, owner_id: &AccountId, amount: u128) {
-        let initial_storage = env::storage_usage();
         if amount == 0 {
             env::panic(b"Can't transfer 0 tokens");
         }
@@ -720,12 +724,12 @@ impl Avrit {
         let mut account = self.get_account(&owner_id);
         account.balance += amount;
         self.set_account(&owner_id, &account);
-        self.total_supply = self.total_supply + amount;
-        self.refund_storage(initial_storage);
+        let tsupply = self.total_supply + amount;
+        assert!(tsupply <= self.cap, "Total supply should be less than or equal to cap.");
+        self.total_supply = tsupply;
     }
 
     fn burn(&mut self, owner_id: &AccountId, amount: u128) {
-        let initial_storage = env::storage_usage();
         if amount == 0 {
             env::panic(b"Can't transfer 0 tokens");
         }
@@ -738,7 +742,6 @@ impl Avrit {
         account.balance -= amount;
         self.set_account(&owner_id, &account);
         self.total_supply = self.total_supply - amount;
-        self.refund_storage(initial_storage);
     }
 }
 

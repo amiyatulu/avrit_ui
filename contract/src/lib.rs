@@ -79,7 +79,7 @@ mod tests {
         let context = get_context(carol());
         testing_env!(context);
         let total_supply = 1_000_000_000_000_000u128;
-        let contract = Avrit::new(bob(), total_supply.into());
+        let contract = Avrit::new(bob(), total_supply.into(), total_supply.into());
         assert_eq!(contract.get_total_supply().0, total_supply);
         assert_eq!(contract.get_balance(bob()).0, total_supply);
     }
@@ -91,9 +91,9 @@ mod tests {
         testing_env!(context);
         let total_supply = 1_000_000_000_000_000u128;
         {
-            let _contract = Avrit::new(bob(), total_supply.into());
+            let _contract = Avrit::new(bob(), total_supply.into(), total_supply.into());
         }
-        Avrit::new(bob(), total_supply.into());
+        Avrit::new(bob(), total_supply.into(), total_supply.into());
     }
 
     #[test]
@@ -101,7 +101,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.storage_usage = env::storage_usage();
 
         context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
@@ -127,7 +127,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.storage_usage = env::storage_usage();
 
         context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
@@ -142,7 +142,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.attached_deposit = STORAGE_PRICE_PER_BYTE * 1000;
         testing_env!(context.clone());
         contract.inc_allowance(carol(), (total_supply / 2).into());
@@ -154,7 +154,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.attached_deposit = STORAGE_PRICE_PER_BYTE * 1000;
         testing_env!(context.clone());
         contract.dec_allowance(carol(), (total_supply / 2).into());
@@ -165,7 +165,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.attached_deposit = STORAGE_PRICE_PER_BYTE * 1000;
         testing_env!(context.clone());
         contract.dec_allowance(bob(), (total_supply / 2).into());
@@ -177,7 +177,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = std::u128::MAX;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.attached_deposit = STORAGE_PRICE_PER_BYTE * 1000;
         testing_env!(context.clone());
         contract.inc_allowance(bob(), total_supply.into());
@@ -196,7 +196,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.attached_deposit = 0;
         testing_env!(context.clone());
         contract.inc_allowance(bob(), (total_supply / 2).into());
@@ -208,7 +208,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.storage_usage = env::storage_usage();
 
         context.is_view = true;
@@ -258,7 +258,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.storage_usage = env::storage_usage();
 
         context.is_view = true;
@@ -308,7 +308,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.storage_usage = env::storage_usage();
 
         let initial_balance = context.account_balance;
@@ -346,7 +346,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(bob(), total_supply.into());
+        let mut contract = Avrit::new(bob(), total_supply.into(), total_supply.into());
         let owner = contract.get_owner();
         assert_eq!(owner, bob());
         context.predecessor_account_id = bob();
@@ -362,13 +362,13 @@ mod tests {
         let context = get_context(carol());
         testing_env!(context);
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(bob(), total_supply.into());
+        let mut contract = Avrit::new(bob(), total_supply.into(), total_supply.into());
         let hash_string = "QmZeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4z".to_owned();
         let hash_string2 = hash_string.clone();
         contract.create_profile(hash_string);
         let profile_hash = contract.get_profile_hash();
         assert_eq!(hash_string2, profile_hash);
-        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
+        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), "OA".to_owned());
 
         contract.update_product(
             1,
@@ -379,7 +379,7 @@ mod tests {
             "ProductupdatexeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
             product.product_details_hash
         );
-        contract.create_product("Product2xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
+        contract.create_product("Product2xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), "OA".to_owned());
         let ids = contract.get_products_of_user();
         println!("{:?}", ids);
         contract.create_review(
@@ -397,7 +397,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(bob(), total_supply.into());
+        let mut contract = Avrit::new(bob(), total_supply.into(), total_supply.into());
         let hash_string = "QmZeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4z".to_owned();
         let hash_string2 = hash_string.clone();
         contract.create_profile(hash_string);
@@ -425,7 +425,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
         testing_env!(context.clone());
         contract.transfer(alice(), 150.into());
@@ -437,7 +437,7 @@ mod tests {
         contract.create_profile(hash_string);
         let profile_hash = contract.get_profile_hash();
         assert_eq!(hash_string2, profile_hash);
-        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
+        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),  "OA".to_owned());
         let product = contract.get_product(1);
         assert_eq!(
             "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
@@ -463,7 +463,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
         testing_env!(context.clone());
         contract.transfer(alice(), 150.into());
@@ -475,7 +475,7 @@ mod tests {
         contract.create_profile(hash_string);
         let profile_hash = contract.get_profile_hash();
         assert_eq!(hash_string2, profile_hash);
-        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
+        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), "OA".to_owned());
         let product = contract.get_product(1);
         assert_eq!(
             "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
@@ -530,7 +530,7 @@ mod tests {
         let mut context = get_context(carol());
         testing_env!(context.clone());
         let total_supply = 1_000_000_000_000_000u128;
-        let mut contract = Avrit::new(carol(), total_supply.into());
+        let mut contract = Avrit::new(carol(), total_supply.into(), total_supply.into());
         context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
         testing_env!(context.clone());
         contract.transfer(alice(), 150.into());
@@ -542,7 +542,7 @@ mod tests {
         contract.create_profile(hash_string);
         let profile_hash = contract.get_profile_hash();
         assert_eq!(hash_string2, profile_hash);
-        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned());
+        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), "OA".to_owned());
         let product = contract.get_product(1);
         assert_eq!(
             "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
@@ -1235,6 +1235,15 @@ mod tests {
         // println!(">>>>>>>juror4balance_NEXT={}<<<<<<<<<<<", contract.get_balance("juror4".to_owned()).0);
         assert_eq!(130+20+10, contract.get_balance("juror4".to_owned()).0);
 
+    }
+
+    #[test]
+    #[should_panic(expected = "Total supply should be less than or equal to cap.")]
+    fn cap_less_than_total_supply(){
+        let context = get_context(carol());
+        testing_env!(context);
+        let total_supply = 1_000_000_000_000_000u128;
+        let _contract = Avrit::new(bob(), total_supply.into(), 1_000_000_000_000_0u128.into());
     }
 
 
