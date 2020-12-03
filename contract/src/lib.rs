@@ -368,7 +368,10 @@ mod tests {
         contract.create_profile(hash_string);
         let profile_hash = contract.get_profile_hash();
         assert_eq!(hash_string2, profile_hash);
-        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), "OA".to_owned());
+        contract.create_product(
+            "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            "OA".to_owned(),
+        );
 
         contract.update_product(
             1,
@@ -379,7 +382,10 @@ mod tests {
             "ProductupdatexeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
             product.product_details_hash
         );
-        contract.create_product("Product2xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), "OA".to_owned());
+        contract.create_product(
+            "Product2xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            "OA".to_owned(),
+        );
         let ids = contract.get_products_of_user();
         println!("{:?}", ids);
         contract.create_review(
@@ -410,14 +416,14 @@ mod tests {
             profile_hash
         );
         let updated_id = contract.get_update_user_id_time_counter();
-        assert_eq!(1, updated_id);
-        let user_id = contract.get_update_user_ids(updated_id);
-        assert_eq!(1, user_id);
+        assert_eq!(1, updated_id.0);
+        let user_id = contract.get_update_user_ids(updated_id.0);
+        assert_eq!(1, user_id.0);
         context.predecessor_account_id = bob();
         testing_env!(context.clone());
-        contract.set_update_user_id_time_counter_zero();        
+        contract.set_update_user_id_time_counter_zero();
         let updated_id = contract.get_update_user_id_time_counter();
-        assert_eq!(0, updated_id); 
+        assert_eq!(0, updated_id.0);
     }
 
     #[test]
@@ -437,7 +443,10 @@ mod tests {
         contract.create_profile(hash_string);
         let profile_hash = contract.get_profile_hash();
         assert_eq!(hash_string2, profile_hash);
-        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),  "OA".to_owned());
+        contract.create_product(
+            "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            "OA".to_owned(),
+        );
         let product = contract.get_product(1);
         assert_eq!(
             "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
@@ -475,7 +484,10 @@ mod tests {
         contract.create_profile(hash_string);
         let profile_hash = contract.get_profile_hash();
         assert_eq!(hash_string2, profile_hash);
-        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), "OA".to_owned());
+        contract.create_product(
+            "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            "OA".to_owned(),
+        );
         let product = contract.get_product(1);
         assert_eq!(
             "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
@@ -542,7 +554,10 @@ mod tests {
         contract.create_profile(hash_string);
         let profile_hash = contract.get_profile_hash();
         assert_eq!(hash_string2, profile_hash);
-        contract.create_product("Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(), "OA".to_owned());
+        contract.create_product(
+            "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            "OA".to_owned(),
+        );
         let product = contract.get_product(1);
         assert_eq!(
             "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
@@ -613,8 +628,8 @@ mod tests {
         // contract.draw_jurors(1, 5);
         let (contract, _context) = draw_juror_function();
 
-        let time = contract.get_juror_selection_time(&1);
-        println!(">>>>>>time{}<<<<<<<<<", time);
+        let time = contract.get_juror_selection_time_number(&1);
+        println!(">>>>>>time{}<<<<<<<<<", time.0);
         // let jurylist = contract.get_selected_jurors(1);
         // let four = jurylist.contains(&4);
         // println!("{:?}", four);
@@ -850,13 +865,8 @@ mod tests {
             "juror5".to_owned(),
             1,
         );
-        let (_contract, _context) = reveal_votes_function(
-            contract,
-            context,
-            "1passwordjuror1".to_owned(),
-            alice(),
-            1,
-        );
+        let (_contract, _context) =
+            reveal_votes_function(contract, context, "1passwordjuror1".to_owned(), alice(), 1);
     }
     #[test]
     #[should_panic(expected = "The juror has already been revealed a vote.")]
@@ -914,7 +924,6 @@ mod tests {
     }
 
     #[test]
-    
     #[should_panic(expected = "The vote has be already revealed and added.")]
     fn test_vote_reveal_already() {
         let (contract, context) = draw_juror_function();
@@ -970,7 +979,6 @@ mod tests {
     }
 
     #[test]
-    
     fn test_vote_reveal() {
         let (contract, context) = draw_juror_function();
         let (contract, context) = commit_votes_function(
@@ -1044,16 +1052,14 @@ mod tests {
             "juror5".to_owned(),
             1,
         );
-        let data_true = contract.get_true_count(1);
-        assert_eq!(data_true, 2);
-        let data_false = contract.get_false_count(1);
-        assert_eq!(data_false, 3);
-
+        let data_true = contract.get_true_count_number(1);
+        assert_eq!(data_true.0, 2);
+        let data_false = contract.get_false_count_number(1);
+        assert_eq!(data_false.0, 3);
     }
 
     #[test]
     fn test_winning_decisions() {
-
         let (contract, context) = draw_juror_function();
         let (contract, context) = commit_votes_function(
             contract,
@@ -1126,21 +1132,19 @@ mod tests {
             "juror5".to_owned(),
             1,
         );
-        let data_true = contract.get_true_count(1);
-        assert_eq!(data_true, 2);
-        let data_false = contract.get_false_count(1);
-        assert_eq!(data_false, 3);
-        context.block_timestamp = get_timestamp_add(2592000+1296001);
+        let data_true = contract.get_true_count_number(1);
+        assert_eq!(data_true.0, 2);
+        let data_false = contract.get_false_count_number(1);
+        assert_eq!(data_false.0, 3);
+        context.block_timestamp = get_timestamp_add(2592000 + 1296001);
         testing_env!(context.clone());
         let winingdecision = contract.get_winning_decision(1);
         assert_eq!(0, winingdecision);
-
     }
 
     #[test]
 
     fn test_incentives_distribution() {
-
         let (contract, context) = draw_juror_function();
         let (contract, context) = commit_votes_function(
             contract,
@@ -1213,38 +1217,109 @@ mod tests {
             "juror5".to_owned(),
             1,
         );
-        let data_true = contract.get_true_count(1);
-        assert_eq!(data_true, 2);
-        let data_false = contract.get_false_count(1);
-        assert_eq!(data_false, 3);
-        context.block_timestamp = get_timestamp_add(2592000+1296001);
+        let data_true = contract.get_true_count_number(1);
+        assert_eq!(data_true.0, 2);
+        let data_false = contract.get_false_count_number(1);
+        assert_eq!(data_false.0, 3);
+        context.block_timestamp = get_timestamp_add(2592000 + 1296001);
         testing_env!(context.clone());
         let winingdecision = contract.get_winning_decision(1);
         assert_eq!(0, winingdecision);
-        assert_eq!(90, contract.get_balance("juror1".to_owned()).0 );
+        assert_eq!(90, contract.get_balance("juror1".to_owned()).0);
         context.predecessor_account_id = "juror1".to_owned();
         testing_env!(context.clone());
         contract.incentives_distribution(1);
         // Stake was 60, so incentive became 60^0.8 = 27
-        assert_eq!(90+27, contract.get_balance("juror1".to_owned()).0);
+        assert_eq!(90 + 27, contract.get_balance("juror1".to_owned()).0);
         // println!(">>>>>>>juror4balance={}<<<<<<<<<<<", contract.get_balance("juror4".to_owned()).0);
-        assert_eq!(130, contract.get_balance("juror4".to_owned()).0 );
+        assert_eq!(130, contract.get_balance("juror4".to_owned()).0);
         context.predecessor_account_id = "juror4".to_owned();
         testing_env!(context.clone());
         contract.incentives_distribution(1);
         // println!(">>>>>>>juror4balance_NEXT={}<<<<<<<<<<<", contract.get_balance("juror4".to_owned()).0);
-        assert_eq!(130+20+10, contract.get_balance("juror4".to_owned()).0);
-
+        assert_eq!(130 + 20 + 10, contract.get_balance("juror4".to_owned()).0);
     }
 
     #[test]
     #[should_panic(expected = "Total supply should be less than or equal to cap.")]
-    fn cap_less_than_total_supply(){
+    fn cap_less_than_total_supply() {
         let context = get_context(carol());
         testing_env!(context);
         let total_supply = 1_000_000_000_000_000u128;
         let _contract = Avrit::new(bob(), total_supply.into(), 1_000_000_000_000_0u128.into());
     }
 
+    #[test]
+
+    fn tax_collection_burn() {
+        let mut context = get_context(carol());
+        testing_env!(context.clone());
+        let total_supply = 1_000_000_000_000_000u128;
+        let mut contract = Avrit::new(bob(), total_supply.into(), total_supply.into());
+        context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
+        testing_env!(context.clone());
+        context.predecessor_account_id = bob();
+        testing_env!(context.clone());
+        let transfer_amount = 500;
+        contract.transfer(alice(), transfer_amount.into());
+        let balance = contract.get_balance(alice());
+        assert_eq!(500, balance.0);
+        let balance2 = contract.get_balance(bob());
+        assert_eq!(total_supply - 500, balance2.0);
+        let total_supply1 = contract.get_total_supply();
+        assert_eq!(total_supply, total_supply1.0);
+        // println!(">>>>>>>>>>total_supply>{}<<<<<<<<<<<<<<<", total_supply.0);
+        // println!(">>>>>>>>>>blanace2>{}<<<<<<<<<<<<<<<", balance2.0);
+        contract.set_burn_percentage(5.5);
+        let burn_percentage = contract.get_burn_percentage();
+        assert_eq!(burn_percentage, 5.5);
+        context.predecessor_account_id = alice();
+        testing_env!(context.clone());
+        contract.transfer("auro.near".to_string(), 300.into());
+        let balance_after_tax = contract.get_balance("auro.near".to_string());
+        assert_eq!(300 - 16, balance_after_tax.0);
+        let total_supply2 = contract.get_total_supply();
+        assert_eq!(total_supply - 16, total_supply2.0);
+        // println!(">>>>>>>>>>total_supply>{}<<<<<<<<<<<<<<<", total_supply2.0);
+    }
+
+    #[test]
+    fn tax_collection_saving_burn() {
+        let mut context = get_context(carol());
+        testing_env!(context.clone());
+        let total_supply = 1_000_000_000_000_000u128;
+        let mut contract = Avrit::new(bob(), total_supply.into(), total_supply.into());
+        context.attached_deposit = 1000 * STORAGE_PRICE_PER_BYTE;
+        testing_env!(context.clone());
+        context.predecessor_account_id = bob();
+        testing_env!(context.clone());
+        let transfer_amount = 500;
+        contract.transfer(alice(), transfer_amount.into());
+        let balance = contract.get_balance(alice());
+        assert_eq!(500, balance.0);
+        let balance2 = contract.get_balance(bob());
+        assert_eq!(total_supply - 500, balance2.0);
+        let total_supply1 = contract.get_total_supply();
+        assert_eq!(total_supply, total_supply1.0);
+        // println!(">>>>>>>>>>total_supply>{}<<<<<<<<<<<<<<<", total_supply.0);
+        // println!(">>>>>>>>>>blanace2>{}<<<<<<<<<<<<<<<", balance2.0);
+        contract.set_burn_percentage(5.5);
+        contract.change_saving_id("saving.near".to_string());
+        contract.set_saving_percentage(3.5);
+        let burn_percentage = contract.get_burn_percentage();
+        assert_eq!(burn_percentage, 5.5);
+        let saving_percentage = contract.get_saving_percentage();
+        assert_eq!(saving_percentage, 3.5);
+        context.predecessor_account_id = alice();
+        testing_env!(context.clone());
+        contract.transfer("auro.near".to_string(), 300.into());
+        let balance_after_tax = contract.get_balance("auro.near".to_string());
+        assert_eq!(300 - 16 - 10, balance_after_tax.0);
+        let total_supply2 = contract.get_total_supply();
+        assert_eq!(total_supply - 16, total_supply2.0);
+        let saving_balance = contract.get_balance("saving.near".to_string());
+        assert_eq!(10, saving_balance.0);
+
+    }
 
 }

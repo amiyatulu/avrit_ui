@@ -1,7 +1,7 @@
 use chrono::{Duration, NaiveDateTime};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, LookupSet, TreeMap, UnorderedMap, UnorderedSet, Vector};
-use near_sdk::json_types::U128;
+use near_sdk::json_types::{U128, U64};
 use near_sdk::{env, near_bindgen, AccountId, Balance, Promise, StorageUsage};
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
@@ -29,6 +29,7 @@ pub struct Avrit {
     // Map(ProductId, Set(ReviewId))
     // Map(ReviewId, Review)
     owner_id: AccountId,
+    saving_id: AccountId,
     user_id: u128,
     product_id: u128,
     review_id: u128,
@@ -65,6 +66,8 @@ pub struct Avrit {
     schelling_decision_true_count: LookupMap<u128, u128>,            // <reviewer_id, true_count>
     schelling_decision_false_count: LookupMap<u128, u128>,           // <reviewer_id, false_count>
     jury_incentives: u128,
+    burn_percentage: f32,
+    saving_percentage: f32,
     // Fungible Token
     /// sha256(AccountID) -> Account details.
     accounts: UnorderedMap<Vec<u8>, Account>,
@@ -88,6 +91,10 @@ impl Avrit {
         self.assert_owner();
         self.owner_id = new_owner;
     }
+    pub fn change_saving_id(&mut self, new_saving_id: AccountId) {
+        self.assert_owner();
+        self.saving_id = new_saving_id;
+    }
     pub fn get_owner(&self) -> AccountId {
         self.owner_id.clone()
     }
@@ -107,14 +114,14 @@ impl Avrit {
         self.assert_owner();
         self.jury_incentives = incentives;
     }
-    pub fn get_update_user_id_time_counter(&self) -> u128 {
-        self.update_user_id_time_counter
+    pub fn get_update_user_id_time_counter(&self) -> U128 {
+        self.update_user_id_time_counter.into()
     }
-    pub fn get_update_product_id_time_counter(&self) -> u128 {
-        self.update_product_id_time_counter
+    pub fn get_update_product_id_time_counter(&self) -> U128 {
+        self.update_product_id_time_counter.into()
     }
-    pub fn get_update_review_id_time_counter(&self) -> u128 {
-        self.update_review_id_time_counter
+    pub fn get_update_review_id_time_counter(&self) -> U128 {
+        self.update_review_id_time_counter.into()
     }
 
     pub fn set_update_user_id_time_counter_zero(&mut self) {
@@ -129,38 +136,91 @@ impl Avrit {
         self.assert_owner();
         self.update_review_id_time_counter = 0;
     }
-    pub fn get_update_user_ids(&self, counter: u128) -> u128 {
+    pub fn get_update_user_ids(&self, counter: u128) -> U128 {
         let update_user_ids_options = self.update_user_ids.get(&counter);
         match update_user_ids_options {
-            Some(user_id) => user_id,
+            Some(user_id) => user_id.into(),
             None => {
                 panic!("The counter value key don't exists");
             }
         }
     }
-    pub fn get_update_product_ids(&self, counter: u128) -> u128 {
+    pub fn get_update_product_ids(&self, counter: u128) -> U128 {
         let update_product_ids_options = self.update_product_ids.get(&counter);
         match update_product_ids_options {
-            Some(product_id) => product_id,
+            Some(product_id) => product_id.into(),
             None => {
                 panic!("The counter value key don't exists");
             }
         }
     }
-    pub fn get_update_review_ids(&self, counter: u128) -> u128 {
+    pub fn get_update_review_ids(&self, counter: u128) -> U128 {
         let update_review_ids_options = self.update_review_ids.get(&counter);
         match update_review_ids_options {
-            Some(review_id) => review_id,
+            Some(review_id) => review_id.into(),
             None => {
                 panic!("The counter value key don't exists");
             }
+        }
+    }
+
+    pub fn set_burn_percentage(&mut self, percentage: f32) {
+        self.assert_owner();
+        assert!(
+            percentage >= 0.0,
+            "You can't set burn percentage less than 0.0"
+        );
+        assert!(
+            percentage + self.saving_percentage <= 30.0,
+            "Burning can't be more than 30 percent"
+        );
+        self.burn_percentage = percentage;
+    }
+
+    pub fn set_saving_percentage(&mut self, percentage: f32) {
+        self.assert_owner();
+        assert!(
+            percentage >= 0.0 && percentage <= 10.0,
+            "You can't set admin money percentage less than 0.0 and greater than 8.0"
+        );
+        assert!(
+            percentage + self.saving_percentage <= 30.0,
+            "Burning can't be more than 30 percent"
+        );
+        self.saving_percentage = percentage;
+    }
+
+    pub fn get_burn_percentage(&self) -> f32 {
+        self.burn_percentage
+    }
+
+    pub fn get_saving_percentage(&self) -> f32 {
+        self.saving_percentage
+    }
+
+    fn transfer_and_burn(&mut self, new_owner_id: &String, amount: u128) {
+        let total_burn_token = self.burn_percentage * (amount as f32) / 100.0;
+        let total_saving_token = self.saving_percentage * (amount as f32) / 100.0;
+        let total_burn = total_burn_token as u128 + total_saving_token as u128;
+        let balance_amount = amount - total_burn;
+        let mut new_account = self.get_account(&new_owner_id);
+        new_account.balance += balance_amount;
+        self.set_account(&new_owner_id, &new_account);
+        if total_saving_token as u128 > 0 {
+            let saving_id = self.saving_id.clone();
+            let mut admin_account = self.get_account(&saving_id);
+            admin_account.balance += total_saving_token as u128;
+            self.set_account(&saving_id, &admin_account);
+        }
+        if total_burn_token as u128 > 0 {
+            self.total_supply = self.total_supply - total_burn_token as u128;
         }
     }
 }
 
 #[near_bindgen]
 impl Avrit {
-    pub fn get_user_id(&self, account_id: &AccountId) -> u128 {
+    fn get_user_id(&self, account_id: &AccountId) -> u128 {
         let user_id_option = self.user_map.get(&account_id);
         match user_id_option {
             Some(user_id) => user_id,
@@ -168,6 +228,11 @@ impl Avrit {
                 panic!("User id doesnot exist for AccountId {}", account_id);
             }
         }
+    }
+
+    pub fn get_user_id_number(&self, account_id: &AccountId) -> U128 {
+        let user_id = self.get_user_id(account_id);
+        user_id.into()
     }
     pub fn get_user_details(&self, user_id: u128) -> User {
         let user_profile_option = self.user_profile_map.get(&user_id);
@@ -207,7 +272,7 @@ impl Avrit {
                 self.user_profile_map.insert(&user_id, &u);
                 self.update_user_id_time_counter += 1;
                 self.update_user_ids
-                    .insert(&self.update_user_id_time_counter, &user_id);                
+                    .insert(&self.update_user_id_time_counter, &user_id);
             }
             None => {
                 panic!("Create user profile first");
@@ -297,7 +362,7 @@ impl Avrit {
         self.product_map.insert(&product_id, &product);
         self.update_product_id_time_counter += 1;
         self.update_product_ids
-                    .insert(&self.update_product_id_time_counter, &product_id);
+            .insert(&self.update_product_id_time_counter, &product_id);
     }
 
     pub fn get_product(&self, product_id: u128) -> Product {
@@ -344,7 +409,6 @@ impl Avrit {
             }
         }
     }
-    
     pub fn update_review(&mut self, review_id: u128, review_hash: String) {
         let account_id = env::predecessor_account_id();
         let mut review = self.review_map.get(&review_id).unwrap();
@@ -358,10 +422,7 @@ impl Avrit {
         self.review_map.insert(&review_id, &review);
         self.update_review_id_time_counter += 1;
         self.update_review_ids
-                    .insert(&self.update_review_id_time_counter, &review_id);
-
-
-
+            .insert(&self.update_review_id_time_counter, &review_id);
     }
 
     pub fn get_review(&self, review_id: u128) -> Review {
@@ -467,13 +528,17 @@ impl Avrit {
     pub fn new(owner_id: AccountId, total_supply: U128, cap: U128) -> Self {
         let total_supply = total_supply.into();
         let cap = cap.into();
-        assert!(total_supply <= cap, "Total supply should be less than or equal to cap.");
+        assert!(
+            total_supply <= cap,
+            "Total supply should be less than or equal to cap."
+        );
         assert!(!env::state_exists(), "Already initialized");
         let mut ft = Self {
             accounts: UnorderedMap::new(b"2d965fc1".to_vec()),
             total_supply,
             cap,
             owner_id: owner_id.clone(),
+            saving_id: owner_id.clone(),
             user_id: 0,
             product_id: 0,
             review_id: 0,
@@ -510,6 +575,8 @@ impl Avrit {
             schelling_decisions_juror: LookupMap::new(b"8c7b8f85".to_vec()),
             schelling_decision_true_count: LookupMap::new(b"4bf8d29d".to_vec()),
             schelling_decision_false_count: LookupMap::new(b"98396f41".to_vec()),
+            burn_percentage: 0.0,
+            saving_percentage: 0.0,
         };
         let mut account = ft.get_account(&owner_id);
         account.balance = total_supply;
@@ -616,9 +683,10 @@ impl Avrit {
         self.set_account(&owner_id, &account);
 
         // Deposit amount to the new owner and save the new account to the state.
-        let mut new_account = self.get_account(&new_owner_id);
-        new_account.balance += amount;
-        self.set_account(&new_owner_id, &new_account);
+        // let mut new_account = self.get_account(&new_owner_id);
+        // new_account.balance += amount;
+        // self.set_account(&new_owner_id, &new_account);
+        self.transfer_and_burn(&new_owner_id, amount);
         self.refund_storage(initial_storage);
     }
 
@@ -725,7 +793,10 @@ impl Avrit {
         account.balance += amount;
         self.set_account(&owner_id, &account);
         let tsupply = self.total_supply + amount;
-        assert!(tsupply <= self.cap, "Total supply should be less than or equal to cap.");
+        assert!(
+            tsupply <= self.cap,
+            "Total supply should be less than or equal to cap."
+        );
         self.total_supply = tsupply;
     }
 
@@ -943,7 +1014,7 @@ impl Avrit {
     //         }
     //     }
     // }
-    pub fn get_juror_stakes(&self, review_id: u128, juror_user_id: u128) -> u128 {
+    fn get_juror_stakes(&self, review_id: u128, juror_user_id: u128) -> u128 {
         let juror_list_option = self.user_juror_stakes.get(&review_id);
         match juror_list_option {
             Some(juror_list) => {
@@ -954,7 +1025,12 @@ impl Avrit {
         }
     }
 
-    pub fn get_juror_selection_time(&self, review_id: &u128) -> u64 {
+    pub fn get_juror_stakes_number(&self, review_id: u128, juror_user_id: u128) -> U128 {
+        let juror_stake = self.get_juror_stakes(review_id, juror_user_id);
+        juror_stake.into()
+    }
+
+    fn get_juror_selection_time(&self, review_id: &u128) -> u64 {
         let timestamp_juror_selection_time_option = self.juror_selection_time.get(&review_id);
         match timestamp_juror_selection_time_option {
             Some(timestamp) => timestamp,
@@ -962,6 +1038,11 @@ impl Avrit {
                 panic!("Jurors are not selected yet");
             }
         }
+    }
+
+    pub fn get_juror_selection_time_number(&self, review_id: &u128) -> U64 {
+        let timestamp = self.get_juror_selection_time(review_id);
+        timestamp.into()
     }
 
     pub fn commit_vote(&mut self, review_id: u128, vote_commit: String) {
@@ -1206,7 +1287,7 @@ impl Avrit {
         }
     }
 
-    pub fn get_true_count(&self, review_id: u128) -> u128 {
+    fn get_true_count(&self, review_id: u128) -> u128 {
         let count_option = self.schelling_decision_true_count.get(&review_id);
         match count_option {
             Some(count) => count,
@@ -1216,7 +1297,12 @@ impl Avrit {
         }
     }
 
-    pub fn get_false_count(&self, review_id: u128) -> u128 {
+    pub fn get_true_count_number(&self, review_id: u128) -> U128 {
+        let count = self.get_true_count(review_id);
+        count.into()
+    }
+
+    fn get_false_count(&self, review_id: u128) -> u128 {
         let count_option = self.schelling_decision_false_count.get(&review_id);
         match count_option {
             Some(count) => count,
@@ -1224,6 +1310,11 @@ impl Avrit {
                 panic!("Count is not set");
             }
         }
+    }
+
+    pub fn get_false_count_number(&self, review_id: u128) -> U128 {
+        let count = self.get_false_count(review_id);
+        count.into()
     }
     pub fn get_winning_decision(&self, review_id: u128) -> u8 {
         let timestamp = env::block_timestamp();
