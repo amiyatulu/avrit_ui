@@ -59,14 +59,15 @@ pub struct Avrit {
     selected_juror_count: LookupMap<u128, u64>, // <review_id, selected_juror_count>
     selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>
     juror_selection_time: LookupMap<u128, u64>,
+    jury_application_start_time: LookupMap<u128, u64>, // <review_id, time>
     product_id_set_ucount: u128,
     review_id_set_ucount: u128,
     product_check_bounty_vector_ucount: u128,
     review_check_bounty_vector_ucount: u128,
     jury_count: u64,
-    jury_selection_time: u64, // Jury selection time in seconds
-    commit_phase_time: u64,   // Commit phase time in seconds
-    reveal_phase_time: u64,   // Reveal phase time in seconds
+    jury_application_phase_time: u64, // Jury selection time in seconds
+    commit_phase_time: u64,           // Commit phase time in seconds
+    reveal_phase_time: u64,           // Reveal phase time in seconds
     voter_commit: LookupMap<u128, LookupMap<String, u8>>, // review_id, vote_commits, 1 if commited, 2 if revealed
     juror_voting_status: LookupMap<u128, LookupMap<u128, u8>>, // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed, 3=got the incentives>
     schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <reviewer_id, <jurorid, 1=true 0=false>>
@@ -112,6 +113,10 @@ impl Avrit {
     pub fn set_reveal_phase_time(&mut self, time_in_secs: u64) {
         self.assert_owner();
         self.reveal_phase_time = time_in_secs;
+    }
+    pub fn set_jury_application_phase_time(&mut self, time_in_secs: u64) {
+        self.assert_owner();
+        self.jury_application_phase_time = time_in_secs;
     }
     pub fn set_jury_count(&mut self, jury_count: u64) {
         self.assert_owner();
@@ -400,6 +405,9 @@ impl Avrit {
                 };
                 self.review_id += 1;
                 self.review_map.insert(&self.review_id, &rev);
+                let timestamp = env::block_timestamp();
+                self.jury_application_start_time
+                    .insert(&self.review_id, &timestamp);
                 let product_reviews_option = self.product_reviews_map.get(&product_id);
                 match product_reviews_option {
                     Some(mut review_ids_set) => {
@@ -495,10 +503,10 @@ impl Avrit {
                     .insert(&review_id, &review_commentreview_set);
             }
             None => {
-                let s ="reviewcommentsetkey";
+                let s = "reviewcommentsetkey";
                 let t = format!("{}{}", s, review_id);
                 let id = t.to_string().into_bytes();
-                let mut review_commentreview_set =  UnorderedSet::new(id);
+                let mut review_commentreview_set = UnorderedSet::new(id);
                 review_commentreview_set.insert(&self.comment_review_id);
                 self.review_commentreview_map
                     .insert(&review_id, &review_commentreview_set);
@@ -506,7 +514,7 @@ impl Avrit {
         }
     }
 
-    pub fn get_commentproduct_by_product_id(&self, product_id:u128) -> Vec<u128> {
+    pub fn get_commentproduct_by_product_id(&self, product_id: u128) -> Vec<u128> {
         let product_commentproduct_option = self.product_commentproduct_map.get(&product_id);
         match product_commentproduct_option {
             Some(commentproduct_set) => commentproduct_set.to_vec(),
@@ -516,7 +524,7 @@ impl Avrit {
         }
     }
 
-    pub fn get_commentreview_by_review_id(&self, review_id:u128) -> Vec<u128> {
+    pub fn get_commentreview_by_review_id(&self, review_id: u128) -> Vec<u128> {
         let review_commentreview_option = self.review_commentreview_map.get(&review_id);
         match review_commentreview_option {
             Some(commentreview_set) => commentreview_set.to_vec(),
@@ -666,11 +674,12 @@ impl Avrit {
             juror_stake_unique_id: 0,
             selected_juror: LookupMap::new(b"89390257".to_vec()),
             jury_count: 20,
-            jury_selection_time: 1296000, // 15 days in secs
-            commit_phase_time: 2592000,   // 30 days in secs
-            reveal_phase_time: 1296000,   // 15 days in secs
+            jury_application_phase_time: 1296000, // 15 days in secs
+            commit_phase_time: 2592000,           // 30 days in secs
+            reveal_phase_time: 1296000,           // 15 days in secs
             jury_incentives: 10,
             selected_juror_count: LookupMap::new(b"532caf99".to_vec()),
+            jury_application_start_time: LookupMap::new(b"1bff54ac".to_vec()),
             juror_selection_time: LookupMap::new(b"5942be3d".to_vec()),
             voter_commit: LookupMap::new(b"a11fe88d".to_vec()),
             juror_voting_status: LookupMap::new(b"4c4879f8".to_vec()),
@@ -1031,7 +1040,34 @@ impl Avrit {
         }
     }
 
+    fn get_jury_application_start_time(&self, review_id: u128) -> u64 {
+        let timestamp_jury_application_start_time_option =
+            self.jury_application_start_time.get(&review_id);
+        match timestamp_jury_application_start_time_option {
+            Some(timestamp) => timestamp,
+            None => {
+                panic!("No application time for review id");
+            }
+        }
+    }
+
+    fn assert_draw_jurors_time_possible(&self, review_id: u128) {
+        let timestamp = env::block_timestamp();
+        let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
+        // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>naive now:   {}", naive_now);
+        let timestamp_jury_application_start_time = self.get_jury_application_start_time(review_id);
+        let native_timestamp_jury_application_start_time =
+            NaiveDateTime::from_timestamp(timestamp_jury_application_start_time as i64, 0);
+        let seconds = Duration::seconds(self.jury_application_phase_time as i64);
+        let endtime = native_timestamp_jury_application_start_time + seconds;
+        // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>endtime draw juror: {}", endtime);
+        if naive_now < endtime {
+            panic!("Juror application time has not yet ended");
+        }
+    }
+
     pub fn draw_jurors(&mut self, review_id: u128, length: usize) {
+        self.assert_draw_jurors_time_possible(review_id);
         let selected_juror_option = self.selected_juror.get(&review_id);
         match selected_juror_option {
             Some(jurysetentries) => {
@@ -1511,4 +1547,12 @@ impl Avrit {
             }
         }
     }
+
+    // pub fn incentive_distribution_reviewer(&mut self, review_id: u128) {
+
+    // }
+
+    // pub fn incentive_distribution_product(&mut self, product_id: u128) {
+    //     // add all reviews decisions
+    // }
 }

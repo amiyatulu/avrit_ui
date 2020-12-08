@@ -563,6 +563,8 @@ mod tests {
             "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
             product.product_details_hash
         );
+        context.block_timestamp = get_timestamp();
+        testing_env!(context.clone());
         contract.create_review(
             1,
             "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
@@ -616,7 +618,7 @@ mod tests {
 
         context.random_seed = rand_vector();
         context.predecessor_account_id = carol();
-        context.block_timestamp = get_timestamp();
+        context.block_timestamp = get_timestamp_add(1296000);
         testing_env!(context.clone());
         contract.set_jury_count(5);
         contract.draw_jurors(1, 5);
@@ -672,7 +674,7 @@ mod tests {
         predecessor_account: AccountId,
         reviewer_id: u128,
     ) -> (Avrit, VMContext) {
-        context.block_timestamp = get_timestamp_add(2592000);
+        context.block_timestamp = get_timestamp_add(1296000 + 2592000);
         context.predecessor_account_id = predecessor_account;
         testing_env!(context.clone());
         let mut hasher = Keccak256::new();
@@ -1136,7 +1138,7 @@ mod tests {
         assert_eq!(data_true.0, 2);
         let data_false = contract.get_false_count_number(1);
         assert_eq!(data_false.0, 3);
-        context.block_timestamp = get_timestamp_add(2592000 + 1296001);
+        context.block_timestamp = get_timestamp_add(1296000 + 2592000 + 1296001);
         testing_env!(context.clone());
         let winingdecision = contract.get_winning_decision(1);
         assert_eq!(0, winingdecision);
@@ -1221,7 +1223,7 @@ mod tests {
         assert_eq!(data_true.0, 2);
         let data_false = contract.get_false_count_number(1);
         assert_eq!(data_false.0, 3);
-        context.block_timestamp = get_timestamp_add(2592000 + 1296001);
+        context.block_timestamp = get_timestamp_add(1296000 + 2592000 + 1296001);
         testing_env!(context.clone());
         let winingdecision = contract.get_winning_decision(1);
         assert_eq!(0, winingdecision);
