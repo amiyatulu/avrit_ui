@@ -1,0 +1,54 @@
+body {
+    margin-top: 100px !important;;
+}
+#mainNav.navbar-scrolled {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  background-color: #fff;
+}
+
+@font-face {
+  font-family: avritfont;
+  src: url(avritfont.ttf);
+}
+@font-face {
+    font-family: avrittext;
+    src: url(avrittext.ttf);
+  }
+.mainbrand .navbar-brand {
+  color: #fff;
+  font-family: avritfont;
+  font-size: x-large;
+}
+
+.navbar-scrolled .navbar-brand {
+  color: black;
+  font-family: avritfont;
+}
+
+.mainbrand .navbar-brand:hover,
+.mainbrand .navbar-brand:focus {
+  color: #5e5e5e;
+}
+.navbar-default .navbar-nav{
+    font-family: avrittext;
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: #777;
+}
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: #333;
+}
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+    color: #555;
+    background-color: #E7E7E7;
+}
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > .open > a:focus {
+    color: #555;
+    background-color: #D5D5D5;
+}

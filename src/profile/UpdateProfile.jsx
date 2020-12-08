@@ -60,7 +60,7 @@ function UpdateProfile(props) {
               console.log(file)
               console.log(file.cid.string)
               console.log(nearvar.contract)
-              await nearvar.contract.create_profile({ profile_hash: file.cid.string })
+              await nearvar.contract.update_profile({ profile_hash: file.cid.string })
 
               // const content = JSON.stringify(values);
               // const filename = "profile.json"

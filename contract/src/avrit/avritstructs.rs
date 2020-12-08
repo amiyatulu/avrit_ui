@@ -27,3 +27,19 @@ pub struct Product {
     pub product_expired: bool,
     pub product_id: u128,
 }
+
+#[derive(Default, BorshDeserialize, BorshSerialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct CommentProduct {
+    pub product_id: u128,
+    pub user_id: u128,
+    pub comment_hash: String,
+}
+
+#[derive(Default, BorshDeserialize, BorshSerialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct CommentReview {
+    pub review_id: u128,
+    pub user_id: u128,
+    pub comment_hash: String,
+}

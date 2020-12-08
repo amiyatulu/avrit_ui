@@ -11,7 +11,7 @@ use sha3::{Digest, Keccak256};
 pub mod account;
 pub use self::account::Account;
 pub mod avritstructs;
-pub use self::avritstructs::{Product, Review, User};
+pub use self::avritstructs::{CommentProduct, CommentReview, Product, Review, User};
 
 /// Price per 1 byte of storage from mainnet genesis config.
 pub const STORAGE_PRICE_PER_BYTE: Balance = 100000000000000000000;
@@ -33,6 +33,8 @@ pub struct Avrit {
     user_id: u128,
     product_id: u128,
     review_id: u128,
+    comment_product_id: u128,
+    comment_review_id: u128,
     update_user_ids: LookupMap<u128, u128>, //(incremental time number, update_user_id)
     update_user_id_time_counter: u128,
     update_product_ids: LookupMap<u128, u128>, //(incremental time number, updated_product_id)
@@ -43,8 +45,12 @@ pub struct Avrit {
     user_profile_map: TreeMap<u128, User>, // (user_id, User)
     product_map: TreeMap<u128, Product>,   // (product_id, Product)
     review_map: TreeMap<u128, Review>,     // (review_id, Review)
+    comment_product_map: LookupMap<u128, CommentProduct>, // (comment_product_id, CommentProduct)
+    comment_review_map: LookupMap<u128, CommentReview>, // (comment_review_id, CommentReview)
     user_products_map: TreeMap<u128, UnorderedSet<u128>>, // (user_id, set<product_id>)
     product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
+    product_commentproduct_map: LookupMap<u128, UnorderedSet<u128>>, // (product_id, set<commentproduct_id>)
+    review_commentreview_map: LookupMap<u128, UnorderedSet<u128>>, // (review_id, set<commentreview_id>)
     product_check_bounty: LookupMap<u128, Vector<u64>>, // (product_id, bounty -> 0 index +  0_bountyperiodover 1_bountyperiodexists -> 1 index)
     review_check_bounty: LookupMap<u128, Vector<u64>>, // (review_id, bounty -> 0 index +  0_bountyperiodover 1_bountyperiodexists -> 1 index)
     user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>>
@@ -58,8 +64,9 @@ pub struct Avrit {
     product_check_bounty_vector_ucount: u128,
     review_check_bounty_vector_ucount: u128,
     jury_count: u64,
-    commit_phase_time: u64, // Commit phase time in seconds
-    reveal_phase_time: u64, // Reveal phase time in seconds
+    jury_selection_time: u64, // Jury selection time in seconds
+    commit_phase_time: u64,   // Commit phase time in seconds
+    reveal_phase_time: u64,   // Reveal phase time in seconds
     voter_commit: LookupMap<u128, LookupMap<String, u8>>, // review_id, vote_commits, 1 if commited, 2 if revealed
     juror_voting_status: LookupMap<u128, LookupMap<u128, u8>>, // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed, 3=got the incentives>
     schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <reviewer_id, <jurorid, 1=true 0=false>>
@@ -172,7 +179,7 @@ impl Avrit {
         );
         assert!(
             percentage + self.saving_percentage <= 30.0,
-            "Burning can't be more than 30 percent"
+            "Burning can't be more than 30 percent per transaction"
         );
         self.burn_percentage = percentage;
     }
@@ -181,7 +188,7 @@ impl Avrit {
         self.assert_owner();
         assert!(
             percentage >= 0.0 && percentage <= 10.0,
-            "You can't set admin money percentage less than 0.0 and greater than 8.0"
+            "You can't set admin money percentage less than 0.0 and greater than 10.0"
         );
         assert!(
             percentage + self.saving_percentage <= 30.0,
@@ -333,13 +340,22 @@ impl Avrit {
         }
     }
 
+    pub fn get_products_of_user_id(&self, user_id: u128) -> Vec<u128> {
+        let products_set_option = self.user_products_map.get(&user_id);
+        match products_set_option {
+            Some(products_set) => products_set.to_vec(),
+            None => {
+                panic!("No products for user");
+            }
+        }
+    }
     pub fn get_products_of_user(&self) -> Vec<u128> {
         let account_id = env::predecessor_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
         match account_id_exists_option {
             Some(user_id) => {
-                let products_set = self.user_products_map.get(&user_id).unwrap();
-                return products_set.to_vec();
+                let productvec = self.get_products_of_user_id(user_id);
+                productvec
             }
             None => {
                 panic!("User profile does not exists");
@@ -430,6 +446,85 @@ impl Avrit {
         review
     }
 
+    pub fn create_comment_product(&mut self, product_id: u128, comment_hash: String) {
+        let account_id = env::predecessor_account_id();
+        let user_id = self.get_user_id(&account_id);
+        let comment = CommentProduct {
+            product_id,
+            user_id,
+            comment_hash,
+        };
+        self.comment_product_id += 1;
+        self.comment_product_map
+            .insert(&self.comment_product_id, &comment);
+        let product_commentproduct_option = self.product_commentproduct_map.get(&product_id);
+        match product_commentproduct_option {
+            Some(mut product_commentproduct_set) => {
+                product_commentproduct_set.insert(&self.comment_product_id);
+                self.product_commentproduct_map
+                    .insert(&product_id, &product_commentproduct_set);
+            }
+            None => {
+                let s = "commentproductsetkey";
+                let t = format!("{}{}", s, product_id);
+                let id = t.to_string().into_bytes();
+                let mut product_commentproduct_set = UnorderedSet::new(id);
+                product_commentproduct_set.insert(&self.comment_product_id);
+                self.product_commentproduct_map
+                    .insert(&product_id, &product_commentproduct_set);
+            }
+        }
+    }
+
+    pub fn create_comment_review(&mut self, review_id: u128, comment_hash: String) {
+        let account_id = env::predecessor_account_id();
+        let user_id = self.get_user_id(&account_id);
+        let comment = CommentReview {
+            review_id,
+            user_id,
+            comment_hash,
+        };
+        self.comment_review_id += 1;
+        self.comment_review_map
+            .insert(&self.comment_review_id, &comment);
+        let review_commentreview_option = self.review_commentreview_map.get(&review_id);
+        match review_commentreview_option {
+            Some(mut review_commentreview_set) => {
+                review_commentreview_set.insert(&self.comment_review_id);
+                self.review_commentreview_map
+                    .insert(&review_id, &review_commentreview_set);
+            }
+            None => {
+                let s ="reviewcommentsetkey";
+                let t = format!("{}{}", s, review_id);
+                let id = t.to_string().into_bytes();
+                let mut review_commentreview_set =  UnorderedSet::new(id);
+                review_commentreview_set.insert(&self.comment_review_id);
+                self.review_commentreview_map
+                    .insert(&review_id, &review_commentreview_set);
+            }
+        }
+    }
+
+    pub fn get_commentproduct_by_product_id(&self, product_id:u128) -> Vec<u128> {
+        let product_commentproduct_option = self.product_commentproduct_map.get(&product_id);
+        match product_commentproduct_option {
+            Some(commentproduct_set) => commentproduct_set.to_vec(),
+            None => {
+                panic!("No comments on product");
+            }
+        }
+    }
+
+    pub fn get_commentreview_by_review_id(&self, review_id:u128) -> Vec<u128> {
+        let review_commentreview_option = self.review_commentreview_map.get(&review_id);
+        match review_commentreview_option {
+            Some(commentreview_set) => commentreview_set.to_vec(),
+            None => {
+                panic!("No comments on review");
+            }
+        }
+    }
     pub fn add_product_bounty(&mut self, bounty: u64, product_id: u128) {
         let account_id = env::predecessor_account_id();
         // println!(">>>>add product bounty{}<<<<<<<<<<", account_id);
@@ -542,6 +637,8 @@ impl Avrit {
             user_id: 0,
             product_id: 0,
             review_id: 0,
+            comment_product_id: 0,
+            comment_review_id: 0,
             update_user_ids: LookupMap::new(b"f657bf68".to_vec()),
             update_user_id_time_counter: 0,
             update_product_ids: LookupMap::new(b"ef434fcd".to_vec()),
@@ -552,8 +649,12 @@ impl Avrit {
             user_profile_map: TreeMap::new(b"589d167f".to_vec()),
             product_map: TreeMap::new(b"cf27d94f".to_vec()),
             review_map: TreeMap::new(b"5fc2c77f".to_vec()),
+            comment_product_map: LookupMap::new(b"fc337b34".to_vec()),
+            comment_review_map: LookupMap::new(b"7859e655".to_vec()),
             user_products_map: TreeMap::new(b"e7b6e8a6".to_vec()),
             product_reviews_map: TreeMap::new(b"ea4ee217".to_vec()),
+            product_commentproduct_map: LookupMap::new(b"fadfdeca".to_vec()),
+            review_commentreview_map: LookupMap::new(b"00e72970".to_vec()),
             product_check_bounty: LookupMap::new(b"0566cfb4".to_vec()),
             review_check_bounty: LookupMap::new(b"00423f89".to_vec()),
             product_id_set_ucount: 0,
@@ -565,8 +666,9 @@ impl Avrit {
             juror_stake_unique_id: 0,
             selected_juror: LookupMap::new(b"89390257".to_vec()),
             jury_count: 20,
-            commit_phase_time: 2592000, // 30 days in secs
-            reveal_phase_time: 1296000, // 15 days in secs
+            jury_selection_time: 1296000, // 15 days in secs
+            commit_phase_time: 2592000,   // 30 days in secs
+            reveal_phase_time: 1296000,   // 15 days in secs
             jury_incentives: 10,
             selected_juror_count: LookupMap::new(b"532caf99".to_vec()),
             juror_selection_time: LookupMap::new(b"5942be3d".to_vec()),
