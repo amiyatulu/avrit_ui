@@ -51,14 +51,16 @@ pub struct Avrit {
     product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
     product_commentproduct_map: LookupMap<u128, UnorderedSet<u128>>, // (product_id, set<commentproduct_id>)
     review_commentreview_map: LookupMap<u128, UnorderedSet<u128>>, // (review_id, set<commentreview_id>)
-    product_check_bounty: LookupMap<u128, Vector<u64>>, // (product_id, bounty -> 0 index +  0_bountyperiodover 1_bountyperiodexists -> 1 index)
-    review_check_bounty: LookupMap<u128, Vector<u64>>, // (review_id, bounty -> 0 index +  0_bountyperiodover 1_bountyperiodexists -> 1 index)
-    user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>>
-    user_juror_stakes_clone: LookupMap<u128, TreeMap<u128, u128>>,
+    product_check_bounty: LookupMap<u128, Vector<u64>>, // (product_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
+    review_check_bounty: LookupMap<u128, Vector<u64>>, // (review_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
+    min_review_bounty: u64,
+    min_product_bounty: u64,
+    user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>> #Delete
+    user_juror_stakes_clone: LookupMap<u128, TreeMap<u128, u128>>, // #Delete
     juror_stake_unique_id: u128,
-    selected_juror_count: LookupMap<u128, u64>, // <review_id, selected_juror_count>
-    selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>
-    juror_selection_time: LookupMap<u128, u64>,
+    selected_juror_count: LookupMap<u128, u64>, // <review_id, selected_juror_count> #Delete
+    selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>  #Delete
+    juror_selection_time: LookupMap<u128, u64>, // <review_id, timestamp>
     jury_application_start_time: LookupMap<u128, u64>, // <review_id, time>
     product_id_set_ucount: u128,
     review_id_set_ucount: u128,
@@ -125,6 +127,21 @@ impl Avrit {
     pub fn set_jury_incentives(&mut self, incentives: u128) {
         self.assert_owner();
         self.jury_incentives = incentives;
+    }
+    pub fn set_min_product_bounty(&mut self, bounty: u64) {
+        self.assert_owner();
+        self.min_product_bounty = bounty;
+    }
+    pub fn set_min_review_bounty(&mut self, bounty: u64){
+        self.assert_owner();
+        self.min_review_bounty = bounty;
+    }
+
+    pub fn get_min_product_bounty(&self) -> U64 {
+        self.min_product_bounty.into()
+    }
+    pub fn get_min_review_bounty(&self) -> U64 {
+        self.min_review_bounty.into()
     }
     pub fn get_update_user_id_time_counter(&self) -> U128 {
         self.update_user_id_time_counter.into()
@@ -242,7 +259,7 @@ impl Avrit {
         }
     }
 
-    pub fn get_user_id_number(&self, account_id: &AccountId) -> U128 {
+    pub fn get_user_id_js(&self, account_id: &AccountId) -> U128 {
         let user_id = self.get_user_id(account_id);
         user_id.into()
     }
@@ -571,15 +588,20 @@ impl Avrit {
         }
     }
 
-    // pub fn get_product_bounty(&mut self, product_id: u128) -> Vector<u64> {
-    //     let bounty_option = self.product_check_bounty.get(&product_id);
-    //     match bounty_option {
-    //         Some(bountyvector) => bountyvector,
-    //         None => {
-    //             panic!("Bounty doesn't exists");
-    //         }
-    //     }
-    // }
+    pub fn get_product_bounty_js(&self, product_id: u128) -> (U64, U64) {
+        let (bountyvalue, bountryperiod) = self.get_product_bounty(product_id);
+        (bountyvalue.into(), bountryperiod.into())
+    }
+
+    fn get_product_bounty(&self, product_id: u128) -> (u64, u64) {
+        let bounty_option = self.product_check_bounty.get(&product_id);
+        match bounty_option {
+            Some(bountyvector) => (bountyvector.get(0).unwrap(), bountyvector.get(1).unwrap()),
+            None => {
+                panic!("Bounty doesn't exists");
+            }
+        }
+    }
     pub fn add_review_bounty(&mut self, bounty: u64, review_id: u128) {
         let account_id = env::predecessor_account_id();
         let review_bounty_exists_option = self.review_check_bounty.get(&review_id);
@@ -613,6 +635,21 @@ impl Avrit {
                 bountyvector.push(&bounty);
                 bountyvector.push(&1);
                 self.review_check_bounty.insert(&review_id, &bountyvector);
+            }
+        }
+    }
+
+    pub fn get_review_bounty_js(&self, review_id: u128) -> (U64, U64) {
+        let (bountyvalue, bountryperiod) = self.get_review_bounty(review_id);
+        (bountyvalue.into(), bountryperiod.into())
+    }
+
+    fn get_review_bounty(&self, review_id: u128) -> (u64, u64) {
+        let bounty_option = self.review_check_bounty.get(&review_id);
+        match bounty_option {
+            Some(bountyvector) => (bountyvector.get(0).unwrap(), bountyvector.get(1).unwrap()),
+            None => {
+                panic!("Bounty does not exists");
             }
         }
     }
@@ -665,6 +702,8 @@ impl Avrit {
             review_commentreview_map: LookupMap::new(b"00e72970".to_vec()),
             product_check_bounty: LookupMap::new(b"0566cfb4".to_vec()),
             review_check_bounty: LookupMap::new(b"00423f89".to_vec()),
+            min_review_bounty: 10,
+            min_product_bounty: 10,
             product_id_set_ucount: 0,
             review_id_set_ucount: 0,
             product_check_bounty_vector_ucount: 0,
@@ -940,8 +979,14 @@ impl Avrit {
         let rng: StdRng = SeedableRng::from_seed(seed);
         rng
     }
-    /// Apply Jurors with stake
+    /// Main function: Juror application
+    /// 1. Get the predecessor accound id number
+    /// 2. Call user juror stake store and clone store
     pub fn apply_jurors(&mut self, review_id: u128, stake: u128) {
+        let (bountyvalue, _bountryperiod) = self.get_review_bounty(review_id);
+        if bountyvalue < self.min_review_bounty {
+            panic!("Bounty is less than minimum allowed amount {}",self.min_review_bounty );
+        }
         let account_id = env::predecessor_account_id();
         let singer_juror_user = self.get_user_id(&account_id);
         self.user_juror_stakes_store(
@@ -956,6 +1001,14 @@ impl Avrit {
             stake.clone(),
         );
     }
+    /// Receives account id, needed to call burn function for burning the stake
+    /// signer_juror_user is account id number
+    /// If stake entries exists for review id
+    ///             If stake exists -> If stake is greater than zero, panic.
+    ///                                Else (is zero) -> ** burn the stake and append stake and account id number to their reviewer id
+    ///             None -> **
+    /// None (If stake entries don't exist) -> Set the id for stake entries then **
+
     fn user_juror_stakes_store(
         &mut self,
         account_id: String,
@@ -998,6 +1051,7 @@ impl Avrit {
         }
     }
 
+    ///  clone of user_juror_stakes_store
     fn user_juror_stakes_clone_store(
         &mut self,
         singer_juror_user: u128,
@@ -1066,6 +1120,10 @@ impl Avrit {
         }
     }
 
+    /// Main function: Draw Jurors
+    /// Check whether juror application time is over, if not through error
+    /// If juror is drawn, its get appended to selected_juror that contain review id nand juror id set
+    /// draw_jurors don't require predecessor id
     pub fn draw_jurors(&mut self, review_id: u128, length: usize) {
         self.assert_draw_jurors_time_possible(review_id);
         let selected_juror_option = self.selected_juror.get(&review_id);
@@ -1081,6 +1139,12 @@ impl Avrit {
             }
         }
     }
+    /// Recieves review id, selected jury id set of selected_juror for review id, and length (how many jury can be selected)
+    /// Get the juries stake items (contains juror account id numbers and stakes) from user_juror_stakes_clone for review id
+    /// Get the count of selected juror for the review id from selected_juror_count
+    /// If count is greater than equal to self.jury_count you can't select more jurors panic
+    /// After number of jurors selected gets equals to self.jury_count, timestamp is added to juror_selection_time with review id (it can be improved here, what if you don't get enough juror)
+    ///
     fn draw_jurors_function(
         &mut self,
         review_id: u128,
@@ -1100,7 +1164,7 @@ impl Avrit {
                 match selected_juror_count_option {
                     Some(count) => {
                         if count >= self.jury_count {
-                            panic!("Jury selection done");
+                            panic!("Jury selection done, no more juries can be added.");
                         } else {
                             countvalue = count;
                         }
@@ -1163,7 +1227,7 @@ impl Avrit {
         }
     }
 
-    pub fn get_juror_stakes_number(&self, review_id: u128, juror_user_id: u128) -> U128 {
+    pub fn get_juror_stakes_js(&self, review_id: u128, juror_user_id: u128) -> U128 {
         let juror_stake = self.get_juror_stakes(review_id, juror_user_id);
         juror_stake.into()
     }
@@ -1178,10 +1242,13 @@ impl Avrit {
         }
     }
 
-    pub fn get_juror_selection_time_number(&self, review_id: &u128) -> U64 {
+    pub fn get_juror_selection_time_js(&self, review_id: &u128) -> U64 {
         let timestamp = self.get_juror_selection_time(review_id);
         timestamp.into()
     }
+
+    /// Fetch the juror selection time from review id, get the commit phase time, add the both and get the endtime, if its less than now, panic
+    ///
 
     pub fn commit_vote(&mut self, review_id: u128, vote_commit: String) {
         let account_id = env::predecessor_account_id();
@@ -1267,6 +1334,8 @@ impl Avrit {
             }
         }
     }
+
+    /// Reveal end time is juror_selection_time + commit_phase_time + reveal_phase_time
     pub fn reveal_vote(&mut self, review_id: u128, vote: String, vote_commit: String) {
         let account_id = env::predecessor_account_id();
         let user_id = self.get_user_id(&account_id);
@@ -1435,7 +1504,7 @@ impl Avrit {
         }
     }
 
-    pub fn get_true_count_number(&self, review_id: u128) -> U128 {
+    pub fn get_true_count_js(&self, review_id: u128) -> U128 {
         let count = self.get_true_count(review_id);
         count.into()
     }
@@ -1450,7 +1519,7 @@ impl Avrit {
         }
     }
 
-    pub fn get_false_count_number(&self, review_id: u128) -> U128 {
+    pub fn get_false_count_js(&self, review_id: u128) -> U128 {
         let count = self.get_false_count(review_id);
         count.into()
     }
@@ -1501,7 +1570,7 @@ impl Avrit {
                         else if decision != winning_decision && winning_decision != 3 {
                             self.add_juror_voting_status_got_incentives(review_id, user_id);
                             let mint_value = (juror_stake as f64).powf(0.8) as u128 + 1;
-                            println!(">>>>>>>>>>>>>mintvalue{}<<<<<<<<<<<<<<<<<<<", mint_value);
+                            // println!(">>>>>>>>>>>>>mintvalue{}<<<<<<<<<<<<<<<<<<<", mint_value);
                             if mint_value > self.jury_incentives {
                                 self.mint(&account_id, mint_value);
                             }
@@ -1548,9 +1617,9 @@ impl Avrit {
         }
     }
 
-    // pub fn incentive_distribution_reviewer(&mut self, review_id: u128) {
-
-    // }
+    pub fn incentive_distribution_reviewer(&mut self, review_id: u128) {
+        let _winning_decision = self.get_winning_decision(review_id);
+    }
 
     // pub fn incentive_distribution_product(&mut self, product_id: u128) {
     //     // add all reviews decisions

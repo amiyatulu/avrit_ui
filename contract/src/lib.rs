@@ -569,6 +569,9 @@ mod tests {
             1,
             "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
         );
+        context.predecessor_account_id = carol();
+        testing_env!(context.clone());
+        contract.add_review_bounty(15,1);
         let (contract, context) = create_a_user(
             "juror1".to_owned(),
             carol(),
@@ -630,7 +633,7 @@ mod tests {
         // contract.draw_jurors(1, 5);
         let (contract, _context) = draw_juror_function();
 
-        let time = contract.get_juror_selection_time_number(&1);
+        let time = contract.get_juror_selection_time_js(&1);
         println!(">>>>>>time{}<<<<<<<<<", time.0);
         // let jurylist = contract.get_selected_jurors(1);
         // let four = jurylist.contains(&4);
@@ -1054,9 +1057,9 @@ mod tests {
             "juror5".to_owned(),
             1,
         );
-        let data_true = contract.get_true_count_number(1);
+        let data_true = contract.get_true_count_js(1);
         assert_eq!(data_true.0, 2);
-        let data_false = contract.get_false_count_number(1);
+        let data_false = contract.get_false_count_js(1);
         assert_eq!(data_false.0, 3);
     }
 
@@ -1134,9 +1137,9 @@ mod tests {
             "juror5".to_owned(),
             1,
         );
-        let data_true = contract.get_true_count_number(1);
+        let data_true = contract.get_true_count_js(1);
         assert_eq!(data_true.0, 2);
-        let data_false = contract.get_false_count_number(1);
+        let data_false = contract.get_false_count_js(1);
         assert_eq!(data_false.0, 3);
         context.block_timestamp = get_timestamp_add(1296000 + 2592000 + 1296001);
         testing_env!(context.clone());
@@ -1219,9 +1222,9 @@ mod tests {
             "juror5".to_owned(),
             1,
         );
-        let data_true = contract.get_true_count_number(1);
+        let data_true = contract.get_true_count_js(1);
         assert_eq!(data_true.0, 2);
-        let data_false = contract.get_false_count_number(1);
+        let data_false = contract.get_false_count_js(1);
         assert_eq!(data_false.0, 3);
         context.block_timestamp = get_timestamp_add(1296000 + 2592000 + 1296001);
         testing_env!(context.clone());
