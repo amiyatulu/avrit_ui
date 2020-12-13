@@ -7,6 +7,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 pub struct User {
     pub profile_hash: String, //IPFS Hash
     pub kyc_done: bool,
+    pub username: String,
 }
 
 #[derive(Default, BorshDeserialize, BorshSerialize)]

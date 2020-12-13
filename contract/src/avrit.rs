@@ -72,10 +72,12 @@ pub struct Avrit {
     reveal_phase_time: u64,           // Reveal phase time in seconds
     voter_commit: LookupMap<u128, LookupMap<String, u8>>, // review_id, vote_commits, 1 if commited, 2 if revealed
     juror_voting_status: LookupMap<u128, LookupMap<u128, u8>>, // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed, 3=got the incentives>
-    schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <reviewer_id, <jurorid, 1=true 0=false>>
-    schelling_decision_true_count: LookupMap<u128, u128>,            // <reviewer_id, true_count>
-    schelling_decision_false_count: LookupMap<u128, u128>,           // <reviewer_id, false_count>
-    jury_incentives: u128,
+    schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <review_id, <jurorid, 1=true 0=false>>
+    schelling_decision_true_count: LookupMap<u128, u128>,            // <review_id, true_count>
+    schelling_decision_false_count: LookupMap<u128, u128>,           // <review_id, false_count>
+    jury_incentives: u128,                                           // Extra incentives on winning
+    review_incentives: u128,                                         // Extra incentives on winning
+    review_got_incentives: LookupMap<u128, u8>, // <review_id, 1 if got incentives>
     burn_percentage: f32,
     saving_percentage: f32,
     // Fungible Token
@@ -112,58 +114,85 @@ impl Avrit {
         self.assert_owner();
         self.commit_phase_time = time_in_secs;
     }
+    pub fn get_commit_phase_time(self) -> U64 {
+        self.commit_phase_time.into()
+    }
     pub fn set_reveal_phase_time(&mut self, time_in_secs: u64) {
         self.assert_owner();
         self.reveal_phase_time = time_in_secs;
+    }
+    pub fn get_reveal_phase_time(&self) -> U64 {
+        self.reveal_phase_time.into()
     }
     pub fn set_jury_application_phase_time(&mut self, time_in_secs: u64) {
         self.assert_owner();
         self.jury_application_phase_time = time_in_secs;
     }
+    pub fn get_jury_application_phase_time(&self) -> U64 {
+        self.jury_application_phase_time.into()
+    }
     pub fn set_jury_count(&mut self, jury_count: u64) {
         self.assert_owner();
         self.jury_count = jury_count;
+    }
+    pub fn get_jury_count(&self) -> U64 {
+        self.jury_count.into()
     }
     pub fn set_jury_incentives(&mut self, incentives: u128) {
         self.assert_owner();
         self.jury_incentives = incentives;
     }
+    pub fn get_jury_incentives(&self) -> U128 {
+        self.jury_incentives.into()
+    }
+    pub fn set_review_incentives(&mut self, incentives: u128) {
+        self.assert_owner();
+        self.review_incentives = incentives;
+    }
+
+    pub fn get_review_incentives(&self) -> U128 {
+        self.review_incentives.into()
+    }
     pub fn set_min_product_bounty(&mut self, bounty: u64) {
         self.assert_owner();
         self.min_product_bounty = bounty;
     }
-    pub fn set_min_review_bounty(&mut self, bounty: u64){
+    pub fn get_min_product_bounty(&self) -> U64 {
+        self.min_product_bounty.into()
+    }
+    pub fn set_min_review_bounty(&mut self, bounty: u64) {
         self.assert_owner();
         self.min_review_bounty = bounty;
     }
 
-    pub fn get_min_product_bounty(&self) -> U64 {
-        self.min_product_bounty.into()
-    }
+   
     pub fn get_min_review_bounty(&self) -> U64 {
         self.min_review_bounty.into()
     }
-    pub fn get_update_user_id_time_counter(&self) -> U128 {
-        self.update_user_id_time_counter.into()
-    }
-    pub fn get_update_product_id_time_counter(&self) -> U128 {
-        self.update_product_id_time_counter.into()
-    }
-    pub fn get_update_review_id_time_counter(&self) -> U128 {
-        self.update_review_id_time_counter.into()
-    }
+    
+    
+    
 
     pub fn set_update_user_id_time_counter_zero(&mut self) {
         self.assert_owner();
         self.update_user_id_time_counter = 0;
     }
+    pub fn get_update_user_id_time_counter(&self) -> U128 {
+        self.update_user_id_time_counter.into()
+    }
     pub fn set_update_product_id_time_counter_zero(&mut self) {
         self.assert_owner();
         self.update_product_id_time_counter = 0;
     }
+    pub fn get_update_product_id_time_counter(&self) -> U128 {
+        self.update_product_id_time_counter.into()
+    }
     pub fn set_update_review_id_time_counter_zero(&mut self) {
         self.assert_owner();
         self.update_review_id_time_counter = 0;
+    }
+    pub fn get_update_review_id_time_counter(&self) -> U128 {
+        self.update_review_id_time_counter.into()
     }
     pub fn get_update_user_ids(&self, counter: u128) -> U128 {
         let update_user_ids_options = self.update_user_ids.get(&counter);
@@ -206,6 +235,10 @@ impl Avrit {
         self.burn_percentage = percentage;
     }
 
+    pub fn get_burn_percentage(&self) -> f32 {
+        self.burn_percentage
+    }
+
     pub fn set_saving_percentage(&mut self, percentage: f32) {
         self.assert_owner();
         assert!(
@@ -217,10 +250,6 @@ impl Avrit {
             "Burning can't be more than 30 percent"
         );
         self.saving_percentage = percentage;
-    }
-
-    pub fn get_burn_percentage(&self) -> f32 {
-        self.burn_percentage
     }
 
     pub fn get_saving_percentage(&self) -> f32 {
@@ -274,6 +303,7 @@ impl Avrit {
         let u = User {
             profile_hash,
             kyc_done: false,
+            username: account_id.clone(),
         };
         match account_id_exists_option {
             Some(_user_id) => {
@@ -291,17 +321,16 @@ impl Avrit {
 
     pub fn update_profile(&mut self, profile_hash: String) {
         let account_id = env::predecessor_account_id();
-        let account_id_exists_option = self.user_map.get(&account_id);
-        let u = User {
-            profile_hash,
-            kyc_done: false,
-        };
-        match account_id_exists_option {
-            Some(user_id) => {
-                self.user_profile_map.insert(&user_id, &u);
+        let account_id_number = self.get_user_id(&account_id);
+        let user_profile_exists_option = self.user_profile_map.get(&account_id_number);
+        match user_profile_exists_option {
+            Some(mut user_profile) => {
+                user_profile.profile_hash = profile_hash;
+                self.user_profile_map
+                    .insert(&account_id_number, &user_profile);
                 self.update_user_id_time_counter += 1;
                 self.update_user_ids
-                    .insert(&self.update_user_id_time_counter, &user_id);
+                    .insert(&self.update_user_id_time_counter, &account_id_number);
             }
             None => {
                 panic!("Create user profile first");
@@ -322,6 +351,14 @@ impl Avrit {
             None => {
                 panic!("User profile does not exists");
             }
+        }
+    }
+
+    pub fn get_user_profile(&self, user_id: u128) -> User {
+        let user_option = self.user_profile_map.get(&user_id);
+        match user_option {
+            Some(user) => user,
+            None => panic!("User profile for this id doesnot exist"),
         }
     }
 
@@ -551,6 +588,10 @@ impl Avrit {
         }
     }
     pub fn add_product_bounty(&mut self, bounty: u64, product_id: u128) {
+        assert!(
+            bounty >= self.min_product_bounty,
+            "Bounty can not be less than minimum product bounty"
+        );
         let account_id = env::predecessor_account_id();
         // println!(">>>>add product bounty{}<<<<<<<<<<", account_id);
         let product_bounty_exists_option = self.product_check_bounty.get(&product_id);
@@ -603,6 +644,10 @@ impl Avrit {
         }
     }
     pub fn add_review_bounty(&mut self, bounty: u64, review_id: u128) {
+        assert!(
+            bounty >= self.min_review_bounty,
+            "Bounty can not be less than minimum review bounty"
+        );
         let account_id = env::predecessor_account_id();
         let review_bounty_exists_option = self.review_check_bounty.get(&review_id);
         match review_bounty_exists_option {
@@ -717,6 +762,8 @@ impl Avrit {
             commit_phase_time: 2592000,           // 30 days in secs
             reveal_phase_time: 1296000,           // 15 days in secs
             jury_incentives: 10,
+            review_incentives: 10,
+            review_got_incentives: LookupMap::new(b"c296306e".to_vec()),
             selected_juror_count: LookupMap::new(b"532caf99".to_vec()),
             jury_application_start_time: LookupMap::new(b"1bff54ac".to_vec()),
             juror_selection_time: LookupMap::new(b"5942be3d".to_vec()),
@@ -985,7 +1032,10 @@ impl Avrit {
     pub fn apply_jurors(&mut self, review_id: u128, stake: u128) {
         let (bountyvalue, _bountryperiod) = self.get_review_bounty(review_id);
         if bountyvalue < self.min_review_bounty {
-            panic!("Bounty is less than minimum allowed amount {}",self.min_review_bounty );
+            panic!(
+                "Bounty is less than minimum allowed amount {}",
+                self.min_review_bounty
+            );
         }
         let account_id = env::predecessor_account_id();
         let singer_juror_user = self.get_user_id(&account_id);
@@ -1617,8 +1667,34 @@ impl Avrit {
         }
     }
 
+    fn check_review_got_incentives(&mut self, review_id: u128) {
+        let review_got_incentives_option = self.review_got_incentives.get(&review_id);
+        match review_got_incentives_option {
+            Some(value) => {
+                if value == 1 {
+                    panic!("Incentives is already given")
+                } else {
+                    self.review_got_incentives.insert(&review_id, &1);
+                }
+            }
+            None => {
+                self.review_got_incentives.insert(&review_id, &1);
+            }
+        }
+    }
+
     pub fn incentive_distribution_reviewer(&mut self, review_id: u128) {
-        let _winning_decision = self.get_winning_decision(review_id);
+        let winning_decision = self.get_winning_decision(review_id);
+        let (bountyvalue, _bountyperiod) = self.get_review_bounty(review_id);
+        let review = self.get_review(review_id);
+        let review_user_id = review.user_id;
+        let user = self.get_user_profile(review_user_id);
+        let review_incentives = self.review_incentives;
+        let user_address = user.username;
+        if winning_decision == 1 {
+            self.check_review_got_incentives(review_id);
+            self.mint(&user_address, review_incentives + bountyvalue as u128);
+        }
     }
 
     // pub fn incentive_distribution_product(&mut self, product_id: u128) {
