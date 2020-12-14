@@ -77,7 +77,13 @@ pub struct Avrit {
     schelling_decision_false_count: LookupMap<u128, u128>,           // <review_id, false_count>
     jury_incentives: u128,                                           // Extra incentives on winning
     review_incentives: u128,                                         // Extra incentives on winning
+    product_oa_incentives: u128,                                     // Extra incentives for each review for open access content  
+    product_evidence_incentives: u128,                               // Extra incentives for each review for evidence of learning
     review_got_incentives: LookupMap<u128, u8>, // <review_id, 1 if got incentives>
+    product_got_incentives: LookupMap<u128, LookupMap<u128, u8>>, // product_id <review_id, 1 if got incentives>
+    product_incentives_count: LookupMap<u128, u128>, // product_id, product_incentives_count
+    max_allowed_product_oa_incentives: u128,
+    max_allowed_product_evidence_incentives: u128,
     burn_percentage: f32,
     saving_percentage: f32,
     // Fungible Token
@@ -149,9 +155,36 @@ impl Avrit {
         self.assert_owner();
         self.review_incentives = incentives;
     }
-
     pub fn get_review_incentives(&self) -> U128 {
         self.review_incentives.into()
+    }
+    pub fn set_product_oa_incentives(&mut self, incentives:u128) {
+        self.assert_owner();
+        self.product_oa_incentives = incentives;
+    }
+    pub fn get_product_oa_incentives(&self) -> U128 {
+        self.product_oa_incentives.into()
+    }
+    pub fn set_product_evidence_incentives(&mut self, incentives:u128) {
+        self.assert_owner();
+        self.product_evidence_incentives = incentives;
+    }
+    pub fn get_product_evidence_incentives(&self) -> U128 {
+        self.product_evidence_incentives.into()
+    }
+    pub fn set_max_allowed_product_oa_incentives(&mut self, count:u128) {
+        self.assert_owner();
+        self.max_allowed_product_oa_incentives = count;
+    }
+    pub fn get_max_allowed_product_oa_incentives(&self) -> U128 {
+        self.max_allowed_product_oa_incentives.into()
+    }
+    pub fn set_max_allowed_product_evidence_incentives(&mut self, count: u128) {
+        self.assert_owner();
+        self.max_allowed_product_evidence_incentives = count;
+    }
+    pub fn get_max_allowed_product_evidence_incentives(&self) -> U128 {
+        self.max_allowed_product_evidence_incentives.into()
     }
     pub fn set_min_product_bounty(&mut self, bounty: u64) {
         self.assert_owner();
@@ -164,15 +197,9 @@ impl Avrit {
         self.assert_owner();
         self.min_review_bounty = bounty;
     }
-
-   
     pub fn get_min_review_bounty(&self) -> U64 {
         self.min_review_bounty.into()
     }
-    
-    
-    
-
     pub fn set_update_user_id_time_counter_zero(&mut self) {
         self.assert_owner();
         self.update_user_id_time_counter = 0;
@@ -762,8 +789,14 @@ impl Avrit {
             commit_phase_time: 2592000,           // 30 days in secs
             reveal_phase_time: 1296000,           // 15 days in secs
             jury_incentives: 10,
-            review_incentives: 10,
+            review_incentives: 50,
+            product_oa_incentives: 10,
+            product_evidence_incentives: 10,
             review_got_incentives: LookupMap::new(b"c296306e".to_vec()),
+            product_got_incentives: LookupMap::new(b"2cdd4a9d".to_vec()),
+            product_incentives_count: LookupMap::new(b"d2e3cb69".to_vec()),
+            max_allowed_product_oa_incentives: 5,
+            max_allowed_product_evidence_incentives: 5,  
             selected_juror_count: LookupMap::new(b"532caf99".to_vec()),
             jury_application_start_time: LookupMap::new(b"1bff54ac".to_vec()),
             juror_selection_time: LookupMap::new(b"5942be3d".to_vec()),
