@@ -556,7 +556,7 @@ mod tests {
         assert_eq!(hash_string2, profile_hash);
         contract.create_product(
             "Product1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
-            "OA".to_owned(),
+            "oa".to_owned(),
         );
         let product = contract.get_product(1);
         assert_eq!(
