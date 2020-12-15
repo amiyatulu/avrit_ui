@@ -38,8 +38,6 @@ function ProductById() {
           <p className={styles.profilepara}>{ipfsData.introduction}</p>
           <h3 className={styles.labelstyle}>Details</h3>
           <p className={styles.profilepara}>{ipfsData.details}</p>
-          <h3 className={styles.labelstyle}>Profile Type</h3>
-          <p className={styles.profilepara}>{ipfsData.profile_type}</p>
           <h3 className={styles.labelstyle}>Specialization</h3>
           <p className={styles.profilepara}>{ipfsData.specialization}</p>
           <h3 className={styles.labelstyle}>Audience</h3>

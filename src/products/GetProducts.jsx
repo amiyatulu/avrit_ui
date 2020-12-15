@@ -6,10 +6,40 @@ import { IPFS_URL } from "../config/configvar"
 import ProductDetails from "./ProductDetails"
 import styles from "../profile/ViewProfile.module.css"
 
+
+function LoadingOrCreateProduct(props){
+  const {noProduct, fetchError} = props
+  if (noProduct) {
+    return (
+      <React.Fragment>
+        <div className="text-center">
+          <Link type="button" className="btn btn-primary" to="createproduct" >
+            Create Product
+          </Link>
+        </div>
+      </React.Fragment>
+    )
+  }
+  if (fetchError) {
+    return <p className="container">{fetchError}</p>
+  }
+  return (
+    <p className="container">
+      Loading
+      <span role="img" aria-label="loading">
+        ⌛⌛⌛⌛
+      </span>
+    </p>
+  )
+}
+
+
+
 function GetProducts() {
   const nearcontract = useContext(NearContext)
   const [productsData, setProductsData] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
+  const [noProduct, setNoProduct] = useState(false)
 
   useEffect(() => {
     async function fetchProducts() {
@@ -18,7 +48,6 @@ function GetProducts() {
         data = await nearcontract.contract.get_products_of_user()
         // await nearcontract.contract.update_product({product_id:1, product_details_hash:"x"})
         console.log(data)
-        setLoading(false)
 
         data.map(async (x) => {
           console.log(x)
@@ -27,7 +56,11 @@ function GetProducts() {
           setProductsData((oldProducts) => [...oldProducts, hash])
         })
       } catch (e) {
-        console.error(e)
+        console.error(e.message)
+        const errorboolean = e.message.includes("No products for user")
+        setNoProduct(errorboolean)
+        const failedtofetch = e.message
+        setFetchError(failedtofetch)
       }
     }
 
@@ -35,15 +68,7 @@ function GetProducts() {
   }, [nearcontract])
   return (
     <React.Fragment>
-      {loading && (
-        <p className="container">
-          Loading
-          <span role="img" aria-label="loading">
-            ⌛⌛⌛⌛
-          </span>
-        </p>
-      )}
-      {!loading && (
+      {productsData ? (
         <div className="container">
           <div>
             <h3 className={styles.labelstyle}>Products</h3>
@@ -60,6 +85,8 @@ function GetProducts() {
             </ul>
           </div>
         </div>
+      ): (
+        <LoadingOrCreateProduct noProduct={noProduct} fetchError={fetchError}/>
       )}
     </React.Fragment>
   )

@@ -11,6 +11,7 @@ function CreateProduct(props) {
   // const [count, setCount] = useState(0);
   let history = useHistory()
   let nearvar = useContext(NearContext)
+  const [errorThrow, setErrorThrow] = useState(false);
 
   return (
     <React.Fragment>
@@ -35,11 +36,15 @@ function CreateProduct(props) {
           onSubmit={async (values, actions) => {
             //   values.countvariable = count
             try {
+              const profile_type = values.profile_type
+              let clonedValues = {...values}
+              delete clonedValues.profile_type
+              console.log(clonedValues)
               const file = await ipfs.add({
                 path: "product.json",
-                content: JSON.stringify(values),
+                content: JSON.stringify(clonedValues),
               })
-              await nearvar.contract.create_product({ product_details_hash: file.cid.string })
+              await nearvar.contract.create_product({ product_details_hash: file.cid.string, product_type: profile_type})
 
               // const content = JSON.stringify(values);
               // const filename = "product.json"
@@ -47,6 +52,7 @@ function CreateProduct(props) {
               // await nearvar.contract.create_product({ product_details_hash: data.path.cid.string })
             } catch (e) {
               console.error(e)
+              setErrorThrow(e.message)
             }
 
             // actions.setSubmitting(false)
@@ -56,6 +62,7 @@ function CreateProduct(props) {
         >
           {({ handleSubmit, handleBlur, handleChange, errors, touched, isValid, isSubmitting, values, setFieldValue, validateForm }) => (
             <Form onSubmit={handleSubmit}>
+              {errorThrow && <p>{errorThrow}</p>}
               <div className="form-group">
                 <label htmlFor="headline">headline</label>
                 {touched.headline && errors.headline && <p className="alert alert-danger">{errors.headline}</p>}

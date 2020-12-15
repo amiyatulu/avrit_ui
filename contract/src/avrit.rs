@@ -340,7 +340,7 @@ impl Avrit {
             None => {
                 self.user_id += 1;
                 self.user_map.insert(&account_id, &self.user_id);
-                println!("{:?}: {:?}", account_id, self.user_id);
+                // println!("{:?}: {:?}", account_id, self.user_id);
                 self.user_profile_map.insert(&self.user_id, &u);
             }
         }
