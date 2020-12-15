@@ -468,8 +468,13 @@ impl Avrit {
     }
 
     pub fn get_product(&self, product_id: u128) -> Product {
-        let product = self.product_map.get(&product_id).unwrap();
-        product
+        let product_option = self.product_map.get(&product_id);
+        match product_option {
+            Some(product) => product,
+            None => {
+                panic!("No products for the id");
+            }
+        }
     }
 
     pub fn create_review(&mut self, product_id: u128, review_hash: String) {
@@ -1747,9 +1752,10 @@ impl Avrit {
     // max_allowed_product_evidence_incentives_count: u128,
 
     /// Check the product is already incentivised for the review  ✔️
-    /// Increment the product incentives count
-    /// Check the products don't exceed number of allowed review for incentives
-    /// Check the product is evidence of learning or open access, provide incentives only for this two category
+    /// Increment the product incentives count ✔️
+    /// Check the products don't exceed number of allowed review for incentives ✔️
+    /// Check the product is evidence of learning or open access  ✔️
+    /// provide incentives only for this two category ✔️
     fn check_if_product_will_get_incentives(&mut self, product_id: u128, review_id: u128) {
         let product_evidence_incentives_option = self.product_got_incentives.get(&product_id);
         match product_evidence_incentives_option {
@@ -1784,6 +1790,32 @@ impl Avrit {
         }
     }
 
+    fn increment_product_incentive_count_check_allowed_limit(&mut self, product_type: String, product_id: u128) -> u128{
+        let product_incentive_count_option = self.product_incentives_count.get(&product_id);
+        assert!(product_type == "oa" || product_type == "ev", "Only evidence of learning and open access gets incentives");
+        match product_incentive_count_option {
+            Some(product_incentive_count) => {
+                let mut incentives = 0;
+                if product_type == "oa" {
+                    assert!(product_incentive_count <= self.max_allowed_product_oa_incentives_count, "Exceeds the number of allowed reviews");
+                    incentives = self.product_oa_incentives;
+                } else if product_type == "ev" {
+                    assert!(product_incentive_count <= self.max_allowed_product_evidence_incentives_count, "Exceeds the number of allowed reviews");
+                    incentives = self.product_evidence_incentives;
+                } 
+                let count = product_incentive_count + 1;
+                self.product_incentives_count.insert(&product_id, &count);
+                incentives
+                
+            }
+            None => {
+                self.product_incentives_count.insert(&product_id, &1);
+                return 0;
+            }
+        }
+    }
+
+
     pub fn incentive_distribution_product(&mut self, product_id: u128, review_id: u128) {
         let review = self.get_review(review_id);
         let product_review_id = review.product_id;
@@ -1791,13 +1823,23 @@ impl Avrit {
             product_id == product_review_id,
             "Review and product do not match"
         );
-        let (bountyvalue, _bountyperiod) = self.get_product_bounty(product_id);
+        let product = self.get_product(product_id);
+        let product_type = product.product_type;
+        let product_user_id = product.user_id;
+        let user = self.get_user_profile(product_user_id);
+        let user_address = user.username;
+        let (_bountyvalue, _bountyperiod) = self.get_product_bounty(product_id);
         self.check_if_product_will_get_incentives(product_id, review_id);
+        let product_incentives = self.increment_product_incentive_count_check_allowed_limit(product_type, product_id);
+        assert!(product_incentives > 0, "Incentives should be greater than 0");
+        let winning_decision = self.get_winning_decision(review_id);
+        if winning_decision == 1 {
+            self.mint(&user_address, product_incentives);
+        }
     }
 }
-
 
 // To Do:
 // Limit the number of allowed reviews that will get incentives
 // Future To Dos (Not required now):
-// Set the threshold limit of incentives (for jury, review and product) that admin can't exceed  
+// Set the threshold limit of incentives (for jury, review and product) that admin can't exceed
