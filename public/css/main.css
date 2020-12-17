@@ -52,3 +52,12 @@ body {
     color: #555;
     background-color: #D5D5D5;
 }
+
+.navbar-toggler{
+  color:black;
+  background-color: #D5D5D5 !important;
+}
+.navbar-toggler-icon{
+  background-image: url(show.svg) !important;
+}
+

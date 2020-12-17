@@ -386,8 +386,8 @@ mod tests {
             "Product2xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
             "OA".to_owned(),
         );
-        let ids = contract.get_products_of_user();
-        println!("{:?}", ids);
+        let ids = contract.get_products_of_user(0, 5);
+        println!(">>>ids>{:?}<", ids);
         contract.create_review(
             1,
             "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),

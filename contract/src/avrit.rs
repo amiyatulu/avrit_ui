@@ -426,21 +426,21 @@ impl Avrit {
         }
     }
 
-    pub fn get_products_of_user_id(&self, user_id: u128) -> Vec<u128> {
+    pub fn get_products_of_user_id(&self, user_id: u128, start:usize, end:usize) -> Vec<u128> {
         let products_set_option = self.user_products_map.get(&user_id);
         match products_set_option {
-            Some(products_set) => products_set.to_vec(),
+            Some(products_set) => products_set.iter().skip(start).take(end).collect(),
             None => {
                 panic!("No products for user");
             }
         }
     }
-    pub fn get_products_of_user(&self) -> Vec<u128> {
+    pub fn get_products_of_user(&self, start:usize, end:usize) -> Vec<u128> {
         let account_id = env::predecessor_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
         match account_id_exists_option {
             Some(user_id) => {
-                let productvec = self.get_products_of_user_id(user_id);
+                let productvec = self.get_products_of_user_id(user_id, start, end);
                 productvec
             }
             None => {
@@ -451,7 +451,7 @@ impl Avrit {
 
     pub fn update_product(&mut self, product_id: u128, product_details_hash: String) {
         let account_id = env::predecessor_account_id();
-        let mut product = self.product_map.get(&product_id).unwrap();
+        let mut product = self.get_product(product_id);
         // println!("{:?} user_id", product.user_id);
         let user_id = self.get_user_id(&account_id);
         // println!("{:?} user_id from account", user_id);
@@ -521,7 +521,7 @@ impl Avrit {
     }
     pub fn update_review(&mut self, review_id: u128, review_hash: String) {
         let account_id = env::predecessor_account_id();
-        let mut review = self.review_map.get(&review_id).unwrap();
+        let mut review = self.get_review(review_id);
         let user_id = self.get_user_id(&account_id);
         if user_id == review.user_id {
             review.review_hash = review_hash;
@@ -544,6 +544,17 @@ impl Avrit {
             }
         }
     }
+
+    pub fn get_review_ids_by_product_id(&self, product_id: u128, start:usize, end:usize) -> Vec<u128> {
+        let review_set_option = self.product_reviews_map.get(&product_id);
+        match review_set_option {
+            Some(review_set) => review_set.iter().skip(start).take(end).collect(),
+            None => {
+                panic!("No reviews for product id");
+            }
+        }
+    }
+
 
     pub fn create_comment_product(&mut self, product_id: u128, comment_hash: String) {
         let account_id = env::predecessor_account_id();
@@ -605,20 +616,20 @@ impl Avrit {
         }
     }
 
-    pub fn get_commentproduct_by_product_id(&self, product_id: u128) -> Vec<u128> {
+    pub fn get_commentproduct_by_product_id(&self, product_id: u128, start:usize, end:usize) -> Vec<u128> {
         let product_commentproduct_option = self.product_commentproduct_map.get(&product_id);
         match product_commentproduct_option {
-            Some(commentproduct_set) => commentproduct_set.to_vec(),
+            Some(commentproduct_set) => commentproduct_set.iter().skip(start).take(end).collect(),
             None => {
                 panic!("No comments on product");
             }
         }
     }
 
-    pub fn get_commentreview_by_review_id(&self, review_id: u128) -> Vec<u128> {
+    pub fn get_commentreview_by_review_id(&self, review_id: u128, start:usize, end:usize) -> Vec<u128> {
         let review_commentreview_option = self.review_commentreview_map.get(&review_id);
         match review_commentreview_option {
-            Some(commentreview_set) => commentreview_set.to_vec(),
+            Some(commentreview_set) => commentreview_set.iter().skip(start).take(end).collect(),
             None => {
                 panic!("No comments on review");
             }

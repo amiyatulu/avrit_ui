@@ -3,6 +3,7 @@ import { useScrollHandler } from "./hooks/ScrollHandle"
 // import Logo from "./image/logobg.png"
 import { Link, NavLink } from "react-router-dom"
 import { NearContext } from "../context/NearContext"
+import AvritToken from "../profile/AvritToken"
 
 function Nav(props) {
   const scroll = useScrollHandler()
@@ -88,6 +89,11 @@ function Nav(props) {
                       onClick={props.onClick}
                     >
                       {nearvar.wallet.getAccountId()} (Log out)
+                    </button>
+                  </li>
+                  <li className="nav-item">
+                    <button className="btn nav-link js-scroll-trigger">
+                      <AvritToken />
                     </button>
                   </li>
                 </React.Fragment>

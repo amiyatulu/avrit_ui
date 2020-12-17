@@ -8,7 +8,19 @@ import styles from "../profile/ViewProfile.module.css"
 
 
 function LoadingOrCreateProduct(props){
-  const {noProduct, fetchError} = props
+  const {noProduct, fetchError, noProfile} = props
+  if(noProfile) {
+    return(
+      <React.Fragment>
+        <div className="text-center">
+          <p>First create a profile:</p>
+          <Link type="button" className="btn btn-primary" to="createprofile" >
+            Create Profile
+          </Link>
+        </div>
+      </React.Fragment>
+    )
+  }
   if (noProduct) {
     return (
       <React.Fragment>
@@ -40,12 +52,13 @@ function GetProducts() {
   const [productsData, setProductsData] = useState([])
   const [fetchError, setFetchError] = useState(false)
   const [noProduct, setNoProduct] = useState(false)
+  const [noProfile, setNoProfile] = useState(false)
 
   useEffect(() => {
     async function fetchProducts() {
       let data
       try {
-        data = await nearcontract.contract.get_products_of_user()
+        data = await nearcontract.contract.get_products_of_user({start:0, end:5})
         // await nearcontract.contract.update_product({product_id:1, product_details_hash:"x"})
         console.log(data)
 
@@ -59,6 +72,8 @@ function GetProducts() {
         console.error(e.message)
         const errorboolean = e.message.includes("No products for user")
         setNoProduct(errorboolean)
+        const errornoprofile = e.message.includes("User profile does not exists")
+        setNoProfile(errornoprofile)
         const failedtofetch = e.message
         setFetchError(failedtofetch)
       }
@@ -68,7 +83,7 @@ function GetProducts() {
   }, [nearcontract])
   return (
     <React.Fragment>
-      {productsData ? (
+      {productsData.length > 0 ? (
         <div className="container">
           <div>
             <h3 className={styles.labelstyle}>Products</h3>
@@ -86,7 +101,7 @@ function GetProducts() {
           </div>
         </div>
       ): (
-        <LoadingOrCreateProduct noProduct={noProduct} fetchError={fetchError}/>
+        <LoadingOrCreateProduct noProduct={noProduct} fetchError={fetchError}  noProfile={noProfile}/>
       )}
     </React.Fragment>
   )
