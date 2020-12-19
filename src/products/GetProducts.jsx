@@ -85,6 +85,12 @@ function GetProducts() {
     <React.Fragment>
       {productsData.length > 0 ? (
         <div className="container">
+          <div className="text-center">
+            <Link type="button" className="btn btn-primary" to={{ pathname:"/createproduct"}}>
+            Create Product
+          </Link>
+          </div>
+          <br/>
           <div>
             <h3 className={styles.labelstyle}>Products</h3>
             <ul className="list-group">

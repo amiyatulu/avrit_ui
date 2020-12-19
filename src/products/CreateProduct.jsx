@@ -50,6 +50,7 @@ function CreateProduct(props) {
               // const filename = "product.json"
               // const data = await Ipfsadd(content, filename)
               // await nearvar.contract.create_product({ product_details_hash: data.path.cid.string })
+              history.push('/myproducts')
             } catch (e) {
               console.error(e)
               setErrorThrow(e.message)

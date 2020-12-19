@@ -1852,5 +1852,6 @@ impl Avrit {
 
 // To Do:
 // Limit the number of allowed reviews that will get incentives
+// User cannot give multiple reviews to same product
 // Future To Dos (Not required now):
 // Set the threshold limit of incentives (for jury, review and product) that admin can't exceed

@@ -9,6 +9,7 @@ import CreateProduct from "./products/CreateProduct"
 import GetProducts from "./products/GetProducts"
 import ProductById from "./products/ProductById"
 import AvritToken from './profile/AvritToken';
+import CreateReviewEvidence from './reviews/CreateReviewEvidence';
 
 class App extends Component {
   constructor(props) {
@@ -104,6 +105,7 @@ class App extends Component {
               <Route path="/myproducts" component={GetProducts} />
               <Route path="/product/:id" component={ProductById} />
               <Route path="/balance" component={AvritToken} />
+              <Route path="/createreview/:pid" component={CreateReviewEvidence} />
             </NearContext.Provider>
           </Switch>
         </section>
