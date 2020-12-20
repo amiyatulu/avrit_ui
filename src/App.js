@@ -10,6 +10,8 @@ import GetProducts from "./products/GetProducts"
 import ProductById from "./products/ProductById"
 import AvritToken from './profile/AvritToken';
 import CreateReviewEvidence from './reviews/CreateReviewEvidence';
+import CreateReviewStake from './stakes/CreateReviewStake';
+import GetReviewStake from './stakes/GetReviewStake';
 
 class App extends Component {
   constructor(props) {
@@ -106,6 +108,8 @@ class App extends Component {
               <Route path="/product/:id" component={ProductById} />
               <Route path="/balance" component={AvritToken} />
               <Route path="/createreview/:pid" component={CreateReviewEvidence} />
+              <Route path="/reviewstake/:rid" component={CreateReviewStake} />
+              <Route path="/getreviewstake/:rid" component={GetReviewStake} />
             </NearContext.Provider>
           </Switch>
         </section>

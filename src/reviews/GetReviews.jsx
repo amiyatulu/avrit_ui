@@ -36,7 +36,7 @@ return (<React.Fragment>{
             <h3>Reviews</h3>
         {reviewsData.map((data) => (
             <React.Fragment key={data.review_id}>
-                <ReviewFullDetailsEvidence ipfshash={data.review_hash} />
+                <ReviewFullDetailsEvidence ipfshash={data.review_hash} rid={data.review_id} />
             </React.Fragment>
         ))
         }

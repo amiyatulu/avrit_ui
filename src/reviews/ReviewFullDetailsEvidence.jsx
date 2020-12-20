@@ -2,9 +2,11 @@ import React, { useState, useContext, useEffect } from "react"
 import { NearContext } from "../context/NearContext"
 import axios from "axios"
 import { IPFS_URL } from "../config/configvar"
+import { Link } from "react-router-dom"
+import GetReviewStake from '../stakes/GetReviewStake';
 
 function ReviewFullDetailsEvidence(props) {
-  let { ipfshash } = props
+  let { ipfshash, rid } = props
   const nearcontract = useContext(NearContext)
   const [reviewData, setReviewData] = useState(null)
 
@@ -28,6 +30,13 @@ function ReviewFullDetailsEvidence(props) {
             <p>{reviewData.originality}</p>
             <h5>Posing Probing Question</h5>
             <p>{reviewData.probingquestion}</p>
+            <Link
+              to={`/reviewstake/${rid}`}
+              className="badge badge-secondary mr-3"
+            >
+              Add or Update Stake
+            </Link>
+            <GetReviewStake rid={rid} />
           </div>
         </div>
       )}

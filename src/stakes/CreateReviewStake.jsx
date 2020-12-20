@@ -1,0 +1,88 @@
+import React, { useState, useContext } from "react"
+import * as Yup from "yup"
+import { Formik, Form, Field } from "formik"
+import { useHistory, useParams } from "react-router-dom"
+import { NearContext } from "../context/NearContext"
+import ipfs from "../commons/ipfs"
+import { FocusError, SubmittingWheel } from "../commons/FocusWheel"
+
+function CreateReviewStake(props) {
+  // const [count, setCount] = useState(0);
+  let history = useHistory()
+  let nearvar = useContext(NearContext)
+  const { rid } = useParams()
+  const [errorThrow, setErrorThrow] = useState(false)
+
+  return (
+    <React.Fragment>
+      <div className="container">
+        <Formik
+          initialValues={{
+            stake: "",
+          }}
+          validationSchema={Yup.object().shape({
+            stake: Yup.number().required("stake is required"),
+          })}
+          onSubmit={async (values, actions) => {
+            //   values.countvariable = count
+            //   const data = await ...
+            try {
+              await nearvar.contract.add_review_bounty({
+                bounty: parseInt(values.stake),
+                review_id: parseInt(rid),
+              })
+              actions.setSubmitting(false)
+              history.goBack()
+            } catch (e) {
+              console.error(e)
+              setErrorThrow(e.message)
+            }
+
+            // console.log(data)
+            // 
+          }}
+        >
+          {({
+            handleSubmit,
+            handleBlur,
+            handleChange,
+            errors,
+            touched,
+            isValid,
+            isSubmitting,
+            values,
+            setFieldValue,
+            validateForm,
+          }) => (
+            <Form onSubmit={handleSubmit}>
+              {errorThrow && <p>{errorThrow}</p>}
+
+              <div className="form-group">
+                <label htmlFor="stake">stake</label>
+                {touched.stake && errors.stake && (
+                  <p className="alert alert-danger">{errors.stake}</p>
+                )}
+
+                <Field name="stake" className="form-control" />
+              </div>
+
+              <div className="text-center">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isSubmitting}
+                >
+                  Submit Form
+                </button>
+              </div>
+              <SubmittingWheel isSubmitting={isSubmitting} />
+              <FocusError />
+            </Form>
+          )}
+        </Formik>
+      </div>
+    </React.Fragment>
+  )
+}
+
+export default CreateReviewStake
