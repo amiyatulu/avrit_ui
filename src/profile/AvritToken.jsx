@@ -23,16 +23,16 @@ function Loading(props) {
 function AvritToken() {
   const [balanceData, setBalanceData] = useState(null)
   const [fetchError, setFetchError] = useState(false)
-  const nearcontract = useContext(NearContext)
+  const { nearvar } = useContext(NearContext)
 
   useEffect(() => {
     async function fetchProfile() {
       let data
       try {
-        data = await nearcontract.contract.get_balance({
-          owner_id: nearcontract.wallet.getAccountId(),
+        data = await nearvar.contract.get_balance({
+          owner_id: nearvar.wallet.getAccountId(),
         })
-        console.log(nearcontract.wallet.getAccountId())
+        console.log(nearvar.wallet.getAccountId())
         console.log(data)
         setBalanceData(data)
       } catch (e) {
@@ -43,7 +43,7 @@ function AvritToken() {
     }
 
     fetchProfile()
-  }, [nearcontract])
+  }, [nearvar])
 
   return (
     <React.Fragment>

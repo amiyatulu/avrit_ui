@@ -5,13 +5,13 @@ import { FocusError, SubmittingWheel } from "../commons/FocusWheel"
 import { NearContext } from "../context/NearContext"
 import ipfs from "../commons/ipfs"
 import ProfileForm from "./ProfileForm"
-import { useHistory } from 'react-router-dom';
-import Ipfsadd from '../commons/TextileIO';
+import { useHistory } from "react-router-dom"
+import Ipfsadd from "../commons/TextileIO"
 
 function UpdateProfile(props) {
-  let nearvar = useContext(NearContext)
+  let { nearvar } = useContext(NearContext)
   const defaultProfileData = {
-      profileData: ""
+    profileData: "",
   }
   const { profileData } = props.location.query || defaultProfileData
   console.log(profileData)
@@ -23,7 +23,6 @@ function UpdateProfile(props) {
     skills: "",
   }
   if (profileData) {
-  
     initialValues = {
       headline: profileData.headline,
       introduction: profileData.introduction,
@@ -32,9 +31,8 @@ function UpdateProfile(props) {
       skills: profileData.skills,
     }
   }
-  const history = useHistory();
+  const history = useHistory()
   const [fetchError, setFetchError] = useState(null)
-  
 
   return (
     <React.Fragment>
@@ -60,7 +58,9 @@ function UpdateProfile(props) {
               console.log(file)
               console.log(file.cid.string)
               console.log(nearvar.contract)
-              await nearvar.contract.update_profile({ profile_hash: file.cid.string })
+              await nearvar.contract.update_profile({
+                profile_hash: file.cid.string,
+              })
 
               // const content = JSON.stringify(values);
               // const filename = "profile.json"
@@ -68,7 +68,7 @@ function UpdateProfile(props) {
               // console.log(data, "mydata")
               // await nearvar.contract.create_profile({ profile_hash: data.path.cid.string })
               localStorage.removeItem("my-profile")
-              history.push('/profile')
+              history.push("/profile")
             } catch (e) {
               console.error(e)
               setFetchError("Submission error, try again!")
@@ -78,10 +78,24 @@ function UpdateProfile(props) {
             // console.log(data)
           }}
         >
-          {({ handleSubmit, handleBlur, handleChange, errors, touched, isSubmitting, values, setFieldValue, validateForm }) => (
+          {({
+            handleSubmit,
+            handleBlur,
+            handleChange,
+            errors,
+            touched,
+            isSubmitting,
+            values,
+            setFieldValue,
+            validateForm,
+          }) => (
             <Form onSubmit={handleSubmit}>
-              <ProfileForm errors={errors} touched={touched} isSubmitting={isSubmitting} />
-              <br/>
+              <ProfileForm
+                errors={errors}
+                touched={touched}
+                isSubmitting={isSubmitting}
+              />
+              <br />
               <div className="text-center">{fetchError}</div>
               <SubmittingWheel isSubmitting={isSubmitting} />
 

@@ -1,15 +1,17 @@
 import React, { useState, useContext } from "react"
 import * as Yup from "yup"
 import { Formik, Form, Field } from "formik"
-import { useHistory } from "react-router-dom"
+import { useHistory, useParams } from "react-router-dom"
 import { NearContext } from "../context/NearContext"
 import ipfs from "../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../commons/FocusWheel"
 
-function ProductStake(props) {
+function ApplyJuryStake(props) {
   // const [count, setCount] = useState(0);
+  const { rid } = useParams()
   let history = useHistory()
   let { nearvar } = useContext(NearContext)
+  const [errorThrow, setErrorThrow] = useState(false)
 
   return (
     <React.Fragment>
@@ -22,20 +24,20 @@ function ProductStake(props) {
             stake: Yup.number().required("stake is required"),
           })}
           onSubmit={async (values, actions) => {
-            //   values.countvariable = count
-            //   const data = await ...
             try {
-              await nearvar.contract.add_product_bounty({
-                bounty: values.stake,
-                product_id: 1,
+              //   values.countvariable = count
+              await nearvar.contract.apply_jurors({
+                review_id: parseInt(rid),
+                stake: parseInt(values.stake),
               })
               actions.setSubmitting(false)
+              // console.log(data)
+              // history.push(`/thankyou${data.mutationoutputname}`)
+              history.goBack()
             } catch (e) {
               console.error(e)
+              setErrorThrow(e.message)
             }
-
-            // console.log(data)
-            // history.push(`/thankyou${data.mutationoutputname}`)
           }}
         >
           {({
@@ -51,6 +53,8 @@ function ProductStake(props) {
             validateForm,
           }) => (
             <Form onSubmit={handleSubmit}>
+              {errorThrow && <p>{errorThrow}</p>}
+
               <div className="form-group">
                 <label htmlFor="stake">stake</label>
                 {touched.stake && errors.stake && (
@@ -79,4 +83,4 @@ function ProductStake(props) {
   )
 }
 
-export default ProductStake
+export default ApplyJuryStake

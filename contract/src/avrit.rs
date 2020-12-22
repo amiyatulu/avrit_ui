@@ -55,6 +55,7 @@ pub struct Avrit {
     review_check_bounty: LookupMap<u128, Vector<u64>>, // (review_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
     min_review_bounty: u64,
     min_product_bounty: u64,
+    min_jury_stake: u64,
     user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>> #Delete
     user_juror_stakes_clone: LookupMap<u128, TreeMap<u128, u128>>, // #Delete
     juror_stake_unique_id: u128,
@@ -199,6 +200,13 @@ impl Avrit {
     }
     pub fn get_min_review_bounty(&self) -> U64 {
         self.min_review_bounty.into()
+    }
+    pub fn set_min_jury_stake(&mut self, stake: u64) {
+        self.assert_owner();
+        self.min_jury_stake = stake;
+    }
+    pub fn get_min_jury_stake(&self) -> U64 {
+        self.min_jury_stake.into()
     }
     pub fn set_update_user_id_time_counter_zero(&mut self) {
         self.assert_owner();
@@ -797,6 +805,7 @@ impl Avrit {
             review_check_bounty: LookupMap::new(b"00423f89".to_vec()),
             min_review_bounty: 10,
             min_product_bounty: 10,
+            min_jury_stake: 10,
             product_id_set_ucount: 0,
             review_id_set_ucount: 0,
             product_check_bounty_vector_ucount: 0,
@@ -1091,6 +1100,11 @@ impl Avrit {
                 self.min_review_bounty
             );
         }
+        if stake < self.min_jury_stake as u128{
+            panic!(
+                "Stake is less than minimum allowed amount"
+            )
+        }
         let account_id = env::predecessor_account_id();
         let singer_juror_user = self.get_user_id(&account_id);
         self.user_juror_stakes_store(
@@ -1327,7 +1341,7 @@ impl Avrit {
                 let juror_stake = juror_list.get(&juror_user_id).unwrap();
                 juror_stake
             }
-            None => panic!("No one has staked for the voter"),
+            None => panic!("No stakes for the review"),
         }
     }
 

@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { useState, useEffect } from "react"
 import { Route, Switch } from "react-router-dom"
 import CreateProfile from "./profile/CreateProfile"
 import { NearContext } from "./context/NearContext"
@@ -8,39 +8,54 @@ import UpdateProfile from "./profile/UpdateProfile"
 import CreateProduct from "./products/CreateProduct"
 import GetProducts from "./products/GetProducts"
 import ProductById from "./products/ProductById"
-import AvritToken from './profile/AvritToken';
-import CreateReviewEvidence from './reviews/CreateReviewEvidence';
-import CreateReviewStake from './stakes/CreateReviewStake';
-import GetReviewStake from './stakes/GetReviewStake';
+import AvritToken from "./profile/AvritToken"
+import CreateReviewEvidence from "./reviews/CreateReviewEvidence"
+import CreateReviewStake from "./stakes/CreateReviewStake"
+import GetReviewStake from "./stakes/GetReviewStake"
+import ApplyJuryStake from "./schelling/ApplyJuryStake"
+import GetJuryStake from "./schelling/GetJuryStake"
 
-class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      login: false,
-      speech: null,
+function App(props) {
+  const [login, setLogin] = useState(false)
+  const [speech, setSpeech] = useState(null)
+  // constructor(props) {
+  //   super(props)
+  //   this.state = {
+  //     login: false,
+  //     speech: null,
+  //   }
+  //   this.signedInFlow = this.signedInFlow.bind(this)
+  //   this.requestSignIn = this.requestSignIn.bind(this)
+  //   this.requestSignOut = this.requestSignOut.bind(this)
+  //   this.signedOutFlow = this.signedOutFlow.bind(this)
+  // }
+
+  useEffect(() => {
+    async function login() {
+      let loggedIn = props.wallet.isSignedIn()
+      if (loggedIn) {
+        signedInFlow()
+      } else {
+        signedOutFlow()
+      }
     }
-    this.signedInFlow = this.signedInFlow.bind(this)
-    this.requestSignIn = this.requestSignIn.bind(this)
-    this.requestSignOut = this.requestSignOut.bind(this)
-    this.signedOutFlow = this.signedOutFlow.bind(this)
-  }
+    login()
+    console.log("Main use effect")
+  }, [props])
 
-  componentDidMount() {
-    let loggedIn = this.props.wallet.isSignedIn()
-    if (loggedIn) {
-      this.signedInFlow()
-    } else {
-      this.signedOutFlow()
-    }
-  }
+  // componentDidMount() {
+  //   let loggedIn = this.props.wallet.isSignedIn()
+  //   if (loggedIn) {
+  //     this.signedInFlow()
+  //   } else {
+  //     this.signedOutFlow()
+  //   }
+  // }
 
-  async signedInFlow() {
+  async function signedInFlow() {
     console.log("come in sign in flow")
-    this.setState({
-      login: true,
-    })
-    const accountId = await this.props.wallet.getAccountId()
+    setLogin(true)
+    const accountId = await props.wallet.getAccountId()
     if (window.location.search.includes("account_id")) {
       window.location.replace(window.location.origin + window.location.pathname)
     }
@@ -52,19 +67,16 @@ class App extends Component {
   //   this.setState({speech: response.text});
   // }
 
-  async requestSignIn() {
+  async function requestSignIn() {
     const appTitle = "NEAR React template"
-    await this.props.wallet.requestSignIn(
-      window.nearConfig.contractName,
-      appTitle
-    )
+    await props.wallet.requestSignIn(window.nearConfig.contractName, appTitle)
   }
 
-  requestSignOut() {
-    this.props.wallet.signOut()
+  function requestSignOut() {
+    props.wallet.signOut()
     localStorage.removeItem("my-profile")
-    setTimeout(this.signedOutFlow, 500)
-    console.log("after sign out", this.props.wallet.isSignedIn())
+    setTimeout(signedOutFlow, 500)
+    console.log("after sign out", props.wallet.isSignedIn())
   }
 
   // async changeGreeting() {
@@ -72,50 +84,46 @@ class App extends Component {
   //   await this.welcome();
   // }
 
-  signedOutFlow() {
+  function signedOutFlow() {
     if (window.location.search.includes("account_id")) {
       window.location.replace(window.location.origin + window.location.pathname)
     }
-    this.setState({
-      login: false,
-      speech: null,
-    })
+    setLogin(false)
+    setSpeech(null)
   }
 
-  render() {
-    let style = {
-      fontSize: "1.5rem",
-      color: "#0072CE",
-      textShadow: "1px 1px #D1CCBD",
-    }
-    return (
+  let style = {
+    fontSize: "1.5rem",
+    color: "#0072CE",
+    textShadow: "1px 1px #D1CCBD",
+  }
+  return (
+    <NearContext.Provider value={{ nearvar: props }}>
       <React.Fragment>
-        {this.state.login ? (
-          <NearContext.Provider value={this.props}>
-            <Nav onClick={this.requestSignOut} login={this.state.login} />{" "}
-          </NearContext.Provider>
+        {login ? (
+          <Nav onClick={requestSignOut} login={login} />
         ) : (
-          <Nav onClick={this.requestSignIn} login={this.state.login} />
+          <Nav onClick={requestSignIn} login={login} />
         )}
         <section className="page-section">
           <Switch>
-            <NearContext.Provider value={this.props}>
-              <Route path="/createprofile" component={CreateProfile} />
-              <Route path="/profile" component={ViewProfile} />
-              <Route path="/updateprofile" component={UpdateProfile} />
-              <Route path="/createproduct" component={CreateProduct} />
-              <Route path="/myproducts" component={GetProducts} />
-              <Route path="/product/:id" component={ProductById} />
-              <Route path="/balance" component={AvritToken} />
-              <Route path="/createreview/:pid" component={CreateReviewEvidence} />
-              <Route path="/reviewstake/:rid" component={CreateReviewStake} />
-              <Route path="/getreviewstake/:rid" component={GetReviewStake} />
-            </NearContext.Provider>
+            <Route path="/createprofile" component={CreateProfile} />
+            <Route path="/profile" component={ViewProfile} />
+            <Route path="/updateprofile" component={UpdateProfile} />
+            <Route path="/createproduct" component={CreateProduct} />
+            <Route path="/myproducts" component={GetProducts} />
+            <Route path="/product/:id" component={ProductById} />
+            <Route path="/balance" component={AvritToken} />
+            <Route path="/createreview/:pid" component={CreateReviewEvidence} />
+            <Route path="/reviewstake/:rid" component={CreateReviewStake} />
+            {/* <Route path="/getreviewstake/:rid" component={GetReviewStake} /> */}
+            <Route path="/applyjury/:rid" component={ApplyJuryStake} />
+            <Route path="/getjurystake/:rid/:userId" component={GetJuryStake} />
           </Switch>
         </section>
       </React.Fragment>
-    )
-  }
+    </NearContext.Provider>
+  )
 }
 
 export default App

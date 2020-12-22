@@ -11,7 +11,7 @@ function LoadingOrCreateProfile(props) {
     return (
       <React.Fragment>
         <div className="text-center">
-          <Link type="button" className="btn btn-primary" to="createprofile" >
+          <Link type="button" className="btn btn-primary" to="createprofile">
             Create Profile
           </Link>
         </div>
@@ -36,13 +36,13 @@ function ViewProfile() {
   const [profileData, setProfileData] = useState(null)
   const [fetchError, setFetchError] = useState(false)
   const [noProfile, setNoProfile] = useState(false)
-  const nearcontract = useContext(NearContext)
+  const { nearvar } = useContext(NearContext)
 
   useEffect(() => {
     async function fetchProfile() {
       let data
       try {
-        data = await nearcontract.contract.get_profile_hash()
+        data = await nearvar.contract.get_profile_hash()
       } catch (e) {
         console.log(e.message)
         const errorboolean = e.message.includes("User profile does not exists")
@@ -64,13 +64,20 @@ function ViewProfile() {
     } else {
       fetchProfile()
     }
-  }, [nearcontract])
+  }, [nearvar])
 
   return (
     <React.Fragment>
       {profileData ? (
         <div className="container">
-          <Link type="button" className="btn btn-primary" to={{ pathname:"/updateprofile", query: {profileData: profileData}}}>
+          <Link
+            type="button"
+            className="btn btn-primary"
+            to={{
+              pathname: "/updateprofile",
+              query: { profileData: profileData },
+            }}
+          >
             Update Profile
           </Link>
           <br />

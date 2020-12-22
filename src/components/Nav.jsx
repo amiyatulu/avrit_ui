@@ -7,7 +7,7 @@ import AvritToken from "../profile/AvritToken"
 
 function Nav(props) {
   const scroll = useScrollHandler()
-  let nearvar = useContext(NearContext)
+  let { nearvar } = useContext(NearContext)
 
   // useEffect(() => {
   //   const removeProfile = () => {

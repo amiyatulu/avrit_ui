@@ -4,14 +4,14 @@ import { Formik, Form, Field } from "formik"
 import { FocusError, SubmittingWheel } from "../commons/FocusWheel"
 import { NearContext } from "../context/NearContext"
 import ipfs from "../commons/ipfs"
-import ProfileForm from './ProfileForm';
-import { useHistory } from 'react-router-dom';
-import Ipfsadd from '../commons/TextileIO';
+import ProfileForm from "./ProfileForm"
+import { useHistory } from "react-router-dom"
+import Ipfsadd from "../commons/TextileIO"
 
 function CreateProfile() {
   const [count, setCount] = useState(0)
-  let nearvar = useContext(NearContext)
-  const history = useHistory();
+  let { nearvar } = useContext(NearContext)
+  const history = useHistory()
 
   return (
     <React.Fragment>
@@ -34,37 +34,49 @@ function CreateProfile() {
           onSubmit={async (values, actions) => {
             //values.countvariable = count
             console.log(values)
-            try{
+            try {
               const file = await ipfs.add({
                 path: "profile.json",
                 content: JSON.stringify(values),
               })
-              
+
               console.log(file)
               console.log(file.cid.string)
               console.log(nearvar.contract)
-              await nearvar.contract.create_profile({ profile_hash: file.cid.string})
+              await nearvar.contract.create_profile({
+                profile_hash: file.cid.string,
+              })
 
               // const content = JSON.stringify(values);
               // const filename = "profile.json"
               // const data = await Ipfsadd(content, filename)
               // await nearvar.contract.create_profile({ profile_hash: data.path.cid.string})
-              history.push('/profile')
-
-              
-            } catch(e) {
-              console.error(e);
+              history.push("/profile")
+            } catch (e) {
+              console.error(e)
             }
 
-            
-            
             // actions.setSubmitting(false)
             // console.log(data)
           }}
         >
-          {({ handleSubmit, handleBlur, handleChange, errors, touched, isSubmitting, values, setFieldValue, validateForm }) => (
+          {({
+            handleSubmit,
+            handleBlur,
+            handleChange,
+            errors,
+            touched,
+            isSubmitting,
+            values,
+            setFieldValue,
+            validateForm,
+          }) => (
             <Form onSubmit={handleSubmit}>
-              <ProfileForm errors={errors} touched={touched} isSubmitting={isSubmitting}/>
+              <ProfileForm
+                errors={errors}
+                touched={touched}
+                isSubmitting={isSubmitting}
+              />
               <SubmittingWheel isSubmitting={isSubmitting} />
               <FocusError />
             </Form>

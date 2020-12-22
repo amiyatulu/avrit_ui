@@ -4,10 +4,10 @@ import { useParams, Link } from "react-router-dom"
 import axios from "axios"
 import styles from "../profile/ViewProfile.module.css"
 import { IPFS_URL } from "../config/configvar"
-import GetReviews from '../reviews/GetReviews'
+import GetReviews from "../reviews/GetReviews"
 
 function ProductById() {
-  const nearcontract = useContext(NearContext)
+  const { nearvar } = useContext(NearContext)
   const { id } = useParams()
   const [ipfsData, setProductData] = useState(null)
   const [productType, setProductType] = useState(null)
@@ -15,7 +15,7 @@ function ProductById() {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        let data = await nearcontract.contract.get_product({
+        let data = await nearvar.contract.get_product({
           product_id: parseInt(id),
         })
         console.log(data)
@@ -23,14 +23,13 @@ function ProductById() {
         const result = await axios(`${IPFS_URL}${data.product_details_hash}`)
         console.log(result.data)
         setProductData(result.data)
-        
       } catch (e) {
         console.error(e)
       }
     }
 
     fetchProduct()
-  }, [nearcontract, id])
+  }, [nearvar, id])
 
   return (
     <React.Fragment>
@@ -56,7 +55,7 @@ function ProductById() {
             </Link>
           </div>
           <div>
-          <GetReviews pid={id} />
+            <GetReviews pid={id} />
           </div>
         </div>
       )}

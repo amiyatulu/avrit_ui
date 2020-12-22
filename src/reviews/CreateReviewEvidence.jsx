@@ -10,8 +10,8 @@ function CreateReviewEvidence(props) {
   // const [count, setCount] = useState(0);
   let history = useHistory()
   const { pid } = useParams()
-  let nearvar = useContext(NearContext)
-  const [errorThrow, setErrorThrow] = useState(false);
+  let { nearvar } = useContext(NearContext)
+  const [errorThrow, setErrorThrow] = useState(false)
 
   return (
     <React.Fragment>
@@ -42,18 +42,22 @@ function CreateReviewEvidence(props) {
             //   const data = await ...
             try {
               const file = await ipfs.add({
-                path:"review.json",
-                content: JSON.stringify(values)
+                path: "review.json",
+                content: JSON.stringify(values),
               })
               console.log(file)
               console.log(pid)
-              await nearvar.contract.create_review({product_id: parseInt(pid) , review_hash: file.cid.string })
+              await nearvar.contract.create_review({
+                product_id: parseInt(pid),
+                review_hash: file.cid.string,
+              })
               actions.setSubmitting(false)
+              history.push(`/product/${pid}`)
             } catch (e) {
               console.error(e)
               setErrorThrow(e.message)
             }
-            
+
             // console.log(data)
             // history.push(`/thankyou${data.mutationoutputname}`)
           }}
@@ -140,7 +144,9 @@ function CreateReviewEvidence(props) {
 
               <div className="form-group">
                 <p className="p-2 mb-2 bg-primary text-white">
-                  <label htmlFor="practice">Retrieval Practice and Component Practice</label>
+                  <label htmlFor="practice">
+                    Retrieval Practice and Component Practice
+                  </label>
                 </p>
                 {touched.practice && errors.practice && (
                   <p className="alert alert-danger">{errors.practice}</p>

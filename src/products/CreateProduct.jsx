@@ -5,13 +5,13 @@ import { useHistory } from "react-router-dom"
 import { NearContext } from "../context/NearContext"
 import ipfs from "../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../commons/FocusWheel"
-import Ipfsadd from '../commons/TextileIO';
+import Ipfsadd from "../commons/TextileIO"
 
 function CreateProduct(props) {
   // const [count, setCount] = useState(0);
   let history = useHistory()
-  let nearvar = useContext(NearContext)
-  const [errorThrow, setErrorThrow] = useState(false);
+  let { nearvar } = useContext(NearContext)
+  const [errorThrow, setErrorThrow] = useState(false)
 
   return (
     <React.Fragment>
@@ -37,20 +37,23 @@ function CreateProduct(props) {
             //   values.countvariable = count
             try {
               const profile_type = values.profile_type
-              let clonedValues = {...values}
+              let clonedValues = { ...values }
               delete clonedValues.profile_type
               console.log(clonedValues)
               const file = await ipfs.add({
                 path: "product.json",
                 content: JSON.stringify(clonedValues),
               })
-              await nearvar.contract.create_product({ product_details_hash: file.cid.string, product_type: profile_type})
+              await nearvar.contract.create_product({
+                product_details_hash: file.cid.string,
+                product_type: profile_type,
+              })
 
               // const content = JSON.stringify(values);
               // const filename = "product.json"
               // const data = await Ipfsadd(content, filename)
               // await nearvar.contract.create_product({ product_details_hash: data.path.cid.string })
-              history.push('/myproducts')
+              history.push("/myproducts")
             } catch (e) {
               console.error(e)
               setErrorThrow(e.message)
@@ -61,53 +64,90 @@ function CreateProduct(props) {
             // history.push(`/thankyou`)
           }}
         >
-          {({ handleSubmit, handleBlur, handleChange, errors, touched, isValid, isSubmitting, values, setFieldValue, validateForm }) => (
+          {({
+            handleSubmit,
+            handleBlur,
+            handleChange,
+            errors,
+            touched,
+            isValid,
+            isSubmitting,
+            values,
+            setFieldValue,
+            validateForm,
+          }) => (
             <Form onSubmit={handleSubmit}>
               {errorThrow && <p>{errorThrow}</p>}
               <div className="form-group">
                 <label htmlFor="headline">headline</label>
-                {touched.headline && errors.headline && <p className="alert alert-danger">{errors.headline}</p>}
+                {touched.headline && errors.headline && (
+                  <p className="alert alert-danger">{errors.headline}</p>
+                )}
 
                 <Field name="headline" className="form-control" />
               </div>
 
               <div className="form-group">
                 <label htmlFor="introduction">introduction</label>
-                {touched.introduction && errors.introduction && <p className="alert alert-danger">{errors.introduction}</p>}
+                {touched.introduction && errors.introduction && (
+                  <p className="alert alert-danger">{errors.introduction}</p>
+                )}
 
-                <Field name="introduction" component="textarea" rows="5" className="form-control" />
+                <Field
+                  name="introduction"
+                  component="textarea"
+                  rows="5"
+                  className="form-control"
+                />
               </div>
 
               <div className="form-group">
                 <label htmlFor="details">details</label>
-                {touched.details && errors.details && <p className="alert alert-danger">{errors.details}</p>}
+                {touched.details && errors.details && (
+                  <p className="alert alert-danger">{errors.details}</p>
+                )}
 
-                <Field name="details" component="textarea" rows="5" className="form-control" />
+                <Field
+                  name="details"
+                  component="textarea"
+                  rows="5"
+                  className="form-control"
+                />
               </div>
 
               <div className="form-group">
                 <label htmlFor="profile_type">profile_type</label>
-                {touched.profile_type && errors.profile_type && <p className="alert alert-danger">{errors.profile_type}</p>}
+                {touched.profile_type && errors.profile_type && (
+                  <p className="alert alert-danger">{errors.profile_type}</p>
+                )}
 
                 <Field name="profile_type" className="form-control" />
               </div>
 
               <div className="form-group">
                 <label htmlFor="specialization">specialization</label>
-                {touched.specialization && errors.specialization && <p className="alert alert-danger">{errors.specialization}</p>}
+                {touched.specialization && errors.specialization && (
+                  <p className="alert alert-danger">{errors.specialization}</p>
+                )}
 
                 <Field name="specialization" className="form-control" />
               </div>
 
               <div className="form-group">
                 <label htmlFor="audience">audience</label>
-                {touched.audience && errors.audience && <p className="alert alert-danger">{errors.audience}</p>}
+                {touched.audience && errors.audience && (
+                  <p className="alert alert-danger">{errors.audience}</p>
+                )}
 
                 <Field name="audience" className="form-control" />
               </div>
 
               <div className="text-center">
-                <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isSubmitting}
+                >
                   Submit Form
                 </button>
               </div>
