@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react"
-import { NearContext } from "../context/NearContext"
+import { NearContext } from "../../commons/context/NearContext"
 import { Link, NavLink } from "react-router-dom"
 import ReviewFullDetailsEvidence from "./ReviewFullDetailsEvidence"
 

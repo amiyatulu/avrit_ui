@@ -26,7 +26,7 @@ async function initContract() {
   let acct = await new nearlib.Account(window.near.connection, window.accountId)
   window.contract = await new nearlib.Contract(acct, window.nearConfig.contractName, {
     // View methods are read only. They don't modify the state, but usually return some value.
-    viewMethods: ["get_product", "get_balance", "get_review_ids_by_product_id", "get_review", "get_review_bounty_js", "get_juror_stakes_js"],
+    viewMethods: ["get_user_id_js","get_product", "get_balance", "get_review_ids_by_product_id", "get_review", "get_review_bounty_js", "get_juror_stakes_js"],
     // Change methods can modify the state. But you don't receive the returned value when called.
     changeMethods: ["create_profile", "update_profile" , "get_profile_hash", 'create_product', "get_products_of_user", "update_product", "create_review", "add_review_bounty", "apply_jurors"],
     // Sender is the account ID to initialize transactions.

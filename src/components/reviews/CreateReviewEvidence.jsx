@@ -2,9 +2,9 @@ import React, { useState, useContext } from "react"
 import * as Yup from "yup"
 import { Formik, Form, Field } from "formik"
 import { useHistory, useParams } from "react-router-dom"
-import { NearContext } from "../context/NearContext"
-import ipfs from "../commons/ipfs"
-import { FocusError, SubmittingWheel } from "../commons/FocusWheel"
+import { NearContext } from "../../commons/context/NearContext"
+import ipfs from "../../commons/ipfs"
+import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
 
 function CreateReviewEvidence(props) {
   // const [count, setCount] = useState(0);

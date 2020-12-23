@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from "react"
-import { NearContext } from "../context/NearContext"
+import { NearContext } from "../../commons/context/NearContext"
 import axios from "axios"
 import { Link, NavLink } from "react-router-dom"
-import { IPFS_URL } from "../config/configvar"
+import { IPFS_URL } from "../../config/configvar"
 import styles from "./ViewProfile.module.css"
 
 function LoadingOrCreateProfile(props) {

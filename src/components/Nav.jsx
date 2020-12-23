@@ -2,22 +2,12 @@ import React, { useState, useContext, useEffect } from "react"
 import { useScrollHandler } from "./hooks/ScrollHandle"
 // import Logo from "./image/logobg.png"
 import { Link, NavLink } from "react-router-dom"
-import { NearContext } from "../context/NearContext"
-import AvritToken from "../profile/AvritToken"
+import { NearContext } from "../commons/context/NearContext"
+import AvritToken from "./profile/AvritToken"
 
 function Nav(props) {
   const scroll = useScrollHandler()
   let { nearvar } = useContext(NearContext)
-
-  // useEffect(() => {
-  //   const removeProfile = () => {
-  //     localStorage.removeItem("my-profile")
-  //   }
-  //   window.addEventListener("beforeunload", removeProfile);
-
-  //   return () => window.removeEventListener("beforeunload", removeProfile);
-
-  // }, [])
   return (
     <React.Fragment>
       <nav

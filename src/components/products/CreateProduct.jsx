@@ -2,10 +2,10 @@ import React, { useState, useContext } from "react"
 import * as Yup from "yup"
 import { Formik, Form, Field } from "formik"
 import { useHistory } from "react-router-dom"
-import { NearContext } from "../context/NearContext"
-import ipfs from "../commons/ipfs"
-import { FocusError, SubmittingWheel } from "../commons/FocusWheel"
-import Ipfsadd from "../commons/TextileIO"
+import { NearContext } from "../../commons/context/NearContext"
+import ipfs from "../../commons/ipfs"
+import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
+import Ipfsadd from "../../commons/TextileIO"
 
 function CreateProduct(props) {
   // const [count, setCount] = useState(0);

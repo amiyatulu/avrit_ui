@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react"
-import { NearContext } from "../context/NearContext"
+import { NearContext } from "../../commons/context/NearContext"
 import { useParams, Link } from "react-router-dom"
 
 function GetJuryStake(props) {

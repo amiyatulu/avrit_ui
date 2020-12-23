@@ -1,12 +1,12 @@
 import React, { useState, useContext } from "react"
 import * as Yup from "yup"
 import { Formik, Form, Field } from "formik"
-import { FocusError, SubmittingWheel } from "../commons/FocusWheel"
-import { NearContext } from "../context/NearContext"
-import ipfs from "../commons/ipfs"
+import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
+import { NearContext } from "../../commons/context/NearContext"
+import ipfs from "../../commons/ipfs"
 import ProfileForm from "./ProfileForm"
 import { useHistory } from "react-router-dom"
-import Ipfsadd from "../commons/TextileIO"
+import Ipfsadd from "../../commons/TextileIO"
 
 function CreateProfile() {
   const [count, setCount] = useState(0)

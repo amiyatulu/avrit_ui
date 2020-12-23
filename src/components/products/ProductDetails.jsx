@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { IPFS_URL } from "../config/configvar"
+import { IPFS_URL } from "../../config/configvar"
 import axios from "axios"
 import { Link } from "react-router-dom";
 import styles from "../profile/ViewProfile.module.css"

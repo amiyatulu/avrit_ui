@@ -1,40 +1,77 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { Route, Switch } from "react-router-dom"
-import CreateProfile from "./profile/CreateProfile"
-import { NearContext } from "./context/NearContext"
+import CreateProfile from "./components/profile/CreateProfile"
+import { NearContext } from "./commons/context/NearContext"
 import Nav from "./components/Nav"
-import ViewProfile from "./profile/ViewProfile"
-import UpdateProfile from "./profile/UpdateProfile"
-import CreateProduct from "./products/CreateProduct"
-import GetProducts from "./products/GetProducts"
-import ProductById from "./products/ProductById"
-import AvritToken from "./profile/AvritToken"
-import CreateReviewEvidence from "./reviews/CreateReviewEvidence"
-import CreateReviewStake from "./stakes/CreateReviewStake"
-import GetReviewStake from "./stakes/GetReviewStake"
-import ApplyJuryStake from "./schelling/ApplyJuryStake"
-import GetJuryStake from "./schelling/GetJuryStake"
+import ViewProfile from "./components/profile/ViewProfile"
+import UpdateProfile from "./components/profile/UpdateProfile"
+import CreateProduct from "./components/products/CreateProduct"
+import GetProducts from "./components/products/GetProducts"
+import ProductById from "./components/products/ProductById"
+import AvritToken from "./components/profile/AvritToken"
+import CreateReviewEvidence from "./components/reviews/CreateReviewEvidence"
+import CreateReviewStake from "./components/stakes/CreateReviewStake"
+import GetReviewStake from "./components/stakes/GetReviewStake"
+import ApplyJuryStake from "./components/schelling/ApplyJuryStake"
+import GetJuryStake from "./components/schelling/GetJuryStake"
 
 function App(props) {
   const [login, setLogin] = useState(false)
   const [speech, setSpeech] = useState(null)
-  // constructor(props) {
-  //   super(props)
-  //   this.state = {
-  //     login: false,
-  //     speech: null,
-  //   }
-  //   this.signedInFlow = this.signedInFlow.bind(this)
-  //   this.requestSignIn = this.requestSignIn.bind(this)
-  //   this.requestSignOut = this.requestSignOut.bind(this)
-  //   this.signedOutFlow = this.signedOutFlow.bind(this)
-  // }
+  const [balance, setBalance] = useState(null)
+  const [balanceError, setBalanceError] = useState(null)
+  const [userId, setUserId] = useState(null)
+  // console.log(balance)
+  // console.log(userId)
+
+  async function fetchProfile() {
+    let data
+    try {
+      data = await props.contract.get_balance({
+        owner_id: props.wallet.getAccountId(),
+      })
+      // console.log(props.wallet.getAccountId())
+      // console.log(data)
+      // console.log("fetchProfile")
+      setBalance(data)
+    } catch (e) {
+      console.log(e.message)
+      const failedtofetch = e.message
+      setBalanceError(failedtofetch)
+    }
+  }
+
+  async function fetchUserId() {
+    let userid
+    try {
+      userid = await props.contract.get_user_id_js({
+        account_id: props.wallet.getAccountId(),
+      })
+      setUserId(parseInt(userid))
+      // console.log(props.wallet.getAccountId())
+      // console.log(data)
+      // console.log("fetchuserid")
+    } catch (e) {
+      console.log(e.message)
+      const failedtofetch = e.message
+    }
+  }
+
+  const callUserId = useCallback(async () => {
+    fetchUserId()
+  }, [])
+
+  const reloadBalance = useCallback(async () => {
+    fetchProfile()
+  }, [])
 
   useEffect(() => {
     async function login() {
       let loggedIn = props.wallet.isSignedIn()
       if (loggedIn) {
         signedInFlow()
+        reloadBalance()
+        callUserId()
       } else {
         signedOutFlow()
       }
@@ -43,15 +80,6 @@ function App(props) {
     console.log("Main use effect")
   }, [props])
 
-  // componentDidMount() {
-  //   let loggedIn = this.props.wallet.isSignedIn()
-  //   if (loggedIn) {
-  //     this.signedInFlow()
-  //   } else {
-  //     this.signedOutFlow()
-  //   }
-  // }
-
   async function signedInFlow() {
     console.log("come in sign in flow")
     setLogin(true)
@@ -59,13 +87,7 @@ function App(props) {
     if (window.location.search.includes("account_id")) {
       window.location.replace(window.location.origin + window.location.pathname)
     }
-    // await this.welcome();
   }
-
-  // async welcome() {
-  //   const response = await this.props.contract.welcome({ account_id: accountId });
-  //   this.setState({speech: response.text});
-  // }
 
   async function requestSignIn() {
     const appTitle = "NEAR React template"
@@ -78,11 +100,6 @@ function App(props) {
     setTimeout(signedOutFlow, 500)
     console.log("after sign out", props.wallet.isSignedIn())
   }
-
-  // async changeGreeting() {
-  //   await this.props.contract.set_greeting({ message: 'howdy' });
-  //   await this.welcome();
-  // }
 
   function signedOutFlow() {
     if (window.location.search.includes("account_id")) {
@@ -98,7 +115,7 @@ function App(props) {
     textShadow: "1px 1px #D1CCBD",
   }
   return (
-    <NearContext.Provider value={{ nearvar: props }}>
+    <NearContext.Provider value={{ nearvar: props, reloadBalance, balance, balanceError, userId }}>
       <React.Fragment>
         {login ? (
           <Nav onClick={requestSignOut} login={login} />
