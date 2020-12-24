@@ -9,7 +9,7 @@ import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
 function CreateReviewStake(props) {
   // const [count, setCount] = useState(0);
   let history = useHistory()
-  let { nearvar } = useContext(NearContext)
+  let { nearvar, reloadBalance } = useContext(NearContext)
   const { rid } = useParams()
   const [errorThrow, setErrorThrow] = useState(false)
 
@@ -32,6 +32,7 @@ function CreateReviewStake(props) {
                 review_id: parseInt(rid),
               })
               actions.setSubmitting(false)
+              reloadBalance()
               history.goBack()
             } catch (e) {
               console.error(e)

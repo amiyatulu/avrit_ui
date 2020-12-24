@@ -4,11 +4,11 @@ import axios from "axios"
 import { IPFS_URL } from "../../config/configvar"
 import { Link } from "react-router-dom"
 import GetReviewStake from "../stakes/GetReviewStake"
-import GetJuryStake from "../schelling/GetJuryStake"
+
 
 function ReviewFullDetailsEvidence(props) {
   let { ipfshash, rid } = props
-  const { nearvar } = useContext(NearContext)
+  const { nearvar, userId } = useContext(NearContext)
   const [reviewData, setReviewData] = useState(null)
 
   useEffect(() => {
@@ -38,7 +38,7 @@ function ReviewFullDetailsEvidence(props) {
               Add or Update Stake
             </Link>
             <GetReviewStake rid={rid} />
-            <GetJuryStake rid={rid} />
+            
           </div>
         </div>
       )}

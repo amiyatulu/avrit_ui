@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react"
 import { NearContext } from "../../commons/context/NearContext"
 import { useParams, Link } from "react-router-dom"
 import axios from "axios"
+import GetJuryStake from "../schelling/GetJuryStake"
 function LoadingOrNoStake(props) {
   const { noStake } = props
   if (noStake) {
@@ -21,7 +22,7 @@ function LoadingOrNoStake(props) {
   )
 }
 function GetReviewStake(props) {
-  const { nearvar } = useContext(NearContext)
+  const { nearvar, userId } = useContext(NearContext)
   const { rid } = props
   const [stake, setStake] = useState(null)
   const [noStake, setNoStake] = useState(null)
@@ -44,7 +45,10 @@ function GetReviewStake(props) {
   return (
     <React.Fragment>
       {stake ? (
-        <p className="badge badge-secondary mr-3">Stake: {stake[0]} </p>
+        <React.Fragment>
+        <p className="badge badge-secondary mr-3">Review Stake: {stake[0]} </p>
+        <GetJuryStake rid={rid} userId={userId}/>
+        </React.Fragment>
       ) : (
         <LoadingOrNoStake noStake={noStake} />
       )}

@@ -10,7 +10,7 @@ function ApplyJuryStake(props) {
   // const [count, setCount] = useState(0);
   const { rid } = useParams()
   let history = useHistory()
-  let { nearvar } = useContext(NearContext)
+  let { nearvar, reloadBalance} = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
 
   return (
@@ -33,6 +33,7 @@ function ApplyJuryStake(props) {
               actions.setSubmitting(false)
               // console.log(data)
               // history.push(`/thankyou${data.mutationoutputname}`)
+              reloadBalance()
               history.goBack()
             } catch (e) {
               console.error(e)
