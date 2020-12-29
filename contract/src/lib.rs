@@ -26,6 +26,10 @@ mod tests {
         now.timestamp() as u64 + add
     }
 
+    fn draw_time_add() -> u64 {
+        1296000
+    }
+
     fn rand_vector() -> Vec<u8> {
         let mut rng = rand::thread_rng();
 
@@ -571,7 +575,7 @@ mod tests {
         );
         context.predecessor_account_id = carol();
         testing_env!(context.clone());
-        contract.add_review_bounty(15,1);
+        contract.add_review_bounty(15, 1);
         let (contract, context) = create_a_user(
             "juror1".to_owned(),
             carol(),
@@ -621,7 +625,7 @@ mod tests {
 
         context.random_seed = rand_vector();
         context.predecessor_account_id = carol();
-        context.block_timestamp = get_timestamp_add(1296000);
+        context.block_timestamp = get_timestamp_add(draw_time_add());
         testing_env!(context.clone());
         contract.set_jury_count(5);
         contract.draw_jurors(1, 5);
@@ -663,7 +667,8 @@ mod tests {
         hasher.update(vote.as_bytes());
         let result = hasher.finalize();
         let commit = format!("{:x}", result);
-        context.block_timestamp = get_timestamp();
+        context.block_timestamp = get_timestamp_add(draw_time_add());
+        // println!(">>>>>>time2my{}<<<<<<<<<", get_timestamp_add(draw_time_add()));
         context.predecessor_account_id = predecessor_account;
         testing_env!(context.clone());
         contract.commit_vote(reviewer_id, commit);
@@ -1324,7 +1329,5 @@ mod tests {
         assert_eq!(total_supply - 16, total_supply2.0);
         let saving_balance = contract.get_balance("saving.near".to_string());
         assert_eq!(10, saving_balance.0);
-
     }
-
 }

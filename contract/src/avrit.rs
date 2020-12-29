@@ -59,9 +59,10 @@ pub struct Avrit {
     user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>> #Delete
     user_juror_stakes_clone: LookupMap<u128, TreeMap<u128, u128>>, // #Delete
     juror_stake_unique_id: u128,
-    selected_juror_count: LookupMap<u128, u64>, // <review_id, selected_juror_count> #Delete
+    juror_unstaked: LookupMap<u128, LookupSet<u128>>, // <review_id, jurorid>
+    selected_juror_count: LookupMap<u128, u64>,       // <review_id, selected_juror_count> #Delete
     selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>  #Delete
-    juror_selection_time: LookupMap<u128, u64>, // <review_id, timestamp>
+    juror_selection_time: LookupMap<u128, u64>,       // <review_id, timestamp>
     jury_application_start_time: LookupMap<u128, u64>, // <review_id, time>
     product_id_set_ucount: u128,
     review_id_set_ucount: u128,
@@ -389,6 +390,16 @@ impl Avrit {
         }
     }
 
+    pub fn get_profile_hash_from_id(&self, user_id: u128) -> String {
+        let userdata_option = self.user_profile_map.get(&user_id);
+        match userdata_option {
+            Some(userdata) => userdata.profile_hash,
+            None => {
+                panic!("User profile does not exists");
+            }
+        }
+    }
+
     pub fn get_user_profile(&self, user_id: u128) -> User {
         let user_option = self.user_profile_map.get(&user_id);
         match user_option {
@@ -434,7 +445,7 @@ impl Avrit {
         }
     }
 
-    pub fn get_products_of_user_id(&self, user_id: u128, start:usize, end:usize) -> Vec<u128> {
+    pub fn get_products_of_user_id(&self, user_id: u128, start: usize, end: usize) -> Vec<u128> {
         let products_set_option = self.user_products_map.get(&user_id);
         match products_set_option {
             Some(products_set) => products_set.iter().skip(start).take(end).collect(),
@@ -443,7 +454,7 @@ impl Avrit {
             }
         }
     }
-    pub fn get_products_of_user(&self, start:usize, end:usize) -> Vec<u128> {
+    pub fn get_products_of_user(&self, start: usize, end: usize) -> Vec<u128> {
         let account_id = env::predecessor_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
         match account_id_exists_option {
@@ -553,7 +564,12 @@ impl Avrit {
         }
     }
 
-    pub fn get_review_ids_by_product_id(&self, product_id: u128, start:usize, end:usize) -> Vec<u128> {
+    pub fn get_review_ids_by_product_id(
+        &self,
+        product_id: u128,
+        start: usize,
+        end: usize,
+    ) -> Vec<u128> {
         let review_set_option = self.product_reviews_map.get(&product_id);
         match review_set_option {
             Some(review_set) => review_set.iter().skip(start).take(end).collect(),
@@ -562,7 +578,6 @@ impl Avrit {
             }
         }
     }
-
 
     pub fn create_comment_product(&mut self, product_id: u128, comment_hash: String) {
         let account_id = env::predecessor_account_id();
@@ -624,7 +639,12 @@ impl Avrit {
         }
     }
 
-    pub fn get_commentproduct_by_product_id(&self, product_id: u128, start:usize, end:usize) -> Vec<u128> {
+    pub fn get_commentproduct_by_product_id(
+        &self,
+        product_id: u128,
+        start: usize,
+        end: usize,
+    ) -> Vec<u128> {
         let product_commentproduct_option = self.product_commentproduct_map.get(&product_id);
         match product_commentproduct_option {
             Some(commentproduct_set) => commentproduct_set.iter().skip(start).take(end).collect(),
@@ -634,7 +654,12 @@ impl Avrit {
         }
     }
 
-    pub fn get_commentreview_by_review_id(&self, review_id: u128, start:usize, end:usize) -> Vec<u128> {
+    pub fn get_commentreview_by_review_id(
+        &self,
+        review_id: u128,
+        start: usize,
+        end: usize,
+    ) -> Vec<u128> {
         let review_commentreview_option = self.review_commentreview_map.get(&review_id);
         match review_commentreview_option {
             Some(commentreview_set) => commentreview_set.iter().skip(start).take(end).collect(),
@@ -812,6 +837,7 @@ impl Avrit {
             review_check_bounty_vector_ucount: 0,
             user_juror_stakes: LookupMap::new(b"e56291ef".to_vec()),
             user_juror_stakes_clone: LookupMap::new(b"4e74c845".to_vec()),
+            juror_unstaked: LookupMap::new(b"66fcbcd3".to_vec()),
             juror_stake_unique_id: 0,
             selected_juror: LookupMap::new(b"89390257".to_vec()),
             jury_count: 20,
@@ -1100,10 +1126,8 @@ impl Avrit {
                 self.min_review_bounty
             );
         }
-        if stake < self.min_jury_stake as u128{
-            panic!(
-                "Stake is less than minimum allowed amount"
-            )
+        if stake < self.min_jury_stake as u128 {
+            panic!("Stake is less than minimum allowed amount")
         }
         let account_id = env::predecessor_account_id();
         let singer_juror_user = self.get_user_id(&account_id);
@@ -1365,9 +1389,99 @@ impl Avrit {
         timestamp.into()
     }
 
+    // Logic for unstaking who are not selected as jury
+    // Time passed juror_selection_time ✔️
+    // check juror can not vote ✔️
+    // check jury staker has already unstaked ✔️
+    // unstake ✔️
+
+    pub fn check_juror_selection_time_ended(&self, review_id: u128) {
+        let timestamp = env::block_timestamp();
+        let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
+        let timestamp_juror_selection_time = self.get_juror_selection_time(&review_id);
+        let native_juror_selection_time =
+            NaiveDateTime::from_timestamp(timestamp_juror_selection_time as i64, 0);
+        let onehour = Duration::seconds(3600);
+        let endtime = native_juror_selection_time + onehour;
+        if naive_now < endtime {
+            panic!("Juror selection time has not yet ended");
+        }
+    }
+
+    // user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>>
+    // selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>
+
+    fn juror_can_not_vote_return_stake(&self, review_id: u128, user_id: u128) -> u128 {
+        let selected_juror_option = self.selected_juror.get(&review_id);
+        match selected_juror_option {
+            Some(juryentries) => {
+                let juryexists = juryentries.contains(&user_id);
+                if juryexists == true {
+                    panic!("You are selected as juror to vote, can't unstake");
+                } else if juryexists == false {
+                    let user_juror_stakes_option = self.user_juror_stakes.get(&review_id);
+                    match user_juror_stakes_option {
+                        Some(jurystakes) => {
+                            let jurystakes_option = jurystakes.get(&user_id);
+                            match jurystakes_option {
+                                Some(stake) => {
+                                    return stake;
+                                }
+                                None => {
+                                    panic!("You have not staked for the review");
+                                }
+                            }
+                        }
+                        None => {
+                            panic!("There are no stakes for the review");
+                        }
+                    }
+                } else {
+                    panic!("You are selected as juror to vote, can't unstake");
+                }
+            }
+            None => {
+                panic!("Jury selection not done");
+            }
+        }
+    }
+
+    // juror_unstaked: LookupMap<u128, LookupSet<u128>>, // <review_id, jurorid>
+    fn check_and_add_jury_unstaked(&mut self, review_id: u128, user_id: u128) {
+        let juror_unstaked_option = self.juror_unstaked.get(&review_id);
+        match juror_unstaked_option {
+            Some(mut juryentries) => {
+                let juryexists = juryentries.contains(&user_id);
+                if juryexists == true {
+                    panic!("You have alread unstaked, can not unstake again.");
+                } else {
+                    juryentries.insert(&user_id);
+                    self.juror_unstaked.insert(&review_id, &juryentries);
+                }
+            }
+            None => {
+                // Add unstaked
+                let jurysetidstring = format!("juryunstakeid{}", review_id);
+                let jurysetid = jurysetidstring.to_string().into_bytes();
+                let mut juryentries = LookupSet::new(jurysetid);
+                juryentries.insert(&user_id);
+                self.juror_unstaked.insert(&review_id, &juryentries);
+            }
+        }
+    }
+
+    pub fn unstaking_non_selected_juror(&mut self, review_id: u128, user_id: u128) {
+        self.check_juror_selection_time_ended(review_id);
+        let stake = self.juror_can_not_vote_return_stake(review_id, user_id);
+        self.check_and_add_jury_unstaked(review_id, user_id);
+        let user_profile = self.get_user_profile(user_id);
+        let user_address = user_profile.username;
+        self.mint(&user_address, stake);
+
+    }
+
     /// Fetch the juror selection time from review id, get the commit phase time, add the both and get the endtime, if its less than now, panic
     ///
-
     pub fn commit_vote(&mut self, review_id: u128, vote_commit: String) {
         let account_id = env::predecessor_account_id();
         let user_id = self.get_user_id(&account_id);
@@ -1381,6 +1495,10 @@ impl Avrit {
         let endtime = native_juror_selection_time + seconds;
         if naive_now > endtime {
             panic!("Commiting time has ended");
+        }
+        // println!(">>>>nativenow{} native_juror_selection_time{}<<<<", naive_now,native_juror_selection_time );
+        if naive_now < native_juror_selection_time {
+            panic!("Juror selection time has not ended");
         }
         self.can_juror_vote(review_id, user_id);
         self.add_juror_voting_status_commit(review_id, user_id);
@@ -1815,23 +1933,36 @@ impl Avrit {
         }
     }
 
-    fn increment_product_incentive_count_check_allowed_limit(&mut self, product_type: String, product_id: u128) -> u128{
+    fn increment_product_incentive_count_check_allowed_limit(
+        &mut self,
+        product_type: String,
+        product_id: u128,
+    ) -> u128 {
         let product_incentive_count_option = self.product_incentives_count.get(&product_id);
-        assert!(product_type == "oa" || product_type == "ev", "Only evidence of learning and open access gets incentives");
+        assert!(
+            product_type == "oa" || product_type == "ev",
+            "Only evidence of learning and open access gets incentives"
+        );
         match product_incentive_count_option {
             Some(product_incentive_count) => {
                 let mut incentives = 0;
                 if product_type == "oa" {
-                    assert!(product_incentive_count <= self.max_allowed_product_oa_incentives_count, "Exceeds the number of allowed reviews");
+                    assert!(
+                        product_incentive_count <= self.max_allowed_product_oa_incentives_count,
+                        "Exceeds the number of allowed reviews"
+                    );
                     incentives = self.product_oa_incentives;
                 } else if product_type == "ev" {
-                    assert!(product_incentive_count <= self.max_allowed_product_evidence_incentives_count, "Exceeds the number of allowed reviews");
+                    assert!(
+                        product_incentive_count
+                            <= self.max_allowed_product_evidence_incentives_count,
+                        "Exceeds the number of allowed reviews"
+                    );
                     incentives = self.product_evidence_incentives;
-                } 
+                }
                 let count = product_incentive_count + 1;
                 self.product_incentives_count.insert(&product_id, &count);
                 incentives
-                
             }
             None => {
                 self.product_incentives_count.insert(&product_id, &1);
@@ -1839,7 +1970,6 @@ impl Avrit {
             }
         }
     }
-
 
     pub fn incentive_distribution_product(&mut self, product_id: u128, review_id: u128) {
         let review = self.get_review(review_id);
@@ -1855,8 +1985,12 @@ impl Avrit {
         let user_address = user.username;
         let (_bountyvalue, _bountyperiod) = self.get_product_bounty(product_id);
         self.check_if_product_will_get_incentives(product_id, review_id);
-        let product_incentives = self.increment_product_incentive_count_check_allowed_limit(product_type, product_id);
-        assert!(product_incentives > 0, "Incentives should be greater than 0");
+        let product_incentives =
+            self.increment_product_incentive_count_check_allowed_limit(product_type, product_id);
+        assert!(
+            product_incentives > 0,
+            "Incentives should be greater than 0"
+        );
         let winning_decision = self.get_winning_decision(review_id);
         if winning_decision == 1 {
             self.mint(&user_address, product_incentives);
@@ -1867,5 +2001,15 @@ impl Avrit {
 // To Do:
 // Limit the number of allowed reviews that will get incentives
 // User cannot give multiple reviews to same product
+// Give back stake of non juror after jury selection ✔️
+// Juror selection (end) time should be set after some time if not getting enough juror, it should be set in commit vote, using a constant seconds variable
+// Set kyc variable by admin
 // Future To Dos (Not required now):
 // Set the threshold limit of incentives (for jury, review and product) that admin can't exceed
+// Separate threshold admin and setting incentive admin
+// Ability to remove admin
+
+// Time Travel
+// juror_selection_time
+// commit votes end time = juror_selection_time + commit_phase_time
+// reveal vote end time = juror_selection_time + comit_phase_time + reveal_phase_time  
