@@ -46,7 +46,7 @@ function GetReviewStake(props) {
     <React.Fragment>
       {stake ? (
         <React.Fragment>
-        <p className="badge badge-secondary mr-3">Review Stake: {stake[0]} </p>
+        <p className="badge badge-secondary mr-3">Review Stake: {stake} </p>
         <GetJuryStake rid={rid} userId={userId}/>
         </React.Fragment>
       ) : (

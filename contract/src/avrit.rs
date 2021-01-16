@@ -1,6 +1,6 @@
 use chrono::{Duration, NaiveDateTime};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap, LookupSet, TreeMap, UnorderedMap, UnorderedSet, Vector};
+use near_sdk::collections::{LookupMap, LookupSet, TreeMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{U128, U64};
 use near_sdk::{env, near_bindgen, AccountId, Balance, Promise, StorageUsage};
 use rand::distributions::WeightedIndex;
@@ -51,8 +51,8 @@ pub struct Avrit {
     product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
     product_commentproduct_map: LookupMap<u128, UnorderedSet<u128>>, // (product_id, set<commentproduct_id>)
     review_commentreview_map: LookupMap<u128, UnorderedSet<u128>>, // (review_id, set<commentreview_id>)
-    product_check_bounty: LookupMap<u128, Vector<u64>>, // (product_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
-    review_check_bounty: LookupMap<u128, Vector<u64>>, // (review_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
+    product_bounty: LookupMap<u128, u64>, // (product_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
+    review_bounty: LookupMap<u128, u64>, // (review_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
     min_review_bounty: u64,
     min_product_bounty: u64,
     min_jury_stake: u64,
@@ -66,8 +66,6 @@ pub struct Avrit {
     jury_application_start_time: LookupMap<u128, u64>, // <review_id, time>
     product_id_set_ucount: u128,
     review_id_set_ucount: u128,
-    product_check_bounty_vector_ucount: u128,
-    review_check_bounty_vector_ucount: u128,
     jury_count: u64,
     jury_application_phase_time: u64, // Jury selection time in seconds
     commit_phase_time: u64,           // Commit phase time in seconds
@@ -496,16 +494,19 @@ impl Avrit {
         }
     }
 
-    pub fn create_review(&mut self, product_id: u128, review_hash: String) {
+    pub fn create_review(&mut self, product_id: u128, review_hash: String, rating: u8) {
         let account_id = env::predecessor_account_id();
         let account_id_exists_option = self.user_map.get(&account_id);
         let _product_exist = self.product_map.get(&product_id).unwrap();
-
+        if rating > 5 {
+            panic!("Rating can not be greater than 5");
+        }
         match account_id_exists_option {
             Some(user_id) => {
                 let rev = Review {
                     product_id,
                     user_id,
+                    rating,
                     review_hash,
                 };
                 self.review_id += 1;
@@ -538,7 +539,17 @@ impl Avrit {
             }
         }
     }
+    fn can_not_update_review_if_staked(&self, review_id: u128) {
+        let bounty_option = self.review_bounty.get(&review_id);
+        match bounty_option {
+            Some(_bounty) => {
+                panic!("Can not update review after it is staked");
+            }
+            None => {}
+        }
+    }
     pub fn update_review(&mut self, review_id: u128, review_hash: String) {
+        self.can_not_update_review_if_staked(review_id);
         let account_id = env::predecessor_account_id();
         let mut review = self.get_review(review_id);
         let user_id = self.get_user_id(&account_id);
@@ -675,50 +686,33 @@ impl Avrit {
         );
         let account_id = env::predecessor_account_id();
         // println!(">>>>add product bounty{}<<<<<<<<<<", account_id);
-        let product_bounty_exists_option = self.product_check_bounty.get(&product_id);
+        let product_bounty_exists_option = self.product_bounty.get(&product_id);
         match product_bounty_exists_option {
-            Some(mut bountyvector) => {
-                let bountyperiod = bountyvector.get(1).unwrap();
-                if bountyperiod == 1 {
-                    let bountyvalue = bountyvector.get(0).unwrap();
+            Some(bountyvalue) => {
                     if bounty > bountyvalue {
                         self.burn(&account_id, (bounty - bountyvalue) as u128);
-                        bountyvector.replace(0, &bounty);
-                        self.product_check_bounty.insert(&product_id, &bountyvector);
+                        self.product_bounty.insert(&product_id, &bounty);
                     } else {
-                        panic!("Bounty period has not ended, please enter amount of higher value");
+                        panic!("Please enter amount of higher value");
                     }
-                }
-                if bountyperiod == 0 {
-                    self.burn(&account_id, bounty as u128);
-                    bountyvector.replace(0, &bounty);
-                    bountyvector.replace(1, &1);
-                    self.product_check_bounty.insert(&product_id, &bountyvector);
-                }
+            
             }
             None => {
-                let bountyvectorstring =
-                    format!("bountyproductid{}", self.product_check_bounty_vector_ucount);
-                let boutyvectorstrindid = bountyvectorstring.to_string().into_bytes();
-                let mut bountyvector: Vector<u64> = Vector::new(boutyvectorstrindid);
-                self.product_check_bounty_vector_ucount += 1;
                 self.burn(&account_id, bounty as u128);
-                bountyvector.push(&bounty);
-                bountyvector.push(&1);
-                self.product_check_bounty.insert(&product_id, &bountyvector);
+                self.product_bounty.insert(&product_id, &bounty);
             }
         }
     }
 
-    pub fn get_product_bounty_js(&self, product_id: u128) -> (U64, U64) {
-        let (bountyvalue, bountryperiod) = self.get_product_bounty(product_id);
-        (bountyvalue.into(), bountryperiod.into())
+    pub fn get_product_bounty_js(&self, product_id: u128) -> U64 {
+        let bounty = self.get_product_bounty(product_id);
+        bounty.into()
     }
 
-    fn get_product_bounty(&self, product_id: u128) -> (u64, u64) {
-        let bounty_option = self.product_check_bounty.get(&product_id);
+    fn get_product_bounty(&self, product_id: u128) ->  u64 {
+        let bounty_option = self.product_bounty.get(&product_id);
         match bounty_option {
-            Some(bountyvector) => (bountyvector.get(0).unwrap(), bountyvector.get(1).unwrap()),
+            Some(bounty) => bounty,
             None => {
                 panic!("Bounty doesn't exists");
             }
@@ -730,50 +724,35 @@ impl Avrit {
             "Bounty can not be less than minimum review bounty"
         );
         let account_id = env::predecessor_account_id();
-        let review_bounty_exists_option = self.review_check_bounty.get(&review_id);
+        let review_bounty_exists_option = self.review_bounty.get(&review_id);
         match review_bounty_exists_option {
-            Some(mut bountyvector) => {
-                let bountyperiod = bountyvector.get(1).unwrap();
-                if bountyperiod == 1 {
-                    let bountyvalue = bountyvector.get(0).unwrap();
+            Some(bountyvalue) => {
+            
+                
                     if bounty > bountyvalue {
                         self.burn(&account_id, (bounty - bountyvalue) as u128);
-                        bountyvector.replace(0, &bounty);
-                        self.review_check_bounty.insert(&review_id, &bountyvector);
+                        self.review_bounty.insert(&review_id, &bounty);
                     } else {
-                        panic!("Bounty period has not ended, please enter amount of higher value");
+                        panic!("Please enter amount of higher value");
                     }
-                }
-                if bountyperiod == 0 {
-                    self.burn(&account_id, bounty as u128);
-                    bountyvector.replace(0, &bounty);
-                    bountyvector.replace(1, &1);
-                    self.review_check_bounty.insert(&review_id, &bountyvector);
-                }
+               
             }
             None => {
-                let bountyvectorstring =
-                    format!("bountyreviewid{}", self.review_check_bounty_vector_ucount);
-                let boutyvectorstrindid = bountyvectorstring.to_string().into_bytes();
-                let mut bountyvector: Vector<u64> = Vector::new(boutyvectorstrindid);
-                self.review_check_bounty_vector_ucount += 1;
                 self.burn(&account_id, bounty as u128);
-                bountyvector.push(&bounty);
-                bountyvector.push(&1);
-                self.review_check_bounty.insert(&review_id, &bountyvector);
+                self.review_bounty.insert(&review_id, &bounty);
             }
         }
     }
 
-    pub fn get_review_bounty_js(&self, review_id: u128) -> (U64, U64) {
-        let (bountyvalue, bountryperiod) = self.get_review_bounty(review_id);
-        (bountyvalue.into(), bountryperiod.into())
+    pub fn get_review_bounty_js(&self, review_id: u128) ->  U64 {
+        let bounty = self.get_review_bounty(review_id);
+        bounty.into()
     }
 
-    fn get_review_bounty(&self, review_id: u128) -> (u64, u64) {
-        let bounty_option = self.review_check_bounty.get(&review_id);
+    fn get_review_bounty(&self, review_id: u128) -> u64 {
+        let bounty_option = self.review_bounty.get(&review_id);
         match bounty_option {
-            Some(bountyvector) => (bountyvector.get(0).unwrap(), bountyvector.get(1).unwrap()),
+            Some(bounty) => bounty,
             None => {
                 panic!("Bounty does not exists");
             }
@@ -826,15 +805,13 @@ impl Avrit {
             product_reviews_map: TreeMap::new(b"ea4ee217".to_vec()),
             product_commentproduct_map: LookupMap::new(b"fadfdeca".to_vec()),
             review_commentreview_map: LookupMap::new(b"00e72970".to_vec()),
-            product_check_bounty: LookupMap::new(b"0566cfb4".to_vec()),
-            review_check_bounty: LookupMap::new(b"00423f89".to_vec()),
+            product_bounty: LookupMap::new(b"0566cfb4".to_vec()),
+            review_bounty: LookupMap::new(b"00423f89".to_vec()),
             min_review_bounty: 10,
             min_product_bounty: 10,
             min_jury_stake: 10,
             product_id_set_ucount: 0,
             review_id_set_ucount: 0,
-            product_check_bounty_vector_ucount: 0,
-            review_check_bounty_vector_ucount: 0,
             user_juror_stakes: LookupMap::new(b"e56291ef".to_vec()),
             user_juror_stakes_clone: LookupMap::new(b"4e74c845".to_vec()),
             juror_unstaked: LookupMap::new(b"66fcbcd3".to_vec()),
@@ -1119,7 +1096,7 @@ impl Avrit {
     /// 1. Get the predecessor accound id number
     /// 2. Call user juror stake store and clone store
     pub fn apply_jurors(&mut self, review_id: u128, stake: u128) {
-        let (bountyvalue, _bountryperiod) = self.get_review_bounty(review_id);
+        let bountyvalue = self.get_review_bounty(review_id);
         if bountyvalue < self.min_review_bounty {
             panic!(
                 "Bounty is less than minimum allowed amount {}",
@@ -1402,7 +1379,7 @@ impl Avrit {
         let native_juror_selection_time =
             NaiveDateTime::from_timestamp(timestamp_juror_selection_time as i64, 0);
         let onehour = Duration::seconds(3600);
-        let endtime = native_juror_selection_time + onehour;
+        let endtime = native_juror_selection_time + onehour; // One hour extra so that unstaking time is not manipulated
         if naive_now < endtime {
             panic!("Juror selection time has not yet ended");
         }
@@ -1572,6 +1549,7 @@ impl Avrit {
     }
 
     /// Reveal end time is juror_selection_time + commit_phase_time + reveal_phase_time
+    // Vote can be 0 or 1, 0=> Review is not good, 1=> Review is good as per guidelines
     pub fn reveal_vote(&mut self, review_id: u128, vote: String, vote_commit: String) {
         let account_id = env::predecessor_account_id();
         let user_id = self.get_user_id(&account_id);
@@ -1767,7 +1745,8 @@ impl Avrit {
             NaiveDateTime::from_timestamp(timestamp_juror_selection_time as i64, 0);
         let seconds = Duration::seconds(self.commit_phase_time as i64);
         let reveal_end_seconds = Duration::seconds(self.reveal_phase_time as i64);
-        let reveal_endtime = native_juror_selection_time + seconds + reveal_end_seconds;
+        let onehour = Duration::seconds(3600);
+        let reveal_endtime = native_juror_selection_time + seconds + reveal_end_seconds + onehour; // One hour extra so that incentive time is not manipulated
         if naive_now < reveal_endtime {
             panic!("Reveal time has not yet ended."); // when the reveal time ends
         }
@@ -1871,7 +1850,7 @@ impl Avrit {
 
     pub fn incentive_distribution_reviewer(&mut self, review_id: u128) {
         let winning_decision = self.get_winning_decision(review_id);
-        let (bountyvalue, _bountyperiod) = self.get_review_bounty(review_id);
+        let bountyvalue  = self.get_review_bounty(review_id);
         let review = self.get_review(review_id);
         let review_user_id = review.user_id;
         let user = self.get_user_profile(review_user_id);
@@ -1895,10 +1874,11 @@ impl Avrit {
     // max_allowed_product_evidence_incentives_count: u128,
 
     /// Check the product is already incentivised for the review  ✔️
-    /// Increment the product incentives count ✔️
+    /// Increment the product incentives count (number of incentives product gets) ✔️
     /// Check the products don't exceed number of allowed review for incentives ✔️
     /// Check the product is evidence of learning or open access  ✔️
     /// provide incentives only for this two category ✔️
+    //  Incentives should be given when review is good, that is winning decision is 1 and review has rated the content >= 4 stars ✔️
     fn check_if_product_will_get_incentives(&mut self, product_id: u128, review_id: u128) {
         let product_evidence_incentives_option = self.product_got_incentives.get(&product_id);
         match product_evidence_incentives_option {
@@ -1983,7 +1963,7 @@ impl Avrit {
         let product_user_id = product.user_id;
         let user = self.get_user_profile(product_user_id);
         let user_address = user.username;
-        let (_bountyvalue, _bountyperiod) = self.get_product_bounty(product_id);
+        let _bounty = self.get_product_bounty(product_id);
         self.check_if_product_will_get_incentives(product_id, review_id);
         let product_incentives =
             self.increment_product_incentive_count_check_allowed_limit(product_type, product_id);
@@ -1992,18 +1972,21 @@ impl Avrit {
             "Incentives should be greater than 0"
         );
         let winning_decision = self.get_winning_decision(review_id);
-        if winning_decision == 1 {
+        if winning_decision == 1 && review.rating > 3 {
             self.mint(&user_address, product_incentives);
+        } else {
+            panic!("You are not eligible for incentives");
         }
     }
 }
 
 // To Do:
-// Limit the number of allowed reviews that will get incentives
-// User cannot give multiple reviews to same product
+// Limit the number of allowed reviews that will get incentives per product, do the checking in add review bounty
+// Same user cannot give multiple reviews to same product, the can give no problem ❌
 // Give back stake of non juror after jury selection ✔️
-// Juror selection (end) time should be set after some time if not getting enough juror, it should be set in commit vote, using a constant seconds variable
+// Review can't be updated after bounty/stake is given for it ✔️
 // Set kyc variable by admin
+
 // Future To Dos (Not required now):
 // Set the threshold limit of incentives (for jury, review and product) that admin can't exceed
 // Separate threshold admin and setting incentive admin

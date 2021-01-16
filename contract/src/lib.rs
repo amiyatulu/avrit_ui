@@ -395,10 +395,12 @@ mod tests {
         contract.create_review(
             1,
             "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            5
         );
         contract.create_review(
             2,
             "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            3
         );
     }
 
@@ -500,6 +502,7 @@ mod tests {
         contract.create_review(
             1,
             "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            4
         );
         let review = contract.get_review(1);
         assert_eq!(
@@ -572,6 +575,7 @@ mod tests {
         contract.create_review(
             1,
             "Review1xeV32S2VoyUnqJsRRCh75F1fP2AeomVq2Ury2fTt9V4p".to_owned(),
+            4
         );
         context.predecessor_account_id = carol();
         testing_env!(context.clone());
@@ -1146,7 +1150,7 @@ mod tests {
         assert_eq!(data_true.0, 2);
         let data_false = contract.get_false_count_js(1);
         assert_eq!(data_false.0, 3);
-        context.block_timestamp = get_timestamp_add(1296000 + 2592000 + 1296001);
+        context.block_timestamp = get_timestamp_add(1296000 + 2592000 + 1296001 + 3600);
         testing_env!(context.clone());
         let winingdecision = contract.get_winning_decision(1);
         assert_eq!(0, winingdecision);
@@ -1231,7 +1235,7 @@ mod tests {
         assert_eq!(data_true.0, 2);
         let data_false = contract.get_false_count_js(1);
         assert_eq!(data_false.0, 3);
-        context.block_timestamp = get_timestamp_add(1296000 + 2592000 + 1296001);
+        context.block_timestamp = get_timestamp_add(1296000 + 2592000 + 1296001 + 3600);
         testing_env!(context.clone());
         let winingdecision = contract.get_winning_decision(1);
         assert_eq!(0, winingdecision);

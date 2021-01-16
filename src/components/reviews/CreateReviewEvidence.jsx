@@ -5,6 +5,7 @@ import { useHistory, useParams } from "react-router-dom"
 import { NearContext } from "../../commons/context/NearContext"
 import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
+import Rating from "@material-ui/lab/Rating"
 
 function CreateReviewEvidence(props) {
   // const [count, setCount] = useState(0);
@@ -12,12 +13,14 @@ function CreateReviewEvidence(props) {
   const { pid } = useParams()
   let { nearvar } = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
+  const [product_rating, setProduct_rating] = React.useState(null)
 
   return (
     <React.Fragment>
       <div className="container">
         <Formik
           initialValues={{
+            productRating:"",
             originality: "",
             probingquestion: "",
             graphics: "",
@@ -27,6 +30,9 @@ function CreateReviewEvidence(props) {
             cognitiveload: "",
           }}
           validationSchema={Yup.object().shape({
+            productRating: Yup.number()
+            .typeError("Product rating is required")
+            .required("Product rating is required"),
             originality: Yup.string().required("originality is required"),
             probingquestion: Yup.string().required(
               "probingquestion is required"
@@ -38,7 +44,7 @@ function CreateReviewEvidence(props) {
             cognitiveload: Yup.string().required("cognitiveload is required"),
           })}
           onSubmit={async (values, actions) => {
-            //   values.countvariable = count
+             values.productRating = product_rating
             //   const data = await ...
             try {
               const file = await ipfs.add({
@@ -50,6 +56,7 @@ function CreateReviewEvidence(props) {
               await nearvar.contract.create_review({
                 product_id: parseInt(pid),
                 review_hash: file.cid.string,
+                rating: parseInt(product_rating),
               })
               actions.setSubmitting(false)
               history.push(`/product/${pid}`)
@@ -77,6 +84,22 @@ function CreateReviewEvidence(props) {
             <Form onSubmit={handleSubmit}>
               {errorThrow && <p>{errorThrow}</p>}
               <div className="form-group">
+              <p className="p-2 mb-2 bg-primary text-white">
+                  <label htmlFor="ProductRating">Product Rating</label>
+                </p>
+              {touched.productRating && errors.productRating && <p className="alert alert-danger">{errors.productRating}</p>}{" "}
+              <div className="text-center">
+                <br />
+                <Rating
+                  name="productRating"
+                  value={product_rating}
+                  onChange={(event, newValue) => {
+                    setProduct_rating(newValue)
+                    console.log(newValue)
+                    setFieldValue("productRating", newValue)
+                  }}
+                />
+                </div>
                 <p className="p-2 mb-2 bg-primary text-white">
                   <label htmlFor="originality">Originality</label>
                 </p>

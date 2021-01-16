@@ -15,6 +15,7 @@ pub struct User {
 pub struct Review {
     pub product_id: u128,
     pub user_id: u128,
+    pub rating: u8,
     pub review_hash: String, //IPFS Hash
 }
 
