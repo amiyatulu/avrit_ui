@@ -14,6 +14,7 @@ import CreateReviewStake from "./components/stakes/CreateReviewStake"
 import GetReviewStake from "./components/stakes/GetReviewStake"
 import ApplyJuryStake from "./components/schelling/ApplyJuryStake"
 import GetJuryStake from "./components/schelling/GetJuryStake"
+import JuryApplyTime from './components/stakes/JuryApplyTime';
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -136,6 +137,7 @@ function App(props) {
             {/* <Route path="/getreviewstake/:rid" component={GetReviewStake} /> */}
             <Route path="/applyjury/:rid" component={ApplyJuryStake} />
             <Route path="/getjurystake/:rid/:userId" component={GetJuryStake} />
+            {/* <Route path="/juryapplytime/:rid" component={JuryApplyTime} /> Remove it later*/}
           </Switch>
         </section>
       </React.Fragment>

@@ -18,16 +18,16 @@ mod tests {
 
     fn get_timestamp() -> u64 {
         let now: DateTime<Utc> = Utc::now();
-        now.timestamp() as u64
+        now.timestamp()  as u64  * 1000000000 
     }
 
     fn get_timestamp_add(add: u64) -> u64 {
         let now: DateTime<Utc> = Utc::now();
-        now.timestamp() as u64 + add
+        now.timestamp() as u64   * 1000000000 + add
     }
 
     fn draw_time_add() -> u64 {
-        1296000
+        1296000 * 1000000000 
     }
 
     fn rand_vector() -> Vec<u8> {
@@ -686,7 +686,7 @@ mod tests {
         predecessor_account: AccountId,
         reviewer_id: u128,
     ) -> (Avrit, VMContext) {
-        context.block_timestamp = get_timestamp_add(1296000 + 2592000);
+        context.block_timestamp = get_timestamp_add((1296000 + 2592000)*1000000000);
         context.predecessor_account_id = predecessor_account;
         testing_env!(context.clone());
         let mut hasher = Keccak256::new();
@@ -1150,7 +1150,7 @@ mod tests {
         assert_eq!(data_true.0, 2);
         let data_false = contract.get_false_count_js(1);
         assert_eq!(data_false.0, 3);
-        context.block_timestamp = get_timestamp_add(1296000 + 2592000 + 1296001 + 3600);
+        context.block_timestamp = get_timestamp_add((1296000 + 2592000 + 1296001 + 3600)*1000000000);
         testing_env!(context.clone());
         let winingdecision = contract.get_winning_decision(1);
         assert_eq!(0, winingdecision);
@@ -1235,7 +1235,7 @@ mod tests {
         assert_eq!(data_true.0, 2);
         let data_false = contract.get_false_count_js(1);
         assert_eq!(data_false.0, 3);
-        context.block_timestamp = get_timestamp_add(1296000 + 2592000 + 1296001 + 3600);
+        context.block_timestamp = get_timestamp_add((1296000 + 2592000 + 1296001 + 3600)*1000000000);
         testing_env!(context.clone());
         let winingdecision = contract.get_winning_decision(1);
         assert_eq!(0, winingdecision);

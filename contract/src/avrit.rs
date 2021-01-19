@@ -1224,13 +1224,17 @@ impl Avrit {
         }
     }
 
+    pub fn get_jury_application_start_time_js(&self, review_id: u128) -> U64 {
+        self.get_jury_application_start_time(review_id).into()
+    }
+
     fn assert_draw_jurors_time_possible(&self, review_id: u128) {
         let timestamp = env::block_timestamp();
-        let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
+        let naive_now = NaiveDateTime::from_timestamp((timestamp/1000000000) as i64, 0);
         // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>naive now:   {}", naive_now);
         let timestamp_jury_application_start_time = self.get_jury_application_start_time(review_id);
         let native_timestamp_jury_application_start_time =
-            NaiveDateTime::from_timestamp(timestamp_jury_application_start_time as i64, 0);
+            NaiveDateTime::from_timestamp((timestamp_jury_application_start_time/1000000000) as i64, 0);
         let seconds = Duration::seconds(self.jury_application_phase_time as i64);
         let endtime = native_timestamp_jury_application_start_time + seconds;
         // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>endtime draw juror: {}", endtime);
@@ -1374,10 +1378,10 @@ impl Avrit {
 
     pub fn check_juror_selection_time_ended(&self, review_id: u128) {
         let timestamp = env::block_timestamp();
-        let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
+        let naive_now = NaiveDateTime::from_timestamp((timestamp/1000000000) as i64, 0);
         let timestamp_juror_selection_time = self.get_juror_selection_time(&review_id);
         let native_juror_selection_time =
-            NaiveDateTime::from_timestamp(timestamp_juror_selection_time as i64, 0);
+            NaiveDateTime::from_timestamp((timestamp_juror_selection_time/1000000000) as i64, 0);
         let onehour = Duration::seconds(3600);
         let endtime = native_juror_selection_time + onehour; // One hour extra so that unstaking time is not manipulated
         if naive_now < endtime {
@@ -1463,11 +1467,11 @@ impl Avrit {
         let account_id = env::predecessor_account_id();
         let user_id = self.get_user_id(&account_id);
         let timestamp = env::block_timestamp();
-        let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
+        let naive_now = NaiveDateTime::from_timestamp((timestamp/1000000000) as i64, 0);
         // println!("{}, now2", naive_now);
         let timestamp_juror_selection_time = self.get_juror_selection_time(&review_id);
         let native_juror_selection_time =
-            NaiveDateTime::from_timestamp(timestamp_juror_selection_time as i64, 0);
+            NaiveDateTime::from_timestamp((timestamp_juror_selection_time/1000000000) as i64, 0);
         let seconds = Duration::seconds(self.commit_phase_time as i64);
         let endtime = native_juror_selection_time + seconds;
         if naive_now > endtime {
@@ -1554,10 +1558,10 @@ impl Avrit {
         let account_id = env::predecessor_account_id();
         let user_id = self.get_user_id(&account_id);
         let timestamp = env::block_timestamp();
-        let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
+        let naive_now = NaiveDateTime::from_timestamp((timestamp/1000000000) as i64, 0);
         let timestamp_juror_selection_time = self.get_juror_selection_time(&review_id);
         let native_juror_selection_time =
-            NaiveDateTime::from_timestamp(timestamp_juror_selection_time as i64, 0);
+            NaiveDateTime::from_timestamp((timestamp_juror_selection_time/1000000000) as i64, 0);
         let seconds = Duration::seconds(self.commit_phase_time as i64);
         let endtime = native_juror_selection_time + seconds;
         let reveal_end_seconds = Duration::seconds(self.reveal_phase_time as i64);
@@ -1739,10 +1743,10 @@ impl Avrit {
     }
     pub fn get_winning_decision(&self, review_id: u128) -> u8 {
         let timestamp = env::block_timestamp();
-        let naive_now = NaiveDateTime::from_timestamp(timestamp as i64, 0);
+        let naive_now = NaiveDateTime::from_timestamp((timestamp/1000000000) as i64, 0);
         let timestamp_juror_selection_time = self.get_juror_selection_time(&review_id);
         let native_juror_selection_time =
-            NaiveDateTime::from_timestamp(timestamp_juror_selection_time as i64, 0);
+            NaiveDateTime::from_timestamp((timestamp_juror_selection_time/1000000000) as i64, 0);
         let seconds = Duration::seconds(self.commit_phase_time as i64);
         let reveal_end_seconds = Duration::seconds(self.reveal_phase_time as i64);
         let onehour = Duration::seconds(3600);
