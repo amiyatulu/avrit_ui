@@ -14,7 +14,9 @@ import CreateReviewStake from "./components/stakes/CreateReviewStake"
 import GetReviewStake from "./components/stakes/GetReviewStake"
 import ApplyJuryStake from "./components/schelling/ApplyJuryStake"
 import GetJuryStake from "./components/schelling/GetJuryStake"
-import JuryApplyTime from './components/stakes/JuryApplyTime';
+import JuryApplyTime from "./components/stakes/JuryApplyTime"
+import CommitVote from "./components/schelling/CommitVote"
+import CommitSubmitted from "./components/schelling/CommitSubmitted"
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -116,7 +118,9 @@ function App(props) {
     textShadow: "1px 1px #D1CCBD",
   }
   return (
-    <NearContext.Provider value={{ nearvar: props, reloadBalance, balance, balanceError, userId }}>
+    <NearContext.Provider
+      value={{ nearvar: props, reloadBalance, balance, balanceError, userId }}
+    >
       <React.Fragment>
         {login ? (
           <Nav onClick={requestSignOut} login={login} />
@@ -138,6 +142,8 @@ function App(props) {
             <Route path="/applyjury/:rid" component={ApplyJuryStake} />
             <Route path="/getjurystake/:rid/:userId" component={GetJuryStake} />
             {/* <Route path="/juryapplytime/:rid" component={JuryApplyTime} /> Remove it later*/}
+            <Route path="/commitvote/:rid" component={CommitVote} />
+            <Route path="/commitsubmitted" component={CommitSubmitted} />
           </Switch>
         </section>
       </React.Fragment>

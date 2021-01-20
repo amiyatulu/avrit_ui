@@ -12,6 +12,7 @@
     "axios": "0.21.1",
     "formik": "^2.1.5",
     "ipfs-http-client": "^45.0.0",
+    "keccak256": "^1.0.2",
     "moment": "^2.29.1",
     "near-api-js": "^0.27.0",
     "react": "^16.13.1",

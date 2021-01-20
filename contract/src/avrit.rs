@@ -1462,7 +1462,7 @@ impl Avrit {
     }
 
     /// Fetch the juror selection time from review id, get the commit phase time, add the both and get the endtime, if its less than now, panic
-    ///
+    /// Commit vote example 1thenUniqueString or 0thenUniqueString, than convert it to Keccak256 and produce the vote_commit string
     pub fn commit_vote(&mut self, review_id: u128, vote_commit: String) {
         let account_id = env::predecessor_account_id();
         let user_id = self.get_user_id(&account_id);
