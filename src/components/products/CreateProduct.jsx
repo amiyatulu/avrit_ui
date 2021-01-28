@@ -6,12 +6,17 @@ import { NearContext } from "../../commons/context/NearContext"
 import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
 import Ipfsadd from "../../commons/TextileIO"
+import TagsInput from "./TagsInput"
+
 
 function CreateProduct(props) {
   // const [count, setCount] = useState(0);
   let history = useHistory()
   let { nearvar } = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
+  const selectedTags = tags => {
+		console.log(tags);
+	};
 
   return (
     <React.Fragment>
@@ -120,8 +125,61 @@ function CreateProduct(props) {
                 {touched.profile_type && errors.profile_type && (
                   <p className="alert alert-danger">{errors.profile_type}</p>
                 )}
-
-                <Field name="profile_type" className="form-control" />
+                <div className="form-check">
+                <label>
+                  <Field
+                    type="radio"
+                    name="profile_type"
+                    className="form-check-input"
+                    value="ev"
+                  />
+                  Evidence of Learning
+                </label>
+                </div>
+                <div className="form-check">
+                <label>
+                  <Field
+                    type="radio"
+                    name="profile_type"
+                    className="form-check-input"
+                    value="oa"
+                  />
+                  Open Access
+                </label>
+                </div>
+                <div className="form-check">
+                <label>
+                  <Field
+                    type="radio"
+                    name="profile_type"
+                    className="form-check-input"
+                    value="rm"
+                  />
+                  Room
+                </label>
+                </div>
+                <div className="form-check">
+                <label>
+                  <Field
+                    type="radio"
+                    name="profile_type"
+                    className="form-check-input"
+                    value="cm"
+                  />
+                  Curriculum
+                </label>
+                </div>
+                <div className="form-check">
+                <label>
+                  <Field
+                    type="radio"
+                    name="profile_type"
+                    className="form-check-input"
+                    value="oh"
+                  />
+                  Others
+                </label>
+                </div>
               </div>
 
               <div className="form-group">
@@ -129,8 +187,11 @@ function CreateProduct(props) {
                 {touched.specialization && errors.specialization && (
                   <p className="alert alert-danger">{errors.specialization}</p>
                 )}
-
-                <Field name="specialization" className="form-control" />
+                <TagsInput selectedTags={selectedTags} name={"specialization"} setFieldValue={setFieldValue} tags={['Rust', 'Blockchain']}/>
+                {/* <TagsInput name="specialization" value={values.specialization} onChange={specialization => {
+                  console.log(specialization)
+                  setFieldValue("specialization", specialization)
+                }} /> */}
               </div>
 
               <div className="form-group">

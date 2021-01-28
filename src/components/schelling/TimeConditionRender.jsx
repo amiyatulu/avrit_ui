@@ -23,15 +23,15 @@ function Loading(props) {
 // get_juror_selection_time_js + get_commit_phase_time => End of commit phase
 // get_juror_selection_time_js + get_commit_phase_time + get_reveal_phase_time => End of reveal time
 
-function TimeConditionRender() {
+function TimeConditionRender(props) {
   const { nearvar, userId } = useContext(NearContext)
-  // const { rid } = props
+  const { rid } = props
   const [errorApplication, setApplicationError] = useState(false)
   const [errorJurySelectionTime, setJurySelectionTimeError] = useState(false)
   const [time, setTime] = useState(null)
   const [endcommit, setEndCommit] = useState(null)
   const [endreveal, setEndReveal] = useState(null)
-  const { rid } = useParams()
+  // const { rid } = useParams()
   // console.log("rid", rid)
   useEffect(() => {
     async function fetchJuryApplicationTime() {
@@ -108,8 +108,11 @@ function TimeConditionRender() {
       commitphasetime,
       revealphasetime
     ) {
-      let endreveal = moment
-        .unix(parseInt(juryselectiontime.slice(0, 10)) + parseInt(commitphasetime) + parseInt(revealphasetime))
+      let endreveal = moment.unix(
+        parseInt(juryselectiontime.slice(0, 10)) +
+          parseInt(commitphasetime) +
+          parseInt(revealphasetime)
+      )
       return endreveal
     }
     async function callfetchJuryApplicationTime() {
@@ -148,19 +151,30 @@ function TimeConditionRender() {
   // else if commit time ends
 
   // else if application time ends
-  console.log("endreveal", endreveal)
-  if ( moment().isSameOrAfter(endreveal)) {
+  // console.log("endreveal", endreveal)
+  if (moment().isSameOrAfter(endreveal)) {
     console.log("reveal time ends")
+    return <React.Fragment></React.Fragment>
   }
 
   if (moment().isSameOrAfter(endcommit)) {
     console.log("commit time ends")
+    return (
+      <React.Fragment>
+        <br />
+        <span>Commit end time: {endcommit.fromNow()}</span> <br />
+      </React.Fragment>
+    )
   }
   // console.log(time)
   if (moment().isSameOrAfter(time)) {
     return (
       <React.Fragment>
-        <span>Jury application end time: {time.fromNow()}</span>
+        <br />
+        <span>Jury application end time: {time.fromNow()}</span> <br />
+        <Link to={`/commitvote/${rid}/`} className="badge badge-secondary mr-3">
+          Commit Vote
+        </Link>
       </React.Fragment>
     )
   }

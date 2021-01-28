@@ -4,6 +4,7 @@ import axios from "axios"
 import { IPFS_URL } from "../../config/configvar"
 import { Link } from "react-router-dom"
 import GetReviewStake from "../stakes/GetReviewStake"
+import TimeConditionRender from "../schelling/TimeConditionRender"
 
 
 function ReviewFullDetailsEvidence(props) {
@@ -38,6 +39,7 @@ function ReviewFullDetailsEvidence(props) {
               Add or Update Stake
             </Link>
             <GetReviewStake rid={rid} />
+            <TimeConditionRender rid={rid} />
             
           </div>
         </div>

@@ -67,7 +67,7 @@ function CommitVote(props) {
                 <p className="p-2 mb-2 bg-primary text-white">
                   <label htmlFor="Vote">Vote:</label>
                 </p>
-
+                <p>Vote if already not voted.</p>
                 <p>
                   Vote format, first character can be 0 or 1, then a unique
                   string.

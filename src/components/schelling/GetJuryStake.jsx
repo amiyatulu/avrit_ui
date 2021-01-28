@@ -31,12 +31,7 @@ function GetJuryStake(props) {
     <React.Fragment>
       {stake ? (
         <React.Fragment>
-          <p className="badge badge-secondary mr-3">Your jury Stake: {stake}</p>{" "}
-          <JuryApplyTime rid={rid} /><br/>
-          <Link
-            to={`/commitvote/${rid}/`}
-            className="badge badge-secondary mr-3"
-          >Commit Vote </Link> <span>(if not already commited)</span>
+          <p className="badge badge-secondary mr-3">Your jury Stake: {stake}</p>      
         </React.Fragment>
       ) : stakeError ? (
         <React.Fragment>
