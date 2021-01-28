@@ -17,6 +17,7 @@ import GetJuryStake from "./components/schelling/GetJuryStake"
 import JuryApplyTime from "./components/stakes/JuryApplyTime"
 import CommitVote from "./components/schelling/CommitVote"
 import CommitSubmitted from "./components/schelling/CommitSubmitted"
+import TimeConditionRender from './components/schelling/TimeConditionRender';
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -144,6 +145,7 @@ function App(props) {
             {/* <Route path="/juryapplytime/:rid" component={JuryApplyTime} /> Remove it later*/}
             <Route path="/commitvote/:rid" component={CommitVote} />
             <Route path="/commitsubmitted" component={CommitSubmitted} />
+            <Route path="/timecondition/:rid" component={TimeConditionRender} /> 
           </Switch>
         </section>
       </React.Fragment>
