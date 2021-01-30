@@ -199,8 +199,7 @@ function CreateProduct(props) {
                 {touched.audience && errors.audience && (
                   <p className="alert alert-danger">{errors.audience}</p>
                 )}
-
-                <Field name="audience" className="form-control" />
+                <TagsInput selectedTags={selectedTags} name={"audience"} setFieldValue={setFieldValue} tags={['Novice', 'Intermediate']}/>
               </div>
 
               <div className="text-center">
