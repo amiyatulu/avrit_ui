@@ -39,6 +39,19 @@ function ProductById() {
             <h3 className="display-4">{ipfsData.headline}</h3>
             <h5>Introduction:</h5>
             <p>{ipfsData.introduction}</p>
+            {ipfsData.productimage && (
+              <React.Fragment>
+                <img
+                  src={`https://gateway.ipfs.io/ipfs/${ipfsData.productimage}`}
+                  alt="productimage"
+                  width="300"
+                  className="img-thumbnail"
+                />
+                <br />
+                <br/>
+              </React.Fragment>
+            )}
+
             <h5>Details:</h5>
             <p>{ipfsData.details}</p>
             <h5>Specialization:</h5>

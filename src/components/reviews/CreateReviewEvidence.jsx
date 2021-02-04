@@ -6,6 +6,7 @@ import { NearContext } from "../../commons/context/NearContext"
 import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
 import Rating from "@material-ui/lab/Rating"
+import DropProductPDFs from "../products/DropProductPDFs"
 
 function CreateReviewEvidence(props) {
   // const [count, setCount] = useState(0);
@@ -28,6 +29,7 @@ function CreateReviewEvidence(props) {
             practice: "",
             proposition: "",
             cognitiveload: "",
+            pdfs: "",
           }}
           validationSchema={Yup.object().shape({
             productRating: Yup.number()
@@ -42,10 +44,12 @@ function CreateReviewEvidence(props) {
             practice: Yup.string().required("practice is required"),
             proposition: Yup.string().required("proposition is required"),
             cognitiveload: Yup.string().required("cognitiveload is required"),
+            pdfs: Yup.string().required("Adding PDFs is required"),
           })}
           onSubmit={async (values, actions) => {
              values.productRating = product_rating
             //   const data = await ...
+            // console.log(values)
             try {
               const file = await ipfs.add({
                 path: "review.json",
@@ -213,6 +217,14 @@ function CreateReviewEvidence(props) {
                   rows="5"
                   className="form-control"
                 />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="PDFs">PDFs</label>
+                {touched.pdfs && errors.pdfs && (
+                  <p className="alert alert-danger">{errors.pdfs}</p>
+                )}
+                <DropProductPDFs name={"pdfs"} setFieldValue={setFieldValue} />
               </div>
 
               <div className="text-center">

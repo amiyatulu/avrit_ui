@@ -19,6 +19,7 @@ import CommitVote from "./components/schelling/CommitVote"
 import CommitSubmitted from "./components/schelling/CommitSubmitted"
 import TimeConditionRender from './components/schelling/TimeConditionRender';
 import DropProductImage from './components/products/DropProductImage';
+import DropProductPDFs from './components/products/DropProductPDFs';
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -147,7 +148,8 @@ function App(props) {
             <Route path="/commitvote/:rid" component={CommitVote} />
             <Route path="/commitsubmitted" component={CommitSubmitted} />
             <Route path="/timecondition/:rid" component={TimeConditionRender} /> 
-            <Route path="/uploadimage" component={DropProductImage} />
+            {/* <Route path="/uploadimage" component={DropProductImage} /> */}
+            {/* <Route path="/uploadpdf" component={DropProductPDFs} /> */}
           </Switch>
         </section>
       </React.Fragment>

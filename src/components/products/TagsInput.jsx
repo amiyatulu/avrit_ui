@@ -1,8 +1,12 @@
-import React from "react"
+import React, {useEffect} from "react"
 import styles from "./TagsInput.module.css"
 
 const TagsInput = props => {
 	const [tags, setTags] = React.useState(props.tags);
+
+    useEffect(() => {
+		props.setFieldValue(props.name, [tags].join())
+	}, [tags])
 	const removeTags = indexToRemove => {
 		setTags([...tags.filter((_, index) => index !== indexToRemove)]);
 	};
@@ -10,7 +14,7 @@ const TagsInput = props => {
 		if (event.target.value !== "") {
 			setTags([...tags, event.target.value.slice(0, -1)]);
             props.selectedTags([...tags, event.target.value.slice(0, -1)].join());
-            props.setFieldValue(props.name, [...tags, event.target.value.slice(0, -1)].join())
+            // props.setFieldValue(props.name, [...tags, event.target.value.slice(0, -1)].join())
 			event.target.value = "";
 		}
 	};

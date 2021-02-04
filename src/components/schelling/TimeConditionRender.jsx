@@ -35,6 +35,7 @@ function TimeConditionRender(props) {
   // console.log("rid", rid)
   useEffect(() => {
     async function fetchJuryApplicationTime() {
+      let endtime = false
       try {
         let phasetimeinsec = await nearvar.contract.get_jury_application_phase_time()
         // console.log(phasetimeinsec)
@@ -49,11 +50,11 @@ function TimeConditionRender(props) {
         )
         // console.log(endtime)
         // console.log(endtime.fromNow())
-        return endtime
       } catch (e) {
         console.log(e)
         setApplicationError(true)
       }
+      return endtime
     }
     async function fetchJurySelectionTime() {
       try {
@@ -95,9 +96,15 @@ function TimeConditionRender(props) {
       //   "ccjuryselectiontime",
       //   moment.unix(parseInt(juryselectiontime.slice(0, 10)))
       // )
-      let endcommitdata = moment.unix(
-        parseInt(juryselectiontime.slice(0, 10)) + parseInt(commitphasetime)
-      )
+      let endcommitdata = false
+      try {
+        endcommitdata = moment.unix(
+          parseInt(juryselectiontime.slice(0, 10)) + parseInt(commitphasetime)
+        )
+      } catch (e) {
+        console.log(e)
+      }
+
       // console.log("cccomitphase", commitphasetime)
       // console.log("endcommit", endcommitdata)
       return endcommitdata
@@ -108,11 +115,16 @@ function TimeConditionRender(props) {
       commitphasetime,
       revealphasetime
     ) {
-      let endreveal = moment.unix(
-        parseInt(juryselectiontime.slice(0, 10)) +
-          parseInt(commitphasetime) +
-          parseInt(revealphasetime)
-      )
+      let endreveal = false
+      try {
+        endreveal = moment.unix(
+          parseInt(juryselectiontime.slice(0, 10)) +
+            parseInt(commitphasetime) +
+            parseInt(revealphasetime)
+        )
+      } catch (e) {
+        console.log(e)
+      }
       return endreveal
     }
     async function callfetchJuryApplicationTime() {
@@ -166,7 +178,7 @@ function TimeConditionRender(props) {
       </React.Fragment>
     )
   }
-  // console.log(time)
+
   if (moment().isSameOrAfter(time)) {
     return (
       <React.Fragment>
@@ -175,6 +187,15 @@ function TimeConditionRender(props) {
         <Link to={`/commitvote/${rid}/`} className="badge badge-secondary mr-3">
           Commit Vote
         </Link>
+      </React.Fragment>
+    )
+  }
+  // console.log(time)
+  if (moment().isSameOrBefore(time)) {
+    return (
+      <React.Fragment>
+        <br />
+        <span>Jury application end time: {time.fromNow()}</span> <br />
       </React.Fragment>
     )
   }

@@ -3,14 +3,19 @@ import { useDropzone } from "react-dropzone"
 import ipfs from "../../commons/ipfs"
 
 function DropProductImage(props) {
-  //   const [buffer, setBuffer] = useState(null)
+  const [ipfspath, setIpfspath] = useState(null)
+  const [loading, setLoading] = useState(false)
   async function addData(name, buffer) {
     const file = await ipfs.add({ path: name, content: buffer })
     console.log(name)
     console.log(file.cid.string)
+    setIpfspath(file.cid.string)
+    props.setFieldValue(props.name, file.cid.string)
+    setLoading(false)
   }
   const onDrop = useCallback((acceptedFile) => {
     console.log(acceptedFile)
+    setLoading(true)
 
     const reader = new window.FileReader()
     reader.readAsArrayBuffer(acceptedFile[0])
@@ -35,7 +40,7 @@ function DropProductImage(props) {
 
   return (
     <section className="container">
-      <div {...getRootProps({ className: "dropzone" })}>
+      <div {...getRootProps({ className: "jumbotron" })}>
         <input {...getInputProps()} />
         <p>Drag 'n' drop image file, or click to select the image</p>
       </div>
@@ -45,6 +50,26 @@ function DropProductImage(props) {
             <h4>Image</h4>
             <ul>{files}</ul>
           </div>
+        </React.Fragment>
+      )}
+      {loading && (
+        <React.Fragment>
+          <div>
+            Please wait while image loads.....<br/>
+            <span className="spinner-border text-danger" role="status">
+              <span className="sr-only">Loading...</span>
+            </span>
+          </div>
+        </React.Fragment>
+      )}
+      {ipfspath && (
+        <React.Fragment>
+          <img
+            src={`https://gateway.ipfs.io/ipfs/${ipfspath}`}
+            alt={ipfspath}
+            width="300"
+            className="img-thumbnail"
+          />
         </React.Fragment>
       )}
     </section>

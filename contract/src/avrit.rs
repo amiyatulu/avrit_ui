@@ -511,9 +511,6 @@ impl Avrit {
                 };
                 self.review_id += 1;
                 self.review_map.insert(&self.review_id, &rev);
-                let timestamp = env::block_timestamp();
-                self.jury_application_start_time
-                    .insert(&self.review_id, &timestamp);
                 let product_reviews_option = self.product_reviews_map.get(&product_id);
                 match product_reviews_option {
                     Some(mut review_ids_set) => {
@@ -724,6 +721,9 @@ impl Avrit {
             "Bounty can not be less than minimum review bounty"
         );
         let account_id = env::predecessor_account_id();
+        let timestamp = env::block_timestamp();
+                self.jury_application_start_time
+                    .insert(&review_id, &timestamp);
         let review_bounty_exists_option = self.review_bounty.get(&review_id);
         match review_bounty_exists_option {
             Some(bountyvalue) => {
