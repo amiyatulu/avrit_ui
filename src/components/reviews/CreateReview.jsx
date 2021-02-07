@@ -8,7 +8,7 @@ import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
 import Rating from "@material-ui/lab/Rating"
 import DropProductPDFs from "../products/DropProductPDFs"
 
-function CreateReviewEvidence(props) {
+function CreateReview(props) {
   // const [count, setCount] = useState(0);
   let history = useHistory()
   const { pid } = useParams()
@@ -22,28 +22,14 @@ function CreateReviewEvidence(props) {
         <Formik
           initialValues={{
             productRating: "",
-            originality: "",
-            probingquestion: "",
-            graphics: "",
-            concrete: "",
-            practice: "",
-            proposition: "",
-            cognitiveload: "",
+            text: "➼ Originality \n➼ Probing Questions \n➼ Graphics",
             pdfs: "",
           }}
           validationSchema={Yup.object().shape({
             productRating: Yup.number()
               .typeError("Product rating is required")
               .required("Product rating is required"),
-            originality: Yup.string().required("originality is required"),
-            probingquestion: Yup.string().required(
-              "probingquestion is required"
-            ),
-            graphics: Yup.string().required("graphics is required"),
-            concrete: Yup.string().required("concrete is required"),
-            practice: Yup.string().required("practice is required"),
-            proposition: Yup.string().required("proposition is required"),
-            cognitiveload: Yup.string().required("cognitiveload is required"),
+            text: Yup.string().required("text field is required"),
             pdfs: Yup.string().required("Adding PDFs is required"),
           })}
           onSubmit={async (values, actions) => {
@@ -108,119 +94,20 @@ function CreateReviewEvidence(props) {
                   />
                 </div>
                 <p className="p-2 mb-2 bg-primary text-white">
-                  <label htmlFor="originality">Originality</label>
+                  <label htmlFor="text">Review Text</label>
                 </p>
-                {touched.originality && errors.originality && (
-                  <p className="alert alert-danger">{errors.originality}</p>
+                {touched.text && errors.text && (
+                  <p className="alert alert-danger">{errors.text}</p>
                 )}
                 <Field
-                  name="originality"
+                  name="text"
                   component="textarea"
                   rows="5"
                   className="form-control"
                 />
               </div>
 
-              <div className="form-group">
-                <p className="p-2 mb-2 bg-primary text-white">
-                  <label htmlFor="probingquestion">
-                    Posing Probing Question
-                  </label>
-                </p>
-                {touched.probingquestion && errors.probingquestion && (
-                  <p className="alert alert-danger">{errors.probingquestion}</p>
-                )}
-
-                <Field
-                  name="probingquestion"
-                  component="textarea"
-                  rows="5"
-                  className="form-control"
-                />
-              </div>
-
-              <div className="form-group">
-                <p className="p-2 mb-2 bg-primary text-white">
-                  <label htmlFor="graphics">Pairing graphics with words</label>
-                </p>
-                {touched.graphics && errors.graphics && (
-                  <p className="alert alert-danger">{errors.graphics}</p>
-                )}
-
-                <Field
-                  name="graphics"
-                  component="textarea"
-                  rows="5"
-                  className="form-control"
-                />
-              </div>
-
-              <div className="form-group">
-                <p className="p-2 mb-2 bg-primary text-white">
-                  <label htmlFor="concrete">Abstract to Concrete</label>
-                </p>
-                {touched.concrete && errors.concrete && (
-                  <p className="alert alert-danger">{errors.concrete}</p>
-                )}
-
-                <Field
-                  name="concrete"
-                  component="textarea"
-                  rows="5"
-                  className="form-control"
-                />
-              </div>
-
-              <div className="form-group">
-                <p className="p-2 mb-2 bg-primary text-white">
-                  <label htmlFor="practice">
-                    Retrieval Practice and Component Practice
-                  </label>
-                </p>
-                {touched.practice && errors.practice && (
-                  <p className="alert alert-danger">{errors.practice}</p>
-                )}
-
-                <Field
-                  name="practice"
-                  component="textarea"
-                  rows="5"
-                  className="form-control"
-                />
-              </div>
-
-              <div className="form-group">
-                <p className="p-2 mb-2 bg-primary text-white">
-                  <label htmlFor="proposition">Logical Statements</label>
-                </p>
-                {touched.proposition && errors.proposition && (
-                  <p className="alert alert-danger">{errors.proposition}</p>
-                )}
-
-                <Field
-                  name="proposition"
-                  component="textarea"
-                  rows="5"
-                  className="form-control"
-                />
-              </div>
-
-              <div className="form-group">
-                <p className="p-2 mb-2 bg-primary text-white">
-                  <label htmlFor="cognitiveload">Cognitive Load</label>
-                </p>
-                {touched.cognitiveload && errors.cognitiveload && (
-                  <p className="alert alert-danger">{errors.cognitiveload}</p>
-                )}
-
-                <Field
-                  name="cognitiveload"
-                  component="textarea"
-                  rows="5"
-                  className="form-control"
-                />
-              </div>
-
+             
               <div className="form-group">
                 <label htmlFor="PDFs">PDFs</label>
                 {touched.pdfs && errors.pdfs && (
@@ -252,4 +139,4 @@ function CreateReviewEvidence(props) {
   )
 }
 
-export default CreateReviewEvidence
+export default CreateReview

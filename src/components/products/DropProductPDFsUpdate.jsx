@@ -3,8 +3,13 @@ import { useDropzone } from "react-dropzone"
 import ipfs from "../../commons/ipfs"
 import longword from "./LongWords.module.css"
 
-function DropProductPDFs(props) {
-  const [ipfspdfpaths, setIpfspdfpaths] = useState([])
+function DropProductPDFsUpdate(props) {
+  let ipfsold = []
+  if (props.ipfsoldpaths) {
+    ipfsold = props.ipfsoldpaths.split(",")
+  }
+  
+  const [ipfspdfpaths, setIpfspdfpaths] = useState(ipfsold)
   const [loading, setLoading] = useState(false)
   
   useEffect(() => {
@@ -19,7 +24,7 @@ function DropProductPDFs(props) {
 
     Promise.all(addDataPromises).then((results) => {
       //   console.log(results)
-      let cidmap = []
+      let cidmap = ipfsold
       results.map((cidstring) => {
         cidmap.push(cidstring.cid.string)
       })
@@ -109,4 +114,4 @@ function DropProductPDFs(props) {
   )
 }
 
-export default DropProductPDFs
+export default DropProductPDFsUpdate

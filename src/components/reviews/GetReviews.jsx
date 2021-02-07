@@ -41,6 +41,7 @@ function GetReviews(props) {
               <ReviewFullDetailsEvidence
                 ipfshash={data.review_hash}
                 rid={data.review_id}
+                rating={data.rating}
               />
             </React.Fragment>
           ))}

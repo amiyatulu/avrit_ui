@@ -1,0 +1,13 @@
+.gutter {
+    margin:10px;
+}
+.box {
+    height: 200px;
+    background-color: #F29A84;
+}
+
+.cont {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

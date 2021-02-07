@@ -25,7 +25,7 @@ function LoadingOrCreateProduct(props){
     return (
       <React.Fragment>
         <div className="text-center">
-          <Link type="button" className="btn btn-primary" to="createproduct" >
+          <Link type="button" className="btn btn-primary" to="createproducttopics" >
             Create Product
           </Link>
         </div>
@@ -86,7 +86,7 @@ function GetProducts() {
       {productsData.length > 0 ? (
         <div className="container">
           <div className="text-center">
-            <Link type="button" className="btn btn-primary" to={{ pathname:"/createproduct"}}>
+            <Link type="button" className="btn btn-primary" to={{ pathname:"/createproducttopics"}}>
             Create Product
           </Link>
           </div>

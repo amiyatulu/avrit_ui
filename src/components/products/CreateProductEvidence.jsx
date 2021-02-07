@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react"
 import * as Yup from "yup"
 import { Formik, Form, Field } from "formik"
-import { useHistory, useParams } from "react-router-dom"
+import { useHistory } from "react-router-dom"
 import { NearContext } from "../../commons/context/NearContext"
 import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
@@ -10,10 +10,9 @@ import TagsInput from "./TagsInput"
 import DropProductImage from "./DropProductImage"
 import DropProductPDFs from "./DropProductPDFs"
 
-function CreateProduct(props) {
+function CreateProductEvidence(props) {
   // const [count, setCount] = useState(0);
   let history = useHistory()
-  const {pt} = useParams()
   let { nearvar } = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
   const selectedTags = (tags) => {
@@ -31,6 +30,7 @@ function CreateProduct(props) {
             details: "",
             pdfs: "",
             linkproductid: "",
+            profile_type: "",
             specialization: "",
             audience: "",
           }}
@@ -41,18 +41,20 @@ function CreateProduct(props) {
             details: Yup.string().required("Details is required"),
             pdfs: Yup.string().required("Adding PDFs is required"),
             linkproductid: Yup.string(),
+            profile_type: Yup.string().required("profile_type is required"),
             specialization: Yup.string().required("specialization is required"),
             audience: Yup.string().required("audience is required"),
           })}
           onSubmit={async (values, actions) => {
             //   values.countvariable = count
             try {
-              const profile_type = pt
-              // console.log(values)
-              // console.log(pt)
+              const profile_type = values.profile_type
+              let clonedValues = { ...values }
+              delete clonedValues.profile_type
+              console.log(clonedValues)
               const file = await ipfs.add({
                 path: "product.json",
-                content: JSON.stringify(values),
+                content: JSON.stringify(clonedValues),
               })
               await nearvar.contract.create_product({
                 product_details_hash: file.cid.string,
@@ -158,7 +160,78 @@ function CreateProduct(props) {
                   tags={[]}
                 />
               </div>
-            
+              <div className="form-group">
+                <label htmlFor="profile_type">profile_type</label>
+                {touched.profile_type && errors.profile_type && (
+                  <p className="alert alert-danger">{errors.profile_type}</p>
+                )}
+                <div className="form-check">
+                  <label>
+                    <Field
+                      type="radio"
+                      name="profile_type"
+                      className="form-check-input"
+                      value="ev"
+                    />
+                    Evidence of Learning
+                  </label>
+                </div>
+                <div className="form-check">
+                  <label>
+                    <Field
+                      type="radio"
+                      name="profile_type"
+                      className="form-check-input"
+                      value="oa"
+                    />
+                    Open Access
+                  </label>
+                </div>
+                <div className="form-check">
+                  <label>
+                    <Field
+                      type="radio"
+                      name="profile_type"
+                      className="form-check-input"
+                      value="rm"
+                    />
+                    Room
+                  </label>
+                </div>
+                <div className="form-check">
+                  <label>
+                    <Field
+                      type="radio"
+                      name="profile_type"
+                      className="form-check-input"
+                      value="cm"
+                    />
+                    Curriculum
+                  </label>
+                </div>
+                <div className="form-check">
+                  <label>
+                    <Field
+                      type="radio"
+                      name="profile_type"
+                      className="form-check-input"
+                      value="as"
+                    />
+                    Assignment
+                  </label>
+                  </div>
+                <div className="form-check">
+                  <label>
+                    <Field
+                      type="radio"
+                      name="profile_type"
+                      className="form-check-input"
+                      value="oh"
+                    />
+                    Others
+                  </label>
+                </div>
+              </div>
 
               <div className="form-group">
                 <label htmlFor="specialization">specialization</label>
@@ -209,4 +282,4 @@ function CreateProduct(props) {
   )
 }
 
-export default CreateProduct
+export default CreateProductEvidence

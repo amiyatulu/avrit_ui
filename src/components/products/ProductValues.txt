@@ -1,0 +1,6 @@
+ev  Evidence of Learning
+oa  Open Access
+rm  Room
+cm  Curriculum
+as  Assignment
+oh  Others

@@ -20,6 +20,9 @@ import CommitSubmitted from "./components/schelling/CommitSubmitted"
 import TimeConditionRender from './components/schelling/TimeConditionRender';
 import DropProductImage from './components/products/DropProductImage';
 import DropProductPDFs from './components/products/DropProductPDFs';
+import CreateProductTopics from './components/products/CreateProductTopics';
+import CreateReview from "./components/reviews/CreateReview"
+import UpdateProduct from './components/products/UpdateProduct';
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -27,6 +30,7 @@ function App(props) {
   const [balance, setBalance] = useState(null)
   const [balanceError, setBalanceError] = useState(null)
   const [userId, setUserId] = useState(null)
+  const [loading, setLoading]= useState(true)
   // console.log(balance)
   // console.log(userId)
 
@@ -78,8 +82,10 @@ function App(props) {
         signedInFlow()
         reloadBalance()
         callUserId()
+        setLoading(false)
       } else {
         signedOutFlow()
+        setLoading(false)
       }
     }
     login()
@@ -120,9 +126,23 @@ function App(props) {
     color: "#0072CE",
     textShadow: "1px 1px #D1CCBD",
   }
+
+  if (loading === true) {
+    return (
+      <React.Fragment>
+        <div className="container">
+          <div className="d-flex justify-content-center">
+            <div className="spinner-grow text-warning" role="status">
+              <span className="sr-only">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </React.Fragment>
+    )
+  }
   return (
     <NearContext.Provider
-      value={{ nearvar: props, reloadBalance, balance, balanceError, userId }}
+      value={{ nearvar: props, reloadBalance, balance, balanceError, userId, login}}
     >
       <React.Fragment>
         {login ? (
@@ -135,11 +155,11 @@ function App(props) {
             <Route path="/createprofile" component={CreateProfile} />
             <Route path="/profile" component={ViewProfile} />
             <Route path="/updateprofile" component={UpdateProfile} />
-            <Route path="/createproduct" component={CreateProduct} />
+            <Route path="/createproductold" component={CreateProduct} />
             <Route path="/myproducts" component={GetProducts} />
             <Route path="/product/:id" component={ProductById} />
             <Route path="/balance" component={AvritToken} />
-            <Route path="/createreview/:pid" component={CreateReviewEvidence} />
+            <Route path="/createreviewold/:pid" component={CreateReviewEvidence} />
             <Route path="/reviewstake/:rid" component={CreateReviewStake} />
             {/* <Route path="/getreviewstake/:rid" component={GetReviewStake} /> */}
             <Route path="/applyjury/:rid" component={ApplyJuryStake} />
@@ -150,6 +170,10 @@ function App(props) {
             <Route path="/timecondition/:rid" component={TimeConditionRender} /> 
             {/* <Route path="/uploadimage" component={DropProductImage} /> */}
             {/* <Route path="/uploadpdf" component={DropProductPDFs} /> */}
+            <Route path="/createproducttopics" component={CreateProductTopics}/>
+            <Route path="/createreview/:pid" component={CreateReview} />
+            <Route path="/createproduct/:pt" component={CreateProduct} />
+            <Route path="/updateproduct/:pid" component={UpdateProduct} />
           </Switch>
         </section>
       </React.Fragment>

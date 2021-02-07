@@ -5,6 +5,7 @@ import axios from "axios"
 import styles from "../profile/ViewProfile.module.css"
 import { IPFS_URL } from "../../config/configvar"
 import GetReviews from "../reviews/GetReviews"
+import longword from "./LongWords.module.css"
 
 function ProductById() {
   const { nearvar } = useContext(NearContext)
@@ -41,19 +42,39 @@ function ProductById() {
             <p>{ipfsData.introduction}</p>
             {ipfsData.productimage && (
               <React.Fragment>
-                <img
+                <a  target="_blank" href={`https://gateway.ipfs.io/ipfs/${ipfsData.productimage}`}><img
                   src={`https://gateway.ipfs.io/ipfs/${ipfsData.productimage}`}
                   alt="productimage"
                   width="300"
                   className="img-thumbnail"
-                />
+                /></a>
                 <br />
-                <br/>
+                <br />
               </React.Fragment>
             )}
 
             <h5>Details:</h5>
             <p>{ipfsData.details}</p>
+            <h5>PDFs:</h5>
+            <p>
+              {ipfsData.pdfs && (
+                <React.Fragment>
+                  {ipfsData.pdfs.split(",").map((path, index) => (
+                    <React.Fragment key={index}>
+                      <div>
+                        <br />
+                        <a
+                          className={longword.wraplongworld}
+                          target="_blank"
+                          href={`https://gateway.ipfs.io/ipfs/${path}`}
+                        >{`https://gateway.ipfs.io/ipfs/${path}`}</a>
+                      </div>
+                    </React.Fragment>
+                  ))}
+                </React.Fragment>
+              )}
+            </p>
+
             <h5>Specialization:</h5>
             <p>{ipfsData.specialization}</p>
             <h5>Audience:</h5>

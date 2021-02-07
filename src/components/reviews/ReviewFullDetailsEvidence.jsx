@@ -5,10 +5,11 @@ import { IPFS_URL } from "../../config/configvar"
 import { Link } from "react-router-dom"
 import GetReviewStake from "../stakes/GetReviewStake"
 import TimeConditionRender from "../schelling/TimeConditionRender"
+import Rating from "@material-ui/lab/Rating"
 
 
 function ReviewFullDetailsEvidence(props) {
-  let { ipfshash, rid } = props
+  let { ipfshash, rid, rating} = props
   const { nearvar, userId } = useContext(NearContext)
   const [reviewData, setReviewData] = useState(null)
 
@@ -28,10 +29,10 @@ function ReviewFullDetailsEvidence(props) {
       {reviewData && (
         <div>
           <div className="jumbotron">
-            <h5>Originality</h5>
-            <p>{reviewData.originality}</p>
-            <h5>Posing Probing Question</h5>
-            <p>{reviewData.probingquestion}</p>
+            <h5>Ratings</h5>
+            <p><Rating name="productrating" value={rating} /></p>
+            <h5>Review</h5>
+            <p>{reviewData.text}</p>
             <Link
               to={`/reviewstake/${rid}`}
               className="badge badge-secondary mr-3"
