@@ -6,12 +6,14 @@ import styles from "../profile/ViewProfile.module.css"
 import { IPFS_URL } from "../../config/configvar"
 import GetReviews from "../reviews/GetReviews"
 import longword from "./LongWords.module.css"
+import Linkify from "react-linkify"
 
 function ProductById() {
-  const { nearvar } = useContext(NearContext)
+  const { nearvar, userId } = useContext(NearContext)
   const { id } = useParams()
   const [ipfsData, setProductData] = useState(null)
   const [productType, setProductType] = useState(null)
+  const [productUserId, setProductUserId] = useState(null)
 
   useEffect(() => {
     async function fetchProduct() {
@@ -19,8 +21,9 @@ function ProductById() {
         let data = await nearvar.contract.get_product({
           product_id: parseInt(id),
         })
-        console.log(data)
+        console.log("product data", data)
         setProductType(data.product_type)
+        setProductUserId(data.user_id)
         const result = await axios(`${IPFS_URL}${data.product_details_hash}`)
         console.log(result.data)
         setProductData(result.data)
@@ -30,7 +33,20 @@ function ProductById() {
     }
 
     fetchProduct()
-  }, [nearvar, id])
+  }, [])
+  if (!ipfsData) {
+    return (
+      <React.Fragment>
+        <div className="container">
+          <div className="d-flex justify-content-center">
+            <div className="spinner-grow text-warning" role="status">
+              <span className="sr-only">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </React.Fragment>
+    )
+  }
 
   return (
     <React.Fragment>
@@ -42,21 +58,28 @@ function ProductById() {
             <p>{ipfsData.introduction}</p>
             {ipfsData.productimage && (
               <React.Fragment>
-                <a  target="_blank" href={`https://gateway.ipfs.io/ipfs/${ipfsData.productimage}`}><img
-                  src={`https://gateway.ipfs.io/ipfs/${ipfsData.productimage}`}
-                  alt="productimage"
-                  width="300"
-                  className="img-thumbnail"
-                /></a>
+                <a
+                  target="_blank"
+                  href={`https://gateway.ipfs.io/ipfs/${ipfsData.productimage}`}
+                >
+                  <img
+                    src={`https://gateway.ipfs.io/ipfs/${ipfsData.productimage}`}
+                    alt="productimage"
+                    width="300"
+                    className="img-thumbnail"
+                  />
+                </a>
                 <br />
                 <br />
               </React.Fragment>
             )}
 
             <h5>Details:</h5>
-            <p>{ipfsData.details}</p>
+            <p className={`${longword.linebreaks} ${longword.wraplongworld}`}>
+              <Linkify>{ipfsData.details}</Linkify>
+            </p>
             <h5>PDFs:</h5>
-            <p>
+            <div>
               {ipfsData.pdfs && (
                 <React.Fragment>
                   {ipfsData.pdfs.split(",").map((path, index) => (
@@ -73,7 +96,7 @@ function ProductById() {
                   ))}
                 </React.Fragment>
               )}
-            </p>
+            </div>
 
             <h5>Specialization:</h5>
             <p>{ipfsData.specialization}</p>
@@ -87,6 +110,14 @@ function ProductById() {
             >
               Create Review
             </Link>
+            {productUserId === userId && (
+              <Link
+                to={`/updateproduct/${id}`}
+                className="badge badge-secondary mr-3"
+              >
+                Update Product
+              </Link>
+            )}
           </div>
           <div>
             <GetReviews pid={id} />

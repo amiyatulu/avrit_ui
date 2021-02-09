@@ -12,3 +12,7 @@
 
   
   }
+
+  .linebreaks {
+    white-space:pre-line;
+  }

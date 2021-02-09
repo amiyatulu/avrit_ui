@@ -1,28 +1,28 @@
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect, useCallback, Suspense, lazy} from "react"
 import { Route, Switch } from "react-router-dom"
-import CreateProfile from "./components/profile/CreateProfile"
 import { NearContext } from "./commons/context/NearContext"
-import Nav from "./components/Nav"
-import ViewProfile from "./components/profile/ViewProfile"
-import UpdateProfile from "./components/profile/UpdateProfile"
-import CreateProduct from "./components/products/CreateProduct"
-import GetProducts from "./components/products/GetProducts"
-import ProductById from "./components/products/ProductById"
-import AvritToken from "./components/profile/AvritToken"
-import CreateReviewEvidence from "./components/reviews/CreateReviewEvidence"
-import CreateReviewStake from "./components/stakes/CreateReviewStake"
-import GetReviewStake from "./components/stakes/GetReviewStake"
-import ApplyJuryStake from "./components/schelling/ApplyJuryStake"
-import GetJuryStake from "./components/schelling/GetJuryStake"
-import JuryApplyTime from "./components/stakes/JuryApplyTime"
-import CommitVote from "./components/schelling/CommitVote"
-import CommitSubmitted from "./components/schelling/CommitSubmitted"
-import TimeConditionRender from './components/schelling/TimeConditionRender';
-import DropProductImage from './components/products/DropProductImage';
-import DropProductPDFs from './components/products/DropProductPDFs';
-import CreateProductTopics from './components/products/CreateProductTopics';
-import CreateReview from "./components/reviews/CreateReview"
-import UpdateProduct from './components/products/UpdateProduct';
+const CreateProfile = lazy(() => import("./components/profile/CreateProfile"))
+const Nav = lazy(() => import("./components/Nav"))
+const ViewProfile = lazy(() => import("./components/profile/ViewProfile"))
+const UpdateProfile = lazy(() => import("./components/profile/UpdateProfile"))
+const CreateProduct = lazy(() => import("./components/products/CreateProduct"))
+const GetProducts = lazy(() => import("./components/products/GetProducts"))
+const ProductById = lazy(() => import("./components/products/ProductById"))
+const AvritToken = lazy(() => import("./components/profile/AvritToken"))
+const CreateReviewEvidence = lazy(() => import("./components/reviews/CreateReviewEvidence"))
+const CreateReviewStake = lazy(() => import("./components/stakes/CreateReviewStake"))
+const GetReviewStake = lazy(() => import("./components/stakes/GetReviewStake"))
+const ApplyJuryStake = lazy(() => import("./components/schelling/ApplyJuryStake"))
+const GetJuryStake = lazy(() => import("./components/schelling/GetJuryStake"))
+const JuryApplyTime = lazy(() => import("./components/stakes/JuryApplyTime"))
+const CommitVote = lazy(() => import("./components/schelling/CommitVote"))
+const CommitSubmitted = lazy(() => import("./components/schelling/CommitSubmitted"))
+const TimeConditionRender = lazy(() => import('./components/schelling/TimeConditionRender'))
+const DropProductImage = lazy(() => import('./components/products/DropProductImage'))
+const DropProductPDFs = lazy(() => import('./components/products/DropProductPDFs'))
+const CreateProductTopics = lazy(() => import('./components/products/CreateProductTopics'))
+const CreateReview = lazy(() => import("./components/reviews/CreateReview"))
+const UpdateProduct = lazy(() => import('./components/products/UpdateProduct'))
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -30,7 +30,6 @@ function App(props) {
   const [balance, setBalance] = useState(null)
   const [balanceError, setBalanceError] = useState(null)
   const [userId, setUserId] = useState(null)
-  const [loading, setLoading]= useState(true)
   // console.log(balance)
   // console.log(userId)
 
@@ -82,10 +81,10 @@ function App(props) {
         signedInFlow()
         reloadBalance()
         callUserId()
-        setLoading(false)
+        
       } else {
         signedOutFlow()
-        setLoading(false)
+        
       }
     }
     login()
@@ -127,9 +126,11 @@ function App(props) {
     textShadow: "1px 1px #D1CCBD",
   }
 
-  if (loading === true) {
-    return (
-      <React.Fragment>
+  return (
+    <NearContext.Provider
+      value={{ nearvar: props, reloadBalance, balance, balanceError, userId, login}}
+    >
+      <Suspense fallback={<React.Fragment>
         <div className="container">
           <div className="d-flex justify-content-center">
             <div className="spinner-grow text-warning" role="status">
@@ -137,21 +138,15 @@ function App(props) {
             </div>
           </div>
         </div>
-      </React.Fragment>
-    )
-  }
-  return (
-    <NearContext.Provider
-      value={{ nearvar: props, reloadBalance, balance, balanceError, userId, login}}
-    >
+      </React.Fragment>}>
       <React.Fragment>
         {login ? (
           <Nav onClick={requestSignOut} login={login} />
         ) : (
           <Nav onClick={requestSignIn} login={login} />
         )}
-        <section className="page-section">
-          <Switch>
+        <section className="page-section">        
+          <Switch>            
             <Route path="/createprofile" component={CreateProfile} />
             <Route path="/profile" component={ViewProfile} />
             <Route path="/updateprofile" component={UpdateProfile} />
@@ -174,9 +169,10 @@ function App(props) {
             <Route path="/createreview/:pid" component={CreateReview} />
             <Route path="/createproduct/:pt" component={CreateProduct} />
             <Route path="/updateproduct/:pid" component={UpdateProduct} />
-          </Switch>
+          </Switch>         
         </section>
       </React.Fragment>
+      </Suspense>
     </NearContext.Provider>
   )
 }

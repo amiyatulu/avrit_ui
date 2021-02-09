@@ -30,7 +30,7 @@ function CreateReview(props) {
               .typeError("Product rating is required")
               .required("Product rating is required"),
             text: Yup.string().required("text field is required"),
-            pdfs: Yup.string().required("Adding PDFs is required"),
+            pdfs: Yup.string(),
           })}
           onSubmit={async (values, actions) => {
             values.productRating = product_rating
