@@ -545,13 +545,14 @@ impl Avrit {
             None => {}
         }
     }
-    pub fn update_review(&mut self, review_id: u128, review_hash: String) {
+    pub fn update_review(&mut self, review_id: u128, review_hash: String, rating: u8) {
         self.can_not_update_review_if_staked(review_id);
         let account_id = env::predecessor_account_id();
         let mut review = self.get_review(review_id);
         let user_id = self.get_user_id(&account_id);
         if user_id == review.user_id {
             review.review_hash = review_hash;
+            review.rating = rating;
         } else {
             panic!("You are not the review owner");
         }

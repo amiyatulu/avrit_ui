@@ -23,6 +23,7 @@ const DropProductPDFs = lazy(() => import('./components/products/DropProductPDFs
 const CreateProductTopics = lazy(() => import('./components/products/CreateProductTopics'))
 const CreateReview = lazy(() => import("./components/reviews/CreateReview"))
 const UpdateProduct = lazy(() => import('./components/products/UpdateProduct'))
+const UpdateReview = lazy(() => import('./components/reviews/UpdateReview'))
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -169,6 +170,7 @@ function App(props) {
             <Route path="/createreview/:pid" component={CreateReview} />
             <Route path="/createproduct/:pt" component={CreateProduct} />
             <Route path="/updateproduct/:pid" component={UpdateProduct} />
+            <Route path="/updatereview/:rid" component={UpdateReview} />
           </Switch>         
         </section>
       </React.Fragment>

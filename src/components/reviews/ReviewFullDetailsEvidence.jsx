@@ -36,6 +36,12 @@ function ReviewFullDetailsEvidence(props) {
             <h5>Review</h5>
             <p className={`${longwords.linebreaks} ${longwords.wraplongworld}`}><Linkify>{reviewData.text}</Linkify></p>
             <Link
+              to={`/updatereview/${rid}`}
+              className="badge badge-secondary mr-3"
+            >
+              Update Review
+            </Link>
+            <Link
               to={`/reviewstake/${rid}`}
               className="badge badge-secondary mr-3"
             >
