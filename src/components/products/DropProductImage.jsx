@@ -1,6 +1,23 @@
 import React, { useCallback, Component, useState } from "react"
 import { useDropzone } from "react-dropzone"
 import ipfs from "../../commons/ipfs"
+import Resizer from 'react-image-file-resizer'
+
+const resizeFile = (file, ext) => new Promise(resolve => {
+  Resizer.imageFileResizer(file, 300, 300, ext, 100, 0,
+  uri => {
+    resolve(uri);
+  },
+  'base64'
+  );
+});
+
+const base64toblog = (base64) => new Promise(resolve => {
+  fetch(base64).then(res=> {
+    resolve(res.blob())
+  })
+});
+
 
 function DropProductImage(props) {
   const [ipfspath, setIpfspath] = useState(null)
@@ -13,14 +30,21 @@ function DropProductImage(props) {
     props.setFieldValue(props.name, file.cid.string)
     setLoading(false)
   }
-  const onDrop = useCallback((acceptedFile) => {
+  const onDrop = useCallback(async (acceptedFile) => {
     console.log(acceptedFile)
     setLoading(true)
-
+    let ext = acceptedFile[0].path.split('.').pop().toUpperCase()
+    if(ext === "JPG") {
+       ext = "JPEG"
+    }
+    const image = await resizeFile(acceptedFile[0], ext)
+    console.log(image)
+    const blob = await base64toblog(image)
     const reader = new window.FileReader()
-    reader.readAsArrayBuffer(acceptedFile[0])
+    reader.readAsArrayBuffer(blob)
     reader.onloadend = () => {
       let buffer = Buffer(reader.result)
+      console.log(buffer)
       console.log(buffer)
       //   setBuffer(buffer)
       addData(acceptedFile[0].path, buffer)
