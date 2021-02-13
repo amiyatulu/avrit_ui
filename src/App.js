@@ -24,6 +24,8 @@ const CreateProductTopics = lazy(() => import('./components/products/CreateProdu
 const CreateReview = lazy(() => import("./components/reviews/CreateReview"))
 const UpdateProduct = lazy(() => import('./components/products/UpdateProduct'))
 const UpdateReview = lazy(() => import('./components/reviews/UpdateReview'))
+const ProductPagination = lazy(() => import('./components/products/ProductPagination'))
+
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -152,7 +154,7 @@ function App(props) {
             <Route path="/profile" component={ViewProfile} />
             <Route path="/updateprofile" component={UpdateProfile} />
             <Route path="/createproductold" component={CreateProduct} />
-            <Route path="/myproducts" component={GetProducts} />
+            {/* <Route path="/myproducts" component={GetProducts} /> */}
             <Route path="/product/:id" component={ProductById} />
             <Route path="/balance" component={AvritToken} />
             <Route path="/createreviewold/:pid" component={CreateReviewEvidence} />
@@ -171,6 +173,8 @@ function App(props) {
             <Route path="/createproduct/:pt" component={CreateProduct} />
             <Route path="/updateproduct/:pid" component={UpdateProduct} />
             <Route path="/updatereview/:rid" component={UpdateReview} />
+            {/* <Route path="/tag" component={TagsStyle} /> */}
+            <Route path="/myproducts" component={ProductPagination} />
           </Switch>         
         </section>
       </React.Fragment>

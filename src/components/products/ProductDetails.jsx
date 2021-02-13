@@ -11,9 +11,9 @@ function ProductDetails(props) {
 
   useEffect(() => {
     async function fetchProductDetails() {
-      console.log("loading", loading)
+      // console.log("loading", loading)
       const result = await axios(`${IPFS_URL}${ipfshash}`)
-      console.log(result.data)
+      // console.log(result.data)
       setIpfsData(result.data)
       setLoading(false)
     }

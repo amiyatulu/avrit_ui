@@ -7,6 +7,8 @@ import { IPFS_URL } from "../../config/configvar"
 import GetReviews from "../reviews/GetReviews"
 import longword from "./LongWords.module.css"
 import Linkify from "react-linkify"
+import TagsStyle from "./TagsStyle"
+import ProductTypeStyle from "./ProductTypeStyle"
 
 function ProductById() {
   const { nearvar, userId } = useContext(NearContext)
@@ -76,7 +78,15 @@ function ProductById() {
 
             <h5>Details:</h5>
             <p className={`${longword.linebreaks} ${longword.wraplongworld}`}>
-              <Linkify>{ipfsData.details}</Linkify>
+              <Linkify
+                componentDecorator={(decoratedHref, decoratedText, key) => (
+                  <a target="blank" href={decoratedHref} key={key}>
+                    {decoratedText}
+                  </a>
+                )}
+              >
+                {ipfsData.details}
+              </Linkify>
             </p>
             <h5>PDFs:</h5>
             <div>
@@ -85,7 +95,6 @@ function ProductById() {
                   {ipfsData.pdfs.split(",").map((path, index) => (
                     <React.Fragment key={index}>
                       <div>
-                        <br />
                         <a
                           className={longword.wraplongworld}
                           target="_blank"
@@ -97,13 +106,19 @@ function ProductById() {
                 </React.Fragment>
               )}
             </div>
-
+            <br />
             <h5>Specialization:</h5>
-            <p>{ipfsData.specialization}</p>
+            <p>
+              <TagsStyle tags={ipfsData.specialization} />
+            </p>
             <h5>Audience:</h5>
-            <p>{ipfsData.audience}</p>
+            <p>
+              <TagsStyle tags={ipfsData.audience} />
+            </p>
             <h5>Product Type:</h5>
-            <p>{productType}</p>
+            <p>
+              <ProductTypeStyle type={productType} />
+            </p>
             <Link
               to={`/createreview/${id}`}
               className="badge badge-secondary mr-3"
