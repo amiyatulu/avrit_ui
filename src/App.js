@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy} from "react"
-import { Route, Switch } from "react-router-dom"
+import { Route, Switch, Link, useLocation } from "react-router-dom"
 import { NearContext } from "./commons/context/NearContext"
 const CreateProfile = lazy(() => import("./components/profile/CreateProfile"))
 const Nav = lazy(() => import("./components/Nav"))
@@ -33,8 +33,19 @@ function App(props) {
   const [balance, setBalance] = useState(null)
   const [balanceError, setBalanceError] = useState(null)
   const [userId, setUserId] = useState(null)
+  const [userIdCreate, setUserIdCreate] = useState(false)
   // console.log(balance)
   // console.log(userId)
+  let createprofilepathrender = true
+  const location = useLocation();
+  
+  if(location.pathname ==="/createprofile") {
+    createprofilepathrender  = false
+  }
+  if(location.pathname === "/updateprofile") {
+    createprofilepathrender  = false
+  }
+
 
   async function fetchProfile() {
     let data
@@ -66,6 +77,7 @@ function App(props) {
     } catch (e) {
       console.log(e.message)
       const failedtofetch = e.message
+      setUserIdCreate(true)
     }
   }
 
@@ -93,6 +105,7 @@ function App(props) {
     login()
     console.log("Main use effect")
   }, [props])
+
 
   async function signedInFlow() {
     console.log("come in sign in flow")
@@ -148,7 +161,14 @@ function App(props) {
         ) : (
           <Nav onClick={requestSignIn} login={login} />
         )}
-        <section className="page-section">        
+        <section className="page-section">
+          { userIdCreate && createprofilepathrender && <React.Fragment>
+            <div className="container text-center">
+              Create profile to stake or post <br/>
+          <Link type="button" className="btn btn-primary" to="createprofile">
+            Create Profile
+          </Link>
+        </div> <div><br/></div></React.Fragment>}        
           <Switch>            
             <Route path="/createprofile" component={CreateProfile} />
             <Route path="/profile" component={ViewProfile} />

@@ -10,11 +10,11 @@ function LoadingOrCreateProfile(props) {
   if (noProfile) {
     return (
       <React.Fragment>
-        <div className="text-center">
+        {/* <div className="text-center">
           <Link type="button" className="btn btn-primary" to="createprofile">
             Create Profile
           </Link>
-        </div>
+        </div> */}
       </React.Fragment>
     )
   }
