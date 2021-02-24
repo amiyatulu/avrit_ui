@@ -10,7 +10,7 @@ import Ipfsadd from "../../commons/TextileIO"
 
 function CreateProfile() {
   const [count, setCount] = useState(0)
-  let { nearvar } = useContext(NearContext)
+  let { nearvar, setUserIdEmpty } = useContext(NearContext)
   const history = useHistory()
 
   return (
@@ -51,6 +51,7 @@ function CreateProfile() {
               // const filename = "profile.json"
               // const data = await Ipfsadd(content, filename)
               // await nearvar.contract.create_profile({ profile_hash: data.path.cid.string})
+              setUserIdEmpty(false)
               history.push("/profile")
             } catch (e) {
               console.error(e)

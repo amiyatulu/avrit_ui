@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, Suspense, lazy} from "react"
-import { Route, Switch, Link, useLocation } from "react-router-dom"
+import React, { useState, useEffect, useCallback, Suspense, lazy } from "react"
+import { Route, Switch } from "react-router-dom"
 import { NearContext } from "./commons/context/NearContext"
 const CreateProfile = lazy(() => import("./components/profile/CreateProfile"))
 const Nav = lazy(() => import("./components/Nav"))
@@ -9,23 +9,40 @@ const CreateProduct = lazy(() => import("./components/products/CreateProduct"))
 const GetProducts = lazy(() => import("./components/products/GetProducts"))
 const ProductById = lazy(() => import("./components/products/ProductById"))
 const AvritToken = lazy(() => import("./components/profile/AvritToken"))
-const CreateReviewEvidence = lazy(() => import("./components/reviews/CreateReviewEvidence"))
-const CreateReviewStake = lazy(() => import("./components/stakes/CreateReviewStake"))
+const CreateReviewEvidence = lazy(() =>
+  import("./components/reviews/CreateReviewEvidence")
+)
+const CreateReviewStake = lazy(() =>
+  import("./components/stakes/CreateReviewStake")
+)
 const GetReviewStake = lazy(() => import("./components/stakes/GetReviewStake"))
-const ApplyJuryStake = lazy(() => import("./components/schelling/ApplyJuryStake"))
+const ApplyJuryStake = lazy(() =>
+  import("./components/schelling/ApplyJuryStake")
+)
 const GetJuryStake = lazy(() => import("./components/schelling/GetJuryStake"))
 const JuryApplyTime = lazy(() => import("./components/stakes/JuryApplyTime"))
 const CommitVote = lazy(() => import("./components/schelling/CommitVote"))
-const CommitSubmitted = lazy(() => import("./components/schelling/CommitSubmitted"))
-const TimeConditionRender = lazy(() => import('./components/schelling/TimeConditionRender'))
-const DropProductImage = lazy(() => import('./components/products/DropProductImage'))
-const DropProductPDFs = lazy(() => import('./components/products/DropProductPDFs'))
-const CreateProductTopics = lazy(() => import('./components/products/CreateProductTopics'))
+const CommitSubmitted = lazy(() =>
+  import("./components/schelling/CommitSubmitted")
+)
+const TimeConditionRender = lazy(() =>
+  import("./components/schelling/TimeConditionRender")
+)
+const DropProductImage = lazy(() =>
+  import("./components/products/DropProductImage")
+)
+const DropProductPDFs = lazy(() =>
+  import("./components/products/DropProductPDFs")
+)
+const CreateProductTopics = lazy(() =>
+  import("./components/products/CreateProductTopics")
+)
 const CreateReview = lazy(() => import("./components/reviews/CreateReview"))
-const UpdateProduct = lazy(() => import('./components/products/UpdateProduct'))
-const UpdateReview = lazy(() => import('./components/reviews/UpdateReview'))
-const ProductPagination = lazy(() => import('./components/products/ProductPagination'))
-
+const UpdateProduct = lazy(() => import("./components/products/UpdateProduct"))
+const UpdateReview = lazy(() => import("./components/reviews/UpdateReview"))
+const ProductPagination = lazy(() =>
+  import("./components/products/ProductPagination")
+)
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -33,18 +50,7 @@ function App(props) {
   const [balance, setBalance] = useState(null)
   const [balanceError, setBalanceError] = useState(null)
   const [userId, setUserId] = useState(null)
-  const [userIdCreate, setUserIdCreate] = useState(false)
-  // console.log(balance)
-  // console.log(userId)
-  let createprofilepathrender = true
-  const location = useLocation();
-  
-  if(location.pathname ==="/createprofile") {
-    createprofilepathrender  = false
-  }
-  if(location.pathname === "/updateprofile") {
-    createprofilepathrender  = false
-  }
+  const [userIdEmpty, setUserIdEmpty] = useState(false)
 
 
   async function fetchProfile() {
@@ -71,13 +77,15 @@ function App(props) {
         account_id: props.wallet.getAccountId(),
       })
       setUserId(parseInt(userid))
+      
       // console.log(props.wallet.getAccountId())
       // console.log(data)
       // console.log("fetchuserid")
     } catch (e) {
       console.log(e.message)
       const failedtofetch = e.message
-      setUserIdCreate(true)
+      setUserIdEmpty(true)
+      
     }
   }
 
@@ -96,16 +104,13 @@ function App(props) {
         signedInFlow()
         reloadBalance()
         callUserId()
-        
       } else {
         signedOutFlow()
-        
       }
     }
     login()
     console.log("Main use effect")
   }, [props])
-
 
   async function signedInFlow() {
     console.log("come in sign in flow")
@@ -144,60 +149,78 @@ function App(props) {
 
   return (
     <NearContext.Provider
-      value={{ nearvar: props, reloadBalance, balance, balanceError, userId, login}}
+      value={{
+        nearvar: props,
+        reloadBalance,
+        balance,
+        balanceError,
+        userId,
+        login,
+        userIdEmpty,
+        setUserIdEmpty,
+      }}
     >
-      <Suspense fallback={<React.Fragment>
-        <div className="container">
-          <div className="d-flex justify-content-center">
-            <div className="spinner-grow text-warning" role="status">
-              <span className="sr-only">Loading...</span>
+      <Suspense
+        fallback={
+          <React.Fragment>
+            <div className="container">
+              <div className="d-flex justify-content-center">
+                <div className="spinner-grow text-warning" role="status">
+                  <span className="sr-only">Loading...</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </React.Fragment>}>
-      <React.Fragment>
-        {login ? (
-          <Nav onClick={requestSignOut} login={login} />
-        ) : (
-          <Nav onClick={requestSignIn} login={login} />
-        )}
-        <section className="page-section">
-          { userIdCreate && createprofilepathrender && <React.Fragment>
-            <div className="container text-center">
-              Create profile to stake or post <br/>
-          <Link type="button" className="btn btn-primary" to="createprofile">
-            Create Profile
-          </Link>
-        </div> <div><br/></div></React.Fragment>}        
-          <Switch>            
-            <Route path="/createprofile" component={CreateProfile} />
-            <Route path="/profile" component={ViewProfile} />
-            <Route path="/updateprofile" component={UpdateProfile} />
-            <Route path="/createproductold" component={CreateProduct} />
-            {/* <Route path="/myproducts" component={GetProducts} /> */}
-            <Route path="/product/:id" component={ProductById} />
-            <Route path="/balance" component={AvritToken} />
-            <Route path="/createreviewold/:pid" component={CreateReviewEvidence} />
-            <Route path="/reviewstake/:rid" component={CreateReviewStake} />
-            {/* <Route path="/getreviewstake/:rid" component={GetReviewStake} /> */}
-            <Route path="/applyjury/:rid" component={ApplyJuryStake} />
-            <Route path="/getjurystake/:rid/:userId" component={GetJuryStake} />
-            {/* <Route path="/juryapplytime/:rid" component={JuryApplyTime} /> Remove it later*/}
-            <Route path="/commitvote/:rid" component={CommitVote} />
-            <Route path="/commitsubmitted" component={CommitSubmitted} />
-            <Route path="/timecondition/:rid" component={TimeConditionRender} /> 
-            {/* <Route path="/uploadimage" component={DropProductImage} /> */}
-            {/* <Route path="/uploadpdf" component={DropProductPDFs} /> */}
-            <Route path="/createproducttopics" component={CreateProductTopics}/>
-            <Route path="/createreview/:pid" component={CreateReview} />
-            <Route path="/createproduct/:pt" component={CreateProduct} />
-            <Route path="/updateproduct/:pid" component={UpdateProduct} />
-            <Route path="/updatereview/:rid" component={UpdateReview} />
-            {/* <Route path="/tag" component={TagsStyle} /> */}
-            <Route path="/myproducts" component={ProductPagination} />
-          </Switch>         
-        </section>
-      </React.Fragment>
+          </React.Fragment>
+        }
+      >
+        <React.Fragment>
+          {login ? (
+            <Nav onClick={requestSignOut} login={login} />
+          ) : (
+            <Nav onClick={requestSignIn} login={login} />
+          )}
+          <section className="page-section">
+            <Switch>
+              <Route path="/createprofile" component={CreateProfile} />
+              <Route path="/profile" component={ViewProfile} />
+              <Route path="/updateprofile" component={UpdateProfile} />
+              <Route path="/createproductold" component={CreateProduct} />
+              {/* <Route path="/myproducts" component={GetProducts} /> */}
+              <Route path="/product/:id" component={ProductById} />
+              <Route path="/balance" component={AvritToken} />
+              <Route
+                path="/createreviewold/:pid"
+                component={CreateReviewEvidence}
+              />
+              <Route path="/reviewstake/:rid" component={CreateReviewStake} />
+              {/* <Route path="/getreviewstake/:rid" component={GetReviewStake} /> */}
+              <Route path="/applyjury/:rid" component={ApplyJuryStake} />
+              <Route
+                path="/getjurystake/:rid/:userId"
+                component={GetJuryStake}
+              />
+              {/* <Route path="/juryapplytime/:rid" component={JuryApplyTime} /> Remove it later*/}
+              <Route path="/commitvote/:rid" component={CommitVote} />
+              <Route path="/commitsubmitted" component={CommitSubmitted} />
+              <Route
+                path="/timecondition/:rid"
+                component={TimeConditionRender}
+              />
+              {/* <Route path="/uploadimage" component={DropProductImage} /> */}
+              {/* <Route path="/uploadpdf" component={DropProductPDFs} /> */}
+              <Route
+                path="/createproducttopics"
+                component={CreateProductTopics}
+              />
+              <Route path="/createreview/:pid" component={CreateReview} />
+              <Route path="/createproduct/:pt" component={CreateProduct} />
+              <Route path="/updateproduct/:pid" component={UpdateProduct} />
+              <Route path="/updatereview/:rid" component={UpdateReview} />
+              {/* <Route path="/tag" component={TagsStyle} /> */}
+              <Route path="/myproducts" component={ProductPagination} />
+            </Switch>
+          </section>
+        </React.Fragment>
       </Suspense>
     </NearContext.Provider>
   )

@@ -4,6 +4,7 @@ import { useScrollHandler } from "./hooks/ScrollHandle"
 import { Link, NavLink } from "react-router-dom"
 import { NearContext } from "../commons/context/NearContext"
 import AvritToken from "./profile/AvritToken"
+import CreateProfileLink from "./commondom/CreateProfileLink"
 
 function Nav(props) {
   const scroll = useScrollHandler()
@@ -101,6 +102,7 @@ function Nav(props) {
           </div>
         </div>
       </nav>
+      <CreateProfileLink/>
     </React.Fragment>
   )
 }
