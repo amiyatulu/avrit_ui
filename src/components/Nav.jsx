@@ -38,11 +38,6 @@ function Nav(props) {
           <div className="collapse navbar-collapse" id="navbarResponsive">
             <ul className="navbar-nav ml-auto my-2 my-lg-0">
               <li className="nav-item">
-                <a className="nav-link js-scroll-trigger" href="#about">
-                  About
-                </a>
-              </li>
-              <li className="nav-item">
                 <a
                   className="nav-link js-scroll-trigger"
                   href="paper/AvritWhitePaper.pdf"
@@ -72,6 +67,14 @@ function Nav(props) {
                       to="/myproducts"
                     >
                       Products
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link
+                      className="nav-link js-scroll-trigger"
+                      to="/createproducttopics"
+                    >
+                      Create Products
                     </Link>
                   </li>
                   <li className="nav-item">

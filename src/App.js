@@ -20,7 +20,6 @@ const ApplyJuryStake = lazy(() =>
   import("./components/schelling/ApplyJuryStake")
 )
 const GetJuryStake = lazy(() => import("./components/schelling/GetJuryStake"))
-const JuryApplyTime = lazy(() => import("./components/stakes/JuryApplyTime"))
 const CommitVote = lazy(() => import("./components/schelling/CommitVote"))
 const CommitSubmitted = lazy(() =>
   import("./components/schelling/CommitSubmitted")

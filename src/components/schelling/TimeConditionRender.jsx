@@ -27,7 +27,7 @@ function TimeConditionRender(props) {
   const { nearvar, userId } = useContext(NearContext)
   const { rid } = props
   const [errorApplication, setApplicationError] = useState(false)
-  const [errorJurySelectionTime, setJurySelectionTimeError] = useState(false)
+  const [jurySelectionTime, setJurySelectionTime] = useState(false)
   const [time, setTime] = useState(null)
   const [endcommit, setEndCommit] = useState(null)
   const [endreveal, setEndReveal] = useState(null)
@@ -44,10 +44,11 @@ function TimeConditionRender(props) {
             review_id: parseInt(rid),
           }
         )
-        // console.log(starttime.slice(0, 10))
         const endtime = moment.unix(
           parseInt(starttime.slice(0, 10)) + parseInt(phasetimeinsec)
         )
+
+        return endtime
         // console.log(endtime)
         // console.log(endtime.fromNow())
       } catch (e) {
@@ -68,7 +69,6 @@ function TimeConditionRender(props) {
         return juryselectiontime
       } catch (e) {
         console.log(e)
-        setJurySelectionTimeError(true)
       }
     }
 
@@ -129,12 +129,14 @@ function TimeConditionRender(props) {
     }
     async function callfetchJuryApplicationTime() {
       const endtime = await fetchJuryApplicationTime()
+      console.log(endtime, "endtime")
       setTime(endtime)
     }
 
     async function setEndCommitEndReveal() {
       const juryselectiontime = await fetchJurySelectionTime()
-      // console.log(juryselectiontime)
+      setJurySelectionTime(juryselectiontime)
+      console.log(juryselectiontime, "juryselectiontime")
       const commitphasetime = await fetchCommitPhaseTime()
       // console.log(commitphasetime)
       const revealphasetime = await fetchRevealPhaseTime()
@@ -179,7 +181,9 @@ function TimeConditionRender(props) {
     )
   }
 
-  if (moment().isSameOrAfter(time)) {
+console.log(jurySelectionTime, "conditional");
+
+  if (moment().isSameOrAfter(time) && moment().isSameOrAfter(jurySelectionTime) && jurySelectionTime != undefined) {
     return (
       <React.Fragment>
         <br />
@@ -190,7 +194,16 @@ function TimeConditionRender(props) {
       </React.Fragment>
     )
   }
-  // console.log(time)
+
+  if (jurySelectionTime == undefined && moment().isSameOrAfter(time)) {
+    return (
+      <React.Fragment>
+        <br />
+        <span>Draw Juror</span> <br />
+      </React.Fragment>
+    )
+  }
+
   if (moment().isSameOrBefore(time)) {
     return (
       <React.Fragment>
@@ -199,6 +212,9 @@ function TimeConditionRender(props) {
       </React.Fragment>
     )
   }
+
+
+
   return <React.Fragment></React.Fragment>
 }
 
