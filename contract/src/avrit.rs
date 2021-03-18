@@ -86,6 +86,8 @@ pub struct Avrit {
     max_allowed_product_evidence_incentives_count: u128,
     burn_percentage: f32,
     saving_percentage: f32,
+    number_of_allowed_reviews_per_product: u64,
+    product_review_count:LookupMap<u128, u64>,
     // Fungible Token
     /// sha256(AccountID) -> Account details.
     accounts: UnorderedMap<Vec<u8>, Account>,
@@ -717,6 +719,7 @@ impl Avrit {
         }
     }
     pub fn add_review_bounty(&mut self, bounty: u64, review_id: u128) {
+        self.check_products_reviewer_crossed(review_id);
         assert!(
             bounty >= self.min_review_bounty,
             "Bounty can not be less than minimum review bounty"
@@ -757,6 +760,30 @@ impl Avrit {
             None => {
                 panic!("Bounty does not exists");
             }
+        }
+    }
+
+    fn check_products_reviewer_crossed(&self, review_id:u128) {
+
+        let review_option = self.review_map.get(&review_id);
+        let product_id;
+        match review_option {
+            Some(review) => {
+                product_id = review.product_id;
+            }
+            None => {
+                panic!("Product for the review donot exists");
+            }
+        }
+
+        let product_review_count_option = self.product_review_count.get(&product_id);
+        match product_review_count_option {
+            Some(value) => {
+                if value >= 10 {
+                    panic!("You cannot stake more reviews")
+                }
+            }
+            None => {}
         }
     }
 }
@@ -841,6 +868,8 @@ impl Avrit {
             schelling_decision_false_count: LookupMap::new(b"98396f41".to_vec()),
             burn_percentage: 0.0,
             saving_percentage: 0.0,
+            number_of_allowed_reviews_per_product: 10,
+            product_review_count:LookupMap::new(b"05d53b2b".to_vec()),
         };
         let mut account = ft.get_account(&owner_id);
         account.balance = total_supply;
@@ -1985,11 +2014,14 @@ impl Avrit {
     }
 }
 
+
 // To Do:
-// Limit the number of allowed reviews that will get incentives per product, do the checking in add review bounty
-// Same user cannot give multiple reviews to same product, the can give no problem ❌
+// Limit the number of allowed reviews that will get incentives per product. ✔️  
+// Same user cannot give multiple reviews to same product ❌
 // Give back stake of non juror after jury selection ✔️
 // Review can't be updated after bounty/stake is given for it ✔️
+// Product incentives even after no reviews after one month. 
+// Future improvements: Random selection of 10 staked reviews for incentives. 
 // Set kyc variable by admin
 
 // Future To Dos (Not required now):
