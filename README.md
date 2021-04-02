@@ -12,6 +12,10 @@ https://avrit.reaudito.com
 ### Demo App
 https://avritdemo.vercel.app
 
+### Example Evidence Of Learning  
+Design probing question on Human Nutrition and use the Feynman technique to explain  
+https://avritdemo.vercel.app/#/product/1  
+
 Video:  
 
 [![Avrit](http://img.youtube.com/vi/HW7kblrIv2M/0.jpg)](http://www.youtube.com/watch?v=HW7kblrIv2M "Avirt")
