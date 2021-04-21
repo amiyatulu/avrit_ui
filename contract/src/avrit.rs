@@ -91,8 +91,6 @@ pub struct Avrit {
     product_incentives_count: LookupMap<u128, u128>, // product_id, product_incentives_count
     max_allowed_product_oa_incentives_count: u128,
     max_allowed_product_evidence_incentives_count: u128,
-    burn_percentage: f32,
-    saving_percentage: f32,
     number_of_allowed_reviews_per_product: u64,
     product_review_count:LookupMap<u128, u64>,
     ft: FungibleToken,
@@ -260,39 +258,15 @@ impl Avrit {
         }
     }
 
-    pub fn set_burn_percentage(&mut self, percentage: f32) {
-        self.assert_owner();
-        assert!(
-            percentage >= 0.0,
-            "You can't set burn percentage less than 0.0"
-        );
-        assert!(
-            percentage + self.saving_percentage <= 30.0,
-            "Burning can't be more than 30 percent per transaction"
-        );
-        self.burn_percentage = percentage;
+    pub fn set_burn_percentage(&mut self, value:U128) {
+        self.assert_owner();       
+        self.ft.change_burn_percentage(value.into());
     }
 
-    pub fn get_burn_percentage(&self) -> f32 {
-        self.burn_percentage
+    pub fn get_burn_percentage(&self) -> u128 {
+        self.ft.burn_percentage
     }
 
-    pub fn set_saving_percentage(&mut self, percentage: f32) {
-        self.assert_owner();
-        assert!(
-            percentage >= 0.0 && percentage <= 10.0,
-            "You can't set admin money percentage less than 0.0 and greater than 10.0"
-        );
-        assert!(
-            percentage + self.saving_percentage <= 30.0,
-            "Burning can't be more than 30 percent"
-        );
-        self.saving_percentage = percentage;
-    }
-
-    pub fn get_saving_percentage(&self) -> f32 {
-        self.saving_percentage
-    }
 
 }
 
@@ -837,8 +811,6 @@ impl Avrit {
             schelling_decisions_juror: LookupMap::new(b"8c7b8f85".to_vec()),
             schelling_decision_true_count: LookupMap::new(b"4bf8d29d".to_vec()),
             schelling_decision_false_count: LookupMap::new(b"98396f41".to_vec()),
-            burn_percentage: 0.0,
-            saving_percentage: 0.0,
             number_of_allowed_reviews_per_product: 10,
             product_review_count:LookupMap::new(b"05d53b2b".to_vec()),
         };
@@ -862,6 +834,15 @@ impl FungibleTokenMetadataProvider for Avrit {
             reference_hash: None,
             decimals: 24,
         }
+    }
+}
+
+#[near_bindgen]
+impl Avrit {
+    pub fn register_account(&mut self, account_id: ValidAccountId) {
+
+        self.ft.internal_register_account(account_id.as_ref());
+
     }
 }
 
