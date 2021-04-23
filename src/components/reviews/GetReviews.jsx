@@ -18,13 +18,23 @@ function GetReviews(props) {
           product_id: parseInt(pid),
         })
         console.log(data)
-        data.map(async (x) => {
+        const reviewPromises = data.map(async (x) => {
           let hash = await nearvar.contract.get_review({ review_id: x })
-
           hash.review_id = x
-          console.log(hash)
-          setReviewsData((oldReviews) => [...oldReviews, hash])
+          return hash
+
         })
+        Promise.all(reviewPromises).then(hash => {
+          console.log("hash", hash)
+          setReviewsData(hash)
+        })
+        // data.map(async (x) => {
+        //   let hash = await nearvar.contract.get_review({ review_id: x })
+
+        //   hash.review_id = x
+        //   console.log(hash)
+        //   setReviewsData((oldReviews) => [...oldReviews, hash])
+        // })
       } catch (e) {
         console.error(e)
       }

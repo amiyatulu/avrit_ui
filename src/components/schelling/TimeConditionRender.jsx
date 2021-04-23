@@ -188,6 +188,7 @@ console.log(jurySelectionTime, "conditional");
       <React.Fragment>
         <br />
         <span>Jury application end time: {time.fromNow()}</span> <br />
+        {/* To do: If already commited don't render commit vote */}
         <Link to={`/commitvote/${rid}/`} className="badge badge-secondary mr-3">
           Commit Vote
         </Link>

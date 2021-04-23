@@ -20,6 +20,9 @@ serde = "1.0.69"
 
 
 
+[dev-dependencies]
+near-sdk-sim = "3.1.0"
+
 
 
 [profile.release]

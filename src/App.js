@@ -6,7 +6,7 @@ const Nav = lazy(() => import("./components/Nav"))
 const ViewProfile = lazy(() => import("./components/profile/ViewProfile"))
 const UpdateProfile = lazy(() => import("./components/profile/UpdateProfile"))
 const CreateProduct = lazy(() => import("./components/products/CreateProduct"))
-const GetProducts = lazy(() => import("./components/products/GetProducts"))
+// const GetProducts = lazy(() => import("./components/products/GetProducts"))
 const ProductById = lazy(() => import("./components/products/ProductById"))
 const AvritToken = lazy(() => import("./components/profile/AvritToken"))
 const CreateReviewEvidence = lazy(() =>
@@ -55,8 +55,8 @@ function App(props) {
   async function fetchProfile() {
     let data
     try {
-      data = await props.contract.get_balance({
-        owner_id: props.wallet.getAccountId(),
+      data = await props.contract.ft_balance_of({
+        account_id: props.wallet.getAccountId(),
       })
       // console.log(props.wallet.getAccountId())
       // console.log(data)

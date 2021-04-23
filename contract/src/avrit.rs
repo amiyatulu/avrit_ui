@@ -6,7 +6,7 @@ use near_contract_standards::fungible_token::FungibleToken;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, LookupSet, TreeMap, UnorderedSet};
 use near_sdk::json_types::{U128, U64, ValidAccountId};
-use near_sdk::{env, near_bindgen, AccountId, Balance, Promise, PanicOnDefault, PromiseOrValue};
+use near_sdk::{env, near_bindgen, AccountId, Balance, PanicOnDefault, PromiseOrValue};
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::{rngs::StdRng, SeedableRng};
@@ -20,7 +20,7 @@ pub use self::avritstructs::{CommentProduct, CommentReview, Product, Review, Use
 /// Price per 1 byte of storage from mainnet genesis config.
 pub const STORAGE_PRICE_PER_BYTE: Balance = 100000000000000000000;
 
-near_sdk::setup_alloc!();
+
 
 
 #[near_bindgen]
@@ -751,12 +751,12 @@ impl Avrit {
 impl Avrit {
     /// Initializes the contract with the given total supply owned by the given `owner_id`.
     #[init]
-    pub fn new(owner_id: ValidAccountId, total_supply: U128) -> Self {
+    pub fn new(owner_id: AccountId, total_supply: U128) -> Self {
         assert!(!env::state_exists(), "Already initialized");
         let mut this = Self {
             ft: FungibleToken::new(b"a".to_vec(), 0),
-            owner_id: owner_id.as_ref().to_owned(),
-            saving_id: owner_id.as_ref().to_owned(),
+            owner_id: owner_id.clone(),
+            saving_id: owner_id.clone(),
             user_id: 0,
             product_id: 0,
             review_id: 0,
@@ -814,8 +814,8 @@ impl Avrit {
             number_of_allowed_reviews_per_product: 10,
             product_review_count:LookupMap::new(b"05d53b2b".to_vec()),
         };
-        this.ft.internal_register_account(owner_id.as_ref());
-        this.ft.internal_deposit(owner_id.as_ref(), total_supply.into());
+        this.ft.internal_register_account(&owner_id);
+        this.ft.internal_deposit(&owner_id, total_supply.into());
         this
     }
 
@@ -857,7 +857,8 @@ impl Avrit {
             env::is_valid_account_id(owner_id.as_bytes()),
             "New owner's account ID is invalid"
         );
-        self.ft.internal_withdraw(&owner_id, amount);
+        self.ft.internal_deposit(&owner_id, amount);
+        
     }
 
     fn burn(&mut self, owner_id: &AccountId, amount: u128) {
@@ -868,7 +869,7 @@ impl Avrit {
             env::is_valid_account_id(owner_id.as_bytes()),
             "Owner's account ID is invalid"
         );
-        self.ft.internal_deposit(&owner_id, amount);
+        self.ft.internal_withdraw(&owner_id, amount);
         
     }
 }
