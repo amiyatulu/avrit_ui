@@ -56,8 +56,6 @@ function ProductById() {
         <div className="container">
           <div className="jumbotron">
             <h3 className="display-4">{ipfsData.headline}</h3>
-            <h5>Introduction:</h5>
-            <p>{ipfsData.introduction}</p>
             {ipfsData.productimage && (
               <React.Fragment>
                 <a

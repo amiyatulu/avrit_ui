@@ -57,7 +57,6 @@ function UpdateProduct(props) {
             initialValues={{
               headline: ipfsData.headline,
               productimage: ipfsData.productimage,
-              introduction: ipfsData.introduction,
               details: ipfsData.details,
               pdfs: ipfsData.pdfs,
               linkproductid: ipfsData.linkproductid,
@@ -66,8 +65,7 @@ function UpdateProduct(props) {
             }}
             validationSchema={Yup.object().shape({
               headline: Yup.string().required("headline is required"),
-              productimage: Yup.string().required("Image is required"),
-              introduction: Yup.string().required("introduction is required"),
+              productimage: Yup.string().required("Image is required and it should be JPG or PNG"),
               details: Yup.string().required("Details is required"),
               pdfs: Yup.string().required("Adding PDFs is required"),
               linkproductid: Yup.string(),
@@ -117,6 +115,7 @@ function UpdateProduct(props) {
               values,
               setFieldValue,
               setTouched,
+              setFieldTouched,
               validateForm,
             }) => (
               <Form onSubmit={handleSubmit}>
@@ -137,23 +136,11 @@ function UpdateProduct(props) {
                 <DropProductImageUpdate
                   name={"productimage"}
                   setFieldValue={setFieldValue}
+                  setFieldTouched={setFieldTouched}
                   oldimage={ipfsData.productimage}
                 />
                 {/* <TagsInput selectedTags={selectedTags} name={"audience"} setFieldValue={setFieldValue} tags={['Novice', 'Intermediate']}/> */}
 
-                <div className="form-group">
-                  <label htmlFor="introduction">introduction</label>
-                  {touched.introduction && errors.introduction && (
-                    <p className="alert alert-danger">{errors.introduction}</p>
-                  )}
-
-                  <Field
-                    name="introduction"
-                    component="textarea"
-                    rows="5"
-                    className="form-control"
-                  />
-                </div>
 
                 <div className="form-group">
                   <label htmlFor="details">details</label>

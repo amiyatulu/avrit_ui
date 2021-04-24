@@ -12,9 +12,7 @@ near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
 }
 
 const CONTRACT_ID: &str = "avrit";
-const LEGACY_BYTE_COST: Balance = 10_000_000_000_000_000_000;
 
-const STORAGE_BALANCE: Balance = 125 * LEGACY_BYTE_COST;
 
 
 fn deploy_avrit() -> (UserAccount, UserAccount, ContractAccount<Contract>) {

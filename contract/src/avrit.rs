@@ -293,6 +293,9 @@ impl Avrit {
     }
     pub fn create_profile(&mut self, profile_hash: String) {
         let account_id = env::predecessor_account_id();
+        if !self.ft.accounts.contains_key(&account_id) {
+            self.ft.internal_register_account(&account_id);
+        }
         let account_id_exists_option = self.user_map.get(&account_id);
         let u = User {
             profile_hash,

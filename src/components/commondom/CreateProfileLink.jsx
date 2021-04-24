@@ -17,7 +17,7 @@ function CreateProfileLink() {
     <React.Fragment>
       <div className="container text-center">
         Create profile to stake or post <br />
-        <Link type="button" className="btn btn-primary" to="createprofile">
+        <Link type="button" className="btn btn-primary" to="/createprofile">
           Create Profile
         </Link>
       </div>

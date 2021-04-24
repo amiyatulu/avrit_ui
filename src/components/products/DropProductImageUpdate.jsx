@@ -35,17 +35,25 @@ function DropProductImageUpdate(props) {
     if(ext === "JPG") {
        ext = "JPEG"
     }
-    const image = await resizeFile(acceptedFile[0], ext)
-    // console.log(image)
-    const blob = await base64toblog(image)
-
-    const reader = new window.FileReader()
-    reader.readAsArrayBuffer(blob)
-    reader.onloadend = () => {
-      let buffer = Buffer(reader.result)
-      console.log(buffer)
-      //   setBuffer(buffer)
-      addData(acceptedFile[0].path, buffer)
+    if(ext == "JPEG" || ext =="PNG") {
+      const image = await resizeFile(acceptedFile[0], ext)
+      // console.log(image)
+      const blob = await base64toblog(image)
+  
+      const reader = new window.FileReader()
+      reader.readAsArrayBuffer(blob)
+      reader.onloadend = () => {
+        let buffer = Buffer(reader.result)
+        console.log(buffer)
+        //   setBuffer(buffer)
+        addData(acceptedFile[0].path, buffer)
+      }
+    
+    } else {
+      props.setFieldValue(props.name, "")
+      props.setFieldTouched(props.name, true)
+      console.log("Image must be JPEG or PNG")
+      setLoading(false)
     }
   }, [])
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
