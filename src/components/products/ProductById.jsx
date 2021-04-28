@@ -20,8 +20,8 @@ function ProductById() {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        let data = await nearvar.contract.get_product({
-          product_id: parseInt(id),
+        let data = await nearvar.contract.get_product_js({
+          product_id: id.toString(),
         })
         console.log("product data", data)
         setProductType(data.product_type)
@@ -106,17 +106,17 @@ function ProductById() {
             </div>
             <br />
             <h5>Specialization:</h5>
-            <p>
+            <div>
               <TagsStyle tags={ipfsData.specialization} />
-            </p>
+            </div>
             <h5>Audience:</h5>
-            <p>
+            <div>
               <TagsStyle tags={ipfsData.audience} />
-            </p>
+            </div>
             <h5>Product Type:</h5>
-            <p>
+            <div>
               <ProductTypeStyle type={productType} />
-            </p>
+            </div>
             <Link
               to={`/createreview/${id}`}
               className="badge badge-secondary mr-3"

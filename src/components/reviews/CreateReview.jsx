@@ -44,7 +44,7 @@ function CreateReview(props) {
               console.log(file)
               console.log(pid)
               await nearvar.contract.create_review({
-                product_id: parseInt(pid),
+                product_id: pid.toString(),
                 review_hash: file.cid.string,
                 rating: parseInt(product_rating),
               })

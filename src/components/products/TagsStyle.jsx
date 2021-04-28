@@ -5,7 +5,7 @@ function TagsStyle(props) {
   const tags = props.tags
   const links = tags.split(",").map((tag, index) => (
     
-      <li>
+      <li key={index}>
         <span className={styles.tag}>
           {tag}
         </span>

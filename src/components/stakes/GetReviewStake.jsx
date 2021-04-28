@@ -30,7 +30,7 @@ function GetReviewStake(props) {
     async function fetchStake() {
       try {
         let data = await nearvar.contract.get_review_bounty_js({
-          review_id: parseInt(rid),
+          review_id: rid.toString(),
         })
         console.log(data)
         setStake(data)

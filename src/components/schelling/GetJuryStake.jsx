@@ -13,8 +13,8 @@ function GetJuryStake(props) {
       // console.log("rid", rid, "userId", userId)
       try {
         let data = await nearvar.contract.get_juror_stakes_js({
-          review_id: parseInt(rid),
-          juror_user_id: parseInt(userId),
+          review_id: rid.toString(),
+          juror_user_id: userId.toString(),
         })
         console.log(data)
         setStake(data)

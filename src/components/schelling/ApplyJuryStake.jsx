@@ -27,8 +27,8 @@ function ApplyJuryStake(props) {
             try {
               //   values.countvariable = count
               await nearvar.contract.apply_jurors({
-                review_id: parseInt(rid),
-                stake: parseInt(values.stake),
+                review_id: rid.toString(),
+                stake: values.stake.toString(),
               })
               actions.setSubmitting(false)
               // console.log(data)

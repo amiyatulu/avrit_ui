@@ -83,8 +83,8 @@ function ProductList(props) {
         // console.log(start, "start")
 
         try {
-          data = await nearvar.contract.get_products_of_user_id({
-            user_id: parseInt(userId),
+          data = await nearvar.contract.get_products_of_user_id_js({
+            user_id: userId.toString(),
             start: start,
             end: end,
           })
@@ -92,13 +92,13 @@ function ProductList(props) {
         //   console.log(data, "data")
 
         const productPromises =  data.map(async (x) => {
-            // console.log(x)
-            return nearvar.contract.get_product({ product_id: x })
+            console.log("promisex", x)
+            return nearvar.contract.get_product_js({ product_id: x.toString() })
                 // console.log(hash)                                  
           })
 
           Promise.all(productPromises).then(hash => {
-            //  console.log(hash)
+          console.log("hash", hash)
             setProductsData(hash)
         })
         } catch (e) {

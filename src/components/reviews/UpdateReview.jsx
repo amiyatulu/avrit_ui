@@ -24,8 +24,8 @@ function UpdateReview(props) {
   useEffect(() => {
     async function fetchReview() {
       try {
-        let hash = await nearvar.contract.get_review({
-          review_id: parseInt(rid),
+        let hash = await nearvar.contract.get_review_js({
+          review_id: rid.toString(),
         })
         setPid(hash.product_id)
         console.log(hash.product_id)
@@ -71,7 +71,7 @@ function UpdateReview(props) {
                 console.log(file)
                 console.log(pid)
                 await nearvar.contract.update_review({
-                  review_id: parseInt(rid),
+                  review_id: rid.toString(),
                   review_hash: file.cid.string,
                   rating: parseInt(product_rating),
                 })

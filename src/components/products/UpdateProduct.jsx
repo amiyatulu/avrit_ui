@@ -29,8 +29,8 @@ function UpdateProduct(props) {
     async function fetchProduct() {
         console.log(pid)
       try {
-        let data = await nearvar.contract.get_product({
-          product_id: parseInt(pid),
+        let data = await nearvar.contract.get_product_js({
+          product_id: pid.toString(),
         })
         console.log(data)
         setProductType(data.product_type)
@@ -86,7 +86,7 @@ function UpdateProduct(props) {
                 })
                 await nearvar.contract.update_product({
                   product_details_hash: file.cid.string,
-                  product_id: parseInt(pid),
+                  product_id: pid.toString(),
                 })
 
                 // const content = JSON.stringify(values);

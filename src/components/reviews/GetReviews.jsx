@@ -15,11 +15,11 @@ function GetReviews(props) {
         data = await nearvar.contract.get_review_ids_by_product_id({
           start: 0,
           end: 20,
-          product_id: parseInt(pid),
+          product_id: pid.toString(),
         })
-        console.log(data)
+        console.log("reviewsdata", data)
         const reviewPromises = data.map(async (x) => {
-          let hash = await nearvar.contract.get_review({ review_id: x })
+          let hash = await nearvar.contract.get_review_js({ review_id: x })
           hash.review_id = x
           return hash
 

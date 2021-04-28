@@ -30,6 +30,7 @@ function ReviewFullDetailsEvidence(props) {
       {reviewData && (
         <div>
           <div className="jumbotron">
+            <h5>Review Id: {rid}</h5>
             <h5>Ratings</h5>
             <p>
               <Rating name="productrating" value={rating} />

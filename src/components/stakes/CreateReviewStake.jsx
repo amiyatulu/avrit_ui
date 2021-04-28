@@ -29,7 +29,7 @@ function CreateReviewStake(props) {
             try {
               await nearvar.contract.add_review_bounty({
                 bounty: parseInt(values.stake),
-                review_id: parseInt(rid),
+                review_id: rid.toString(),
               })
               actions.setSubmitting(false)
               reloadBalance()

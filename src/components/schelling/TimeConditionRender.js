@@ -38,10 +38,10 @@ function TimeConditionRender(props) {
       let endtime = false
       try {
         let phasetimeinsec = await nearvar.contract.get_jury_application_phase_time()
-        // console.log(phasetimeinsec)
+        console.log("juryapplicatiophasetimeinsec", phasetimeinsec)
         let starttime = await nearvar.contract.get_jury_application_start_time_js(
           {
-            review_id: parseInt(rid),
+            review_id: rid.toString(),
           }
         )
         const endtime = moment.unix(
@@ -61,7 +61,7 @@ function TimeConditionRender(props) {
       try {
         let juryselectiontime = await nearvar.contract.get_juror_selection_time_js(
           {
-            review_id: parseInt(rid),
+            review_id: rid.toString(),
           }
         )
 
@@ -181,9 +181,9 @@ function TimeConditionRender(props) {
     )
   }
 
-console.log(jurySelectionTime, "conditional");
+console.log(jurySelectionTime, "jury selection time");
 
-  if (moment().isSameOrAfter(time) && moment().isSameOrAfter(jurySelectionTime) && jurySelectionTime != undefined) {
+  if (moment().isSameOrAfter(time) && moment().isSameOrAfter(jurySelectionTime) && jurySelectionTime !== undefined) {
     return (
       <React.Fragment>
         <br />
@@ -196,7 +196,7 @@ console.log(jurySelectionTime, "conditional");
     )
   }
 
-  if (jurySelectionTime == undefined && moment().isSameOrAfter(time)) {
+  if (jurySelectionTime === undefined && moment().isSameOrAfter(time)) {
     return (
       <React.Fragment>
         <br />
