@@ -42,6 +42,7 @@ const UpdateReview = lazy(() => import("./components/reviews/UpdateReview"))
 const ProductPagination = lazy(() =>
   import("./components/products/ProductPagination")
 )
+const DrawJuror = lazy(() => import("./components/schelling/DrawJuror"))
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -50,7 +51,6 @@ function App(props) {
   const [balanceError, setBalanceError] = useState(null)
   const [userId, setUserId] = useState(null)
   const [userIdEmpty, setUserIdEmpty] = useState(false)
-
 
   async function fetchProfile() {
     let data
@@ -76,7 +76,7 @@ function App(props) {
         account_id: props.wallet.getAccountId(),
       })
       setUserId(parseInt(userid))
-      
+
       // console.log(props.wallet.getAccountId())
       // console.log(data)
       // console.log("fetchuserid")
@@ -84,7 +84,6 @@ function App(props) {
       console.log(e.message)
       const failedtofetch = e.message
       setUserIdEmpty(true)
-      
     }
   }
 
@@ -217,6 +216,7 @@ function App(props) {
               <Route path="/updatereview/:rid" component={UpdateReview} />
               {/* <Route path="/tag" component={TagsStyle} /> */}
               <Route path="/myproducts" component={ProductPagination} />
+              <Route path="/drawjurors/:rid" component={DrawJuror} />
             </Switch>
           </section>
         </React.Fragment>

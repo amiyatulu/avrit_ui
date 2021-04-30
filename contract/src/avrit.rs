@@ -729,7 +729,7 @@ impl Avrit {
             "Bounty can not be less than minimum review bounty"
         );
         let account_id = env::predecessor_account_id();
-        let timestamp = env::block_timestamp();        
+        let timestamp = env::block_timestamp();
         let review_bounty_exists_option = self.review_bounty.get(&review_id);
         match review_bounty_exists_option {
             Some(bountyvalue) => {
@@ -744,7 +744,7 @@ impl Avrit {
                 self.burn(&account_id, bounty as u128);
                 self.review_bounty.insert(&review_id, &bounty);
                 self.jury_application_start_time
-            .insert(&review_id, &timestamp);
+                    .insert(&review_id, &timestamp);
             }
         }
     }
@@ -957,6 +957,14 @@ impl Avrit {
         );
     }
 
+    pub fn number_of_staked_jury(&self, review_id: U128) -> U64 {
+        let user_juror_stake_count_option = self.user_juror_stake_count.get(&review_id.into());
+        match user_juror_stake_count_option {
+            Some(count) => count.into(),
+            None => 0.into(),
+        }
+    }
+
     fn increase_juror_that_staked_count(&mut self, review_id: u128) {
         let user_juror_stake_count_option = self.user_juror_stake_count.get(&review_id);
         match user_juror_stake_count_option {
@@ -1122,7 +1130,7 @@ impl Avrit {
         let user_juror_stake_count_option = self.user_juror_stake_count.get(&review_id);
         match user_juror_stake_count_option {
             Some(count) => {
-                if count <= self.jury_count {
+                if count < self.jury_count {
                     env::panic(b"Staked juror are less than jury count");
                 }
             }

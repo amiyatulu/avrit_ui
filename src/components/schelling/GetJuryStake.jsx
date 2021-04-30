@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from "react"
 import { NearContext } from "../../commons/context/NearContext"
 import { useParams, Link } from "react-router-dom"
+import JuryCount from "./JuryCount"
 
 function GetJuryStake(props) {
   const { nearvar } = useContext(NearContext)
@@ -30,7 +31,8 @@ function GetJuryStake(props) {
     <React.Fragment>
       {stake ? (
         <React.Fragment>
-          <p className="badge badge-secondary mr-3">Your jury Stake: {stake}</p>      
+          <p className="badge badge-secondary mr-3">Your jury Stake: {stake}</p>
+          <JuryCount rid={rid} />
         </React.Fragment>
       ) : stakeError ? (
         <React.Fragment>
@@ -40,6 +42,7 @@ function GetJuryStake(props) {
           >
             Apply as Jury
           </Link>
+          <JuryCount rid={rid} />
         </React.Fragment>
       ) : (
         <React.Fragment>

@@ -31,7 +31,7 @@ function CommitVote(props) {
               //   values.countvariable = count
               const hex = keccak256(values.Vote).toString("hex")
               const data = await nearvar.contract.commit_vote({
-                review_id: parseInt(rid),
+                review_id: rid.toString(),
                 vote_commit: hex,
               })
               console.log(data)

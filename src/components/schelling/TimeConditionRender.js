@@ -182,12 +182,14 @@ function TimeConditionRender(props) {
   }
 
 console.log(jurySelectionTime, "jury selection time");
+console.log(time, "time")
+console.log(endcommit, "commitendtime")
 
-  if (moment().isSameOrAfter(time) && moment().isSameOrAfter(jurySelectionTime) && jurySelectionTime !== undefined) {
+  if (moment().isSameOrAfter(time) && moment().isSameOrAfter( moment.unix(jurySelectionTime.slice(0, 10))) && jurySelectionTime !== undefined) {
     return (
       <React.Fragment>
         <br />
-        <span>Jury application end time: {time.fromNow()}</span> <br />
+        <span>Commit end time: {endcommit && endcommit.fromNow()}</span> <br />
         {/* To do: If already commited don't render commit vote */}
         <Link to={`/commitvote/${rid}/`} className="badge badge-secondary mr-3">
           Commit Vote
@@ -200,7 +202,10 @@ console.log(jurySelectionTime, "jury selection time");
     return (
       <React.Fragment>
         <br />
-        <span>Draw Juror</span> <br />
+        <Link to={`/drawjurors/${rid}`} className="badge badge-secondary mr-3">
+        Draw Juror
+        </Link>
+        <br />
       </React.Fragment>
     )
   }
