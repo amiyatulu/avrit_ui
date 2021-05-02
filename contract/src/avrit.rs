@@ -1416,6 +1416,49 @@ impl Avrit {
         }
     }
 
+    fn if_juror_selected(&self, review_id: u128, user_id: u128) -> bool {
+        let selected_juror_option = self.selected_juror.get(&review_id);
+        match selected_juror_option {
+            Some(juryentries) => {
+                let juryexists = juryentries.contains(&user_id);
+                juryexists
+            }
+            None => false,
+        }
+    }
+
+    pub fn can_juror_vote_bool(&self, review_id: U128, user_id: U128) -> bool {
+        let review_id: u128 = review_id.into();
+        let user_id: u128 = user_id.into();
+        let selected = self.if_juror_selected(review_id, user_id);
+        let commited = self.if_vote_commited(review_id, user_id);
+        if selected == true && commited == false {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn if_vote_commited(&self, review_id: u128, user_id: u128) -> bool {
+        let juror_voting_status_option = self.juror_voting_status.get(&review_id);
+        match juror_voting_status_option {
+            Some(juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 1 || value == 2 {
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                    None => false,
+                }
+            }
+            None => false,
+        }
+    }
+
     pub fn can_juror_vote_js(&self, review_id: U128, user_id: U128) {
         let review_id: u128 = review_id.into();
         let user_id: u128 = user_id.into();

@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react"
 import { NearContext } from "../../commons/context/NearContext"
 import { useParams, Link } from "react-router-dom"
 import moment from "moment"
+import CommitVoteLink from "./CommitVoteLink"
 
 function Loading(props) {
   const { error } = props
@@ -191,9 +192,8 @@ console.log(endcommit, "commitendtime")
         <br />
         <span>Commit end time: {endcommit && endcommit.fromNow()}</span> <br />
         {/* To do: If already commited don't render commit vote */}
-        <Link to={`/commitvote/${rid}/`} className="badge badge-secondary mr-3">
-          Commit Vote
-        </Link>
+        <CommitVoteLink rid={rid} />
+        
       </React.Fragment>
     )
   }
