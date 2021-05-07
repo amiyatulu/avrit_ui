@@ -10,13 +10,13 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-rand = "0.7.3"
 chrono = "0.4.19"
 sha3 = "0.9.1"
 near-sdk = "3.1.0"
 wee_alloc = "0.4.5"
 near-contract-standards = { path = "../near-contract-standards"}
 serde = "1.0.69"
+rand = "0.7.3"
 
 
 

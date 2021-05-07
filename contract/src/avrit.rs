@@ -60,6 +60,7 @@ pub struct Avrit {
     min_review_bounty: u64,
     min_product_bounty: u64,
     min_jury_stake: u64,
+    // max_number_of_jury_can_stake: u64,
     user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>> #Delete
     user_juror_stakes_clone: LookupMap<u128, TreeMap<u128, u128>>, // #Delete
     user_juror_stake_count: LookupMap<u128, u64>, // <review_id, juror that staked count>
@@ -143,6 +144,14 @@ impl Avrit {
     pub fn get_jury_count(&self) -> U64 {
         self.jury_count.into()
     }
+
+    // pub fn set_max_number_of_jury_can_stake(&mut self, jury_count: U64) {
+    //     self.assert_owner();
+    //     self.max_number_of_jury_can_stake = jury_count.into();
+    // }
+    // pub fn get_max_number_of_jury_can_stake(&self) -> U64 {
+    //     self.max_number_of_jury_can_stake.into()
+    // }
     pub fn set_jury_incentives(&mut self, incentives: u128) {
         self.assert_owner();
         self.jury_incentives = incentives;
@@ -833,7 +842,8 @@ impl Avrit {
             juror_unstaked: LookupMap::new(b"66fcbcd3".to_vec()),
             juror_stake_unique_id: 0,
             selected_juror: LookupMap::new(b"89390257".to_vec()),
-            jury_count: 20,
+            jury_count: 10,
+            // max_number_of_jury_can_stake: 20,
             jury_application_phase_time: 1296000, // 15 days in secs
             commit_phase_time: 2592000,           // 30 days in secs
             reveal_phase_time: 1296000,           // 15 days in secs
@@ -942,6 +952,7 @@ impl Avrit {
             panic!("Stake is less than minimum allowed amount")
         }
         self.increase_juror_that_staked_count(review_id.clone());
+        // self.check_number_of_staked_jury_exceeds_max_number_of_jury_can_stake(review_id.clone());
         let account_id = env::predecessor_account_id();
         let singer_juror_user = self.get_user_id(&account_id);
         self.user_juror_stakes_store(
@@ -964,6 +975,26 @@ impl Avrit {
             None => 0.into(),
         }
     }
+
+    // fn number_of_staked_jury_internal(&self, review_id: u128) -> u64 {
+    //     let user_juror_stake_count_option = self.user_juror_stake_count.get(&review_id);
+    //     match user_juror_stake_count_option {
+    //         Some(count) => count,
+    //         None => 0,
+    //     }
+    // }
+
+    // fn check_number_of_staked_jury_exceeds_max_number_of_jury_can_stake(&self, review_id: u128) {
+    //     let user_juror_stake_count_option = self.user_juror_stake_count.get(&review_id);
+    //     match user_juror_stake_count_option {
+    //         Some(count) => {
+    //             if count > self.max_number_of_jury_can_stake {
+    //                 panic!("Staked juror are more than allowed juror");
+    //             }
+    //         }
+    //         None => {}
+    //     }
+    // }
 
     fn increase_juror_that_staked_count(&mut self, review_id: u128) {
         let user_juror_stake_count_option = self.user_juror_stake_count.get(&review_id);
@@ -1108,7 +1139,8 @@ impl Avrit {
     /// Check there are mininum number of juror applied. ❌
     /// If juror is drawn, its get appended to selected_juror that contain review id nand juror id set
     /// draw_jurors don't require predecessor id
-    pub fn draw_jurors(&mut self, review_id: U128, length: usize) {
+    pub fn draw_jurors(&mut self, review_id: U128) {
+        let length: usize = 3;
         let review_id = review_id.into();
         self.assert_draw_jurors_time_possible(review_id);
         let selected_juror_option = self.selected_juror.get(&review_id);
@@ -1125,13 +1157,22 @@ impl Avrit {
             }
         }
     }
+
+    pub fn get_selected_juror_count(&self, review_id: U128) -> U64 {
+        let review_id: u128 = review_id.into();
+        let selected_juror_count_option = self.selected_juror_count.get(&review_id);
+        match selected_juror_count_option {
+            Some(count) => count.into(),
+            None => 0.into(),
+        }
+    }
     // Check minium number of juror have staked
     fn check_minimum_number_juror_staked(&self, review_id: u128) {
         let user_juror_stake_count_option = self.user_juror_stake_count.get(&review_id);
         match user_juror_stake_count_option {
             Some(count) => {
                 if count < self.jury_count {
-                    env::panic(b"Staked juror are less than jury count");
+                    panic!("Staked juror are less than jury count");
                 }
             }
             None => {}
@@ -1149,52 +1190,78 @@ impl Avrit {
         mut jurysetentries: LookupSet<u128>,
         length: usize,
     ) {
+        let slicelength: u128 = 20;
         let user_juror_stakes_clone_option = self.user_juror_stakes_clone.get(&review_id);
         match user_juror_stakes_clone_option {
             Some(mut juries_stakes) => {
-                let items = juries_stakes.to_vec();
-                // println!(">>>>>>>>Juries{:?}<<<<<<<<<<<", items);
+                let juries_stakes_len = juries_stakes.len() as u128;
                 let random_vec = env::random_seed();
                 let mut rng = self.get_rng(random_vec);
-                let mut dist2 = WeightedIndex::new(items.iter().map(|item| item.1)).unwrap();
+                // println!("juries stake len {:?}", juries_stakes_len);
+                // println!("jury stakes {:?}", juries_stakes.to_vec());
+                let rand_number: u128 = rng.gen_range(0, juries_stakes_len);
+                // println!("random number {}", rand_number);                
+                let mut end = rand_number + slicelength;
+                if end > juries_stakes_len {
+                    end = juries_stakes_len;
+                }
+                // println!("end {}", end);
+                let mut items = Vec::new();                
+                {
+                    juries_stakes
+                        .iter()
+                        .skip(rand_number as usize)
+                        .take(end as usize)
+                        .for_each(|(key, value)| {items.push((key, value))});
+                        // ; println!("key value {}-{}", key, value)
+                }
+                // println!("items {:?}", items);
+                let mut dist2 =
+                    WeightedIndex::new(items.iter().map(|item| item.1)).expect("No items");
+                let mut countvalue;
                 let selected_juror_count_option = self.selected_juror_count.get(&review_id);
-                let mut countvalue = 0;
                 match selected_juror_count_option {
                     Some(count) => {
-                        if count >= self.jury_count {
-                            panic!("Jury selection done, no more juries can be added.");
-                        } else {
-                            countvalue = count;
+                        countvalue = count;
+                        let selectiontime_option = self.juror_selection_time.get(&review_id);
+                        match selectiontime_option {
+                            Some(_selection) => {
+                                panic!("Jury selection time has already beend added")
+                            }
+                            None => {}
                         }
                     }
-                    None => {}
+                    None => {
+                        countvalue = 0
+                    }
                 }
-
+                
                 for _ in 0..length {
                     let index = dist2.sample(&mut rng);
                     // println!("{}", index);
                     let drawindex = items[index].0;
-                    println!("{:?}", drawindex);
+                    // println!("draw_index {:?}", drawindex);
                     juries_stakes.remove(&drawindex);
                     jurysetentries.insert(&drawindex);
                     let d = dist2.update_weights(&[(index, &0)]);
                     // println!("{:?}",d);
-                    match d {
-                        Ok(_v) => {}
-                        Err(_e) => {
-                            let timestamp = env::block_timestamp();
-                            self.juror_selection_time.insert(&review_id, &timestamp);
-                            break;
-                        }
-                    }
-                    countvalue += 1;
+                    countvalue = countvalue + 1;
                     if countvalue >= self.jury_count {
+                        // println!("set time stamp");
                         let timestamp = env::block_timestamp();
                         self.juror_selection_time.insert(&review_id, &timestamp);
                         break;
+                    } 
+                   
+                    match d {
+                        Ok(_v) => {}
+                        Err(_e) => {
+                            break;
+                        }
                     }
                 }
                 self.selected_juror_count.insert(&review_id, &countvalue);
+                // println!("countvalue{}", countvalue);
                 self.user_juror_stakes_clone
                     .insert(&review_id, &juries_stakes);
                 self.selected_juror.insert(&review_id, &jurysetentries);

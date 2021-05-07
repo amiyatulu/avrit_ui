@@ -33,7 +33,8 @@ function DrawJuror(props) {
           	try {
               console.log("try")
           	//   values.countvariable = count
-              const data = await nearvar.contract.draw_jurors({
+            console.log(parseInt(values.length), "length")
+              await nearvar.contract.draw_jurors({
                 review_id: rid.toString(),
                 length: parseInt(values.length),
               })

@@ -19,7 +19,7 @@
     "ipfs-http-client": "^45.0.0",
     "keccak256": "^1.0.2",
     "moment": "^2.29.1",
-    "near-api-js": "^0.27.0",
+    "near-api-js": "0.40.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-dropzone": "^11.2.4",

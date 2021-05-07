@@ -3,6 +3,7 @@ import { NearContext } from "../../commons/context/NearContext"
 import { useParams, Link } from "react-router-dom"
 import moment from "moment"
 import CommitVoteLink from "./CommitVoteLink"
+import SelectedJuror from "./SelectedJuror"
 
 function Loading(props) {
   const { error } = props
@@ -186,12 +187,18 @@ console.log(jurySelectionTime, "jury selection time");
 console.log(time, "time")
 console.log(endcommit, "commitendtime")
 
-  if (moment().isSameOrAfter(time) && moment().isSameOrAfter( moment.unix(jurySelectionTime.slice(0, 10))) && jurySelectionTime !== undefined) {
+let juryselectiontime_slice;
+if (jurySelectionTime) {
+  juryselectiontime_slice =  moment.unix(jurySelectionTime.slice(0, 10))
+}
+
+  if (moment().isSameOrAfter(time) && moment().isSameOrAfter(juryselectiontime_slice) && jurySelectionTime !== undefined) {
     return (
       <React.Fragment>
         <br />
         <span>Commit end time: {endcommit && endcommit.fromNow()}</span> <br />
         {/* To do: If already commited don't render commit vote */}
+        <SelectedJuror rid={rid} />
         <CommitVoteLink rid={rid} />
         
       </React.Fragment>
@@ -201,11 +208,10 @@ console.log(endcommit, "commitendtime")
   if (jurySelectionTime === undefined && moment().isSameOrAfter(time)) {
     return (
       <React.Fragment>
-        <br />
-        <Link to={`/drawjurors/${rid}`} className="badge badge-secondary mr-3">
+      <SelectedJuror rid={rid} />
+      <Link to={`/drawjurors/${rid}`} className="badge badge-secondary mr-3">
         Draw Juror
-        </Link>
-        <br />
+      </Link>
       </React.Fragment>
     )
   }

@@ -1,7 +1,11 @@
 set -e
 cd ..
 export TOKEN=`cat neardev/dev-account`
+
+
 # QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X
+
+near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId amiyatulu.testnet
 # near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit.testnet
 # near call $TOKEN ft_transfer '{"receiver_id":"avrit.testnet", "amount":"50"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
 
