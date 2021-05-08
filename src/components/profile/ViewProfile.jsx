@@ -36,35 +36,43 @@ function ViewProfile() {
   const [profileData, setProfileData] = useState(null)
   const [fetchError, setFetchError] = useState(false)
   const [noProfile, setNoProfile] = useState(false)
-  const { nearvar } = useContext(NearContext)
+  const { nearvar, userId } = useContext(NearContext)
+  console.log(userId, "userId")
 
   useEffect(() => {
     async function fetchProfile() {
-      let data
-      try {
-        data = await nearvar.contract.get_profile_hash()
-      } catch (e) {
-        console.log(e.message)
-        const errorboolean = e.message.includes("User profile does not exists")
-        const failedtofetch = e.message
-        console.log(errorboolean)
-        setNoProfile(errorboolean)
-        setFetchError(failedtofetch)
-      }
-      if (data) {
-        const result = await axios(`${IPFS_URL}${data}`)
-        setProfileData(result.data)
-        localStorage.setItem("my-profile", JSON.stringify(result.data))
-        console.log("in useeffect")
+      if (userId) {
+        let data
+        try {
+          data = await nearvar.contract.get_user_profile_js({
+            user_id: userId.toString(),
+          })
+          // console.log(data)
+          const result = await axios(`${IPFS_URL}${data.profile_hash}`)
+          setProfileData(result.data)
+          localStorage.setItem("my-profile", JSON.stringify(result.data))
+          console.log("in useeffect")
+        } catch (e) {
+          console.log(e.message)
+          const errorboolean = e.message.includes(
+            "User profile does not exists"
+          )
+          const failedtofetch = e.message
+          console.log(errorboolean)
+          setNoProfile(errorboolean)
+          setFetchError(failedtofetch)
+        }
       }
     }
+
+    fetchProfile()
     const profileLocalData = localStorage.getItem("my-profile")
     if (profileLocalData) {
       setProfileData(JSON.parse(profileLocalData))
     } else {
       fetchProfile()
     }
-  }, [nearvar])
+  }, [nearvar, userId])
 
   return (
     <React.Fragment>

@@ -23,21 +23,15 @@ function DrawJuror(props) {
       <div className="container">
         <Formik 
           initialValues= {{
-             length: "", 
              }}
           validationSchema = {Yup.object().shape({
-             length: Yup.number().required("length is required"),
             
           })}
           onSubmit={async (values, actions) => {
           	try {
-              console.log("try")
-          	//   values.countvariable = count
-            console.log(parseInt(values.length), "length")
               await nearvar.contract.draw_jurors({
                 review_id: rid.toString(),
-                length: parseInt(values.length),
-              })
+              }, 95000000000000, 0)
               actions.setSubmitting(false)
               // console.log(data)
               // history.push(`/thankyou${data.mutationoutputname}`)
@@ -53,15 +47,7 @@ function DrawJuror(props) {
          {({ handleSubmit, handleBlur, handleChange, errors, touched, isValid, isSubmitting, values, setFieldValue, validateForm }) => (
              <Form onSubmit={handleSubmit}>
              {errorThrow && <p>{errorThrow}</p>}
-              
-                <div className="form-group">
-                <label htmlFor="length">length</label>
-                {touched.length && errors.length && <p className="alert alert-danger">{errors.length}</p>}
-                
-                <Field name="length" className="form-control" />
-                
-                </div>
-              
+              <p>3 Jurors are selected per call.</p>
               <div className="text-center">
                 <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                   Submit Form
