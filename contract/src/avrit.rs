@@ -1183,7 +1183,7 @@ impl Avrit {
     /// Get the count of selected juror for the review id from selected_juror_count
     /// If count is greater than equal to self.jury_count you can't select more jurors panic
     /// After number of jurors selected gets equals to self.jury_count, timestamp is added to juror_selection_time with review id (it can be improved here, what if you don't get enough juror)
-    ///
+    
     fn draw_jurors_function(
         &mut self,
         review_id: u128,
@@ -1199,13 +1199,21 @@ impl Avrit {
                 let mut rng = self.get_rng(random_vec);
                 // println!("juries stake len {:?}", juries_stakes_len);
                 // println!("jury stakes {:?}", juries_stakes.to_vec());
-                let rand_number: u128 = rng.gen_range(0, juries_stakes_len);
-                // println!("random number {}", rand_number);                
-                let mut end = rand_number + slicelength;
-                if end > juries_stakes_len {
-                    end = juries_stakes_len;
+                let mut end;
+                let rand_number;
+                if juries_stakes_len < slicelength {
+                      end = juries_stakes_len;
+                      rand_number = 0;
+                      
+                } else {
+                    rand_number = rng.gen_range(0, juries_stakes_len);
+                    // println!("random number {}", rand_number);                
+                    end = rand_number + slicelength;
+                    if end > juries_stakes_len {
+                        end = juries_stakes_len;
+                    }
                 }
-                // println!("end {}", end);
+                // println!("start {} end {}", rand_number, end);
                 let mut items = Vec::new();                
                 {
                     juries_stakes
