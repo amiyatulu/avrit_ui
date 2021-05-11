@@ -43,6 +43,8 @@ const ProductPagination = lazy(() =>
   import("./components/products/ProductPagination")
 )
 const DrawJuror = lazy(() => import("./components/schelling/DrawJuror"))
+const UnstakeVote = lazy(() => import("./components/schelling/UnstakeVote"))
+const RevealVote = lazy(() => import('./components/schelling/RevealVote') )
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -217,6 +219,8 @@ function App(props) {
               {/* <Route path="/tag" component={TagsStyle} /> */}
               <Route path="/myproducts" component={ProductPagination} />
               <Route path="/drawjurors/:rid" component={DrawJuror} />
+              <Route path="/unstake/:rid" component={UnstakeVote} />
+              <Route path="/revealvote/:rid" component={RevealVote} />
             </Switch>
           </section>
         </React.Fragment>

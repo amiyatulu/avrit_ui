@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom"
 import moment from "moment"
 import CommitVoteLink from "./CommitVoteLink"
 import SelectedJuror from "./SelectedJuror"
+import UnstakeVoteLink from './UnstakeVoteLInk';
 
 function Loading(props) {
   const { error } = props
@@ -199,6 +200,7 @@ if (jurySelectionTime) {
         <span>Commit end time: {endcommit && endcommit.fromNow()}</span> <br />
         {/* To do: If already commited don't render commit vote */}
         <SelectedJuror rid={rid} />
+        <UnstakeVoteLink rid={rid} />
         <CommitVoteLink rid={rid} />
         
       </React.Fragment>

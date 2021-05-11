@@ -1,0 +1,129 @@
+Review Id: 1
+Created by amiyatulu.testnet
+Rating 3
+Amiyatulu.testnet stake 10
+
+Apply Juror
+Stake 10
+
+avrit1.testnet
+Stake: 50
+
+near call $TOKEN  apply_jurors '{"review_id": "1", "stake": "10"}' --accountId avrit2.testnet 
+
+near call $TOKEN  apply_jurors '{"review_id": "1", "stake": "10"}' --accountId avrit3.testnet 
+
+near call $TOKEN  apply_jurors '{"review_id": "1", "stake": "10"}' --accountId avrit4.testnet 
+
+near call $TOKEN  apply_jurors '{"review_id": "1", "stake": "10"}' --accountId avrit5.testnet 
+
+near call $TOKEN  apply_jurors '{"review_id": "1", "stake": "20"}' --accountId avrit6.testnet 
+
+near call $TOKEN  apply_jurors '{"review_id": "1", "stake": "20"}' --accountId avrit7.testnet 
+
+near call $TOKEN  apply_jurors '{"review_id": "1", "stake": "20"}' --accountId avrit8.testnet 
+
+near call $TOKEN  apply_jurors '{"review_id": "1", "stake": "30"}' --accountId avrit9.testnet 
+
+near call $TOKEN  apply_jurors '{"review_id": "1", "stake": "25"}' --accountId avrit10.testnet 
+
+near call $TOKEN  apply_jurors '{"review_id": "1", "stake": "25"}' --accountId avrit11.testnet 
+
+near call $TOKEN  apply_jurors '{"review_id": "1", "stake": "23"}' --accountId avrit12.testnet 
+
+
+avrit5.testnet
+1reviewIsGreat
+1453b1625a88fda4690d752146db48db57f3d2a86cae57615cfe9a824e91cab8
+
+Unstake avrit1.testnet
+{"review_id": "1", "user_id": "2"}'
+
+Unstake
+330 before Unstake
+340 after unstake
+amiyatulu.testnet
+
+Unstake 
+avrit2.testnet
+40 before unstake
+50 after unstake
+
+commit vote
+avrit3.testnet
+Vote:
+1reviewIsGreat1
+Hex:
+0de632b3dc2a9386a32f548952d614f99708fa33f74cd36555896baadd24fd8e
+
+commit vote
+avrit4.testnet
+Vote:
+1reviewIsGreat2
+
+Hex:
+068ab072ce92278905010f350bef74c6915326a2f288668c128e8c08546283a0
+
+
+avrit5.testnet
+1reviewIsGreat
+1453b1625a88fda4690d752146db48db57f3d2a86cae57615cfe9a824e91cab8
+
+avrit6.testnet
+Vote:
+1reviewIsGreat3
+
+Hex:
+17717fa9333c74c1c4131e7204afa083228ea5800556d3b77b70a69641b6988b
+
+avrit7.testnet
+Vote:
+1reviewIsGreat4
+
+Hex:
+d6f5e6de02de92ae67fa0b24816094d81da089f5ff5015aa4090d9fb41dc6f38
+
+avrit8.testnet
+Vote:
+1reviewIsGreat5
+Hex:
+41b78011bbc0532f6b60c489ad740ef48e406a239a38b0d8b2eb201b14e4df3f
+
+
+avrit9.testnet
+Vote:
+1reviewIsGreat6
+Hex:
+cbce7277884a37783c2c0070f7fa6389ee0fb728ce3964e07e41f3057fc62f04
+
+avrit10.testnet
+Vote:
+0reviewIsGreat
+
+Hex:
+327fa45479c5d6f1489b9907f245d0a2336d3c36c587d66ee5bae1b647110255
+
+
+avrit11.testnet
+Vote:
+0reviewIsGreat1
+
+Hex:
+bddd70edd0cc5cf0e010997d827b100601a4751eb09325a4bc97af19cfa9c901
+
+avrit12.testnet (balance :27)
+Vote:
+0reviewIsGreat2
+Hex:
+ebc8ce26bf1b766103d88d0d45250ec7fcdc72ad5f1030fca35bf21869da58ba
+
+
+
+
+
+
+
+
+
+
+

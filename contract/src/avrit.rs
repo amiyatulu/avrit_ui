@@ -1183,7 +1183,6 @@ impl Avrit {
     /// Get the count of selected juror for the review id from selected_juror_count
     /// If count is greater than equal to self.jury_count you can't select more jurors panic
     /// After number of jurors selected gets equals to self.jury_count, timestamp is added to juror_selection_time with review id (it can be improved here, what if you don't get enough juror)
-    
     fn draw_jurors_function(
         &mut self,
         review_id: u128,
@@ -1202,26 +1201,25 @@ impl Avrit {
                 let mut end;
                 let rand_number;
                 if juries_stakes_len < slicelength {
-                      end = juries_stakes_len;
-                      rand_number = 0;
-                      
+                    end = juries_stakes_len;
+                    rand_number = 0;
                 } else {
                     rand_number = rng.gen_range(0, juries_stakes_len);
-                    // println!("random number {}", rand_number);                
+                    // println!("random number {}", rand_number);
                     end = rand_number + slicelength;
                     if end > juries_stakes_len {
                         end = juries_stakes_len;
                     }
                 }
                 // println!("start {} end {}", rand_number, end);
-                let mut items = Vec::new();                
+                let mut items = Vec::new();
                 {
                     juries_stakes
                         .iter()
                         .skip(rand_number as usize)
                         .take(end as usize)
-                        .for_each(|(key, value)| {items.push((key, value))});
-                        // ; println!("key value {}-{}", key, value)
+                        .for_each(|(key, value)| items.push((key, value)));
+                    // ; println!("key value {}-{}", key, value)
                 }
                 // println!("items {:?}", items);
                 let mut dist2 =
@@ -1239,11 +1237,8 @@ impl Avrit {
                             None => {}
                         }
                     }
-                    None => {
-                        countvalue = 0
-                    }
+                    None => countvalue = 0,
                 }
-                
                 for _ in 0..length {
                     let index = dist2.sample(&mut rng);
                     // println!("{}", index);
@@ -1259,8 +1254,7 @@ impl Avrit {
                         let timestamp = env::block_timestamp();
                         self.juror_selection_time.insert(&review_id, &timestamp);
                         break;
-                    } 
-                   
+                    }
                     match d {
                         Ok(_v) => {}
                         Err(_e) => {
@@ -1341,6 +1335,129 @@ impl Avrit {
             panic!("Juror selection time has not yet ended");
         }
     }
+
+    pub fn can_juror_unstake_bool(&self, review_id: U128, user_id: U128) -> bool {
+        let review_id: u128 = review_id.into();
+        let user_id: u128 = user_id.into();
+        let juror_unstake_bool = self.has_juror_unstake_bool(review_id, user_id);
+        let juror_staked_bool = self.has_juror_staked_bool(review_id, user_id);
+        let juror_selected_bool = self.can_juror_selected_bool(review_id, user_id);
+        if juror_unstake_bool == false && juror_staked_bool == true && juror_selected_bool == false
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    fn has_juror_unstake_bool(&self, review_id: u128, user_id: u128) -> bool {
+        let juror_unstaked_option = self.juror_unstaked.get(&review_id);
+        match juror_unstaked_option {
+            Some(juryentries) => {
+                let juryexists = juryentries.contains(&user_id);
+                if juryexists == true {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            None => {
+                return false;
+            }
+        }
+    }
+
+    fn can_juror_selected_bool(&self, review_id: u128, user_id: u128) -> bool {
+        let selected_juror_option = self.selected_juror.get(&review_id);
+        match selected_juror_option {
+            Some(juryentries) => {
+                let juryexists = juryentries.contains(&user_id);
+                if juryexists == true {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            None => {
+                return false;
+            }
+        }
+    }
+
+    fn has_juror_staked_bool(&self, review_id: u128, user_id: u128) -> bool {
+        let user_juror_stakes_option = self.user_juror_stakes.get(&review_id);
+        match user_juror_stakes_option {
+            Some(jurystakes) => {
+                let jurystakes_option = jurystakes.get(&user_id);
+                match jurystakes_option {
+                    Some(_stake) => {
+                        return true;
+                    }
+                    None => {
+                        return false;
+                    }
+                }
+            }
+            None => {
+                return false;
+            }
+        }
+    }
+
+    // pub fn can_juror_unstake_bool(&self, review_id: U128, user_id: U128) -> bool {
+    //     let review_id: u128 = review_id.into();
+    //     let user_id: u128 = user_id.into();
+    //     let selected_juror_option = self.selected_juror.get(&review_id);
+    //     match selected_juror_option {
+    //         Some(juryentries) => {
+    //             let juryexists = juryentries.contains(&user_id);
+    //             if juryexists == true {
+    //                 return false;
+    //                 //panic!("You are selected as juror to vote, can't unstake");
+    //             } else if juryexists == false {
+    //                 let user_juror_stakes_option = self.user_juror_stakes.get(&review_id);
+    //                 match user_juror_stakes_option {
+    //                     Some(jurystakes) => {
+    //                         let jurystakes_option = jurystakes.get(&user_id);
+    //                         match jurystakes_option {
+    //                             Some(_stake) => {
+    //                                 let juror_unstaked_option = self.juror_unstaked.get(&review_id);
+    //                                 match juror_unstaked_option {
+    //                                     Some(mut juryentries) => {
+    //                                         let juryexists = juryentries.contains(&user_id);
+    //                                         if juryexists == true {
+    //                                             panic!("You have alread unstaked, can not unstake again.");
+    //                                         } else {
+    //                                             juryentries.insert(&user_id);
+    //                                             // self.juror_unstaked.insert(&review_id, &juryentries);
+    //                                         }
+    //                                     }
+    //                                     None => {}
+    //                                 }
+    //                                 return true;
+    //                             }
+    //                             None => {
+    //                                 return false;
+    //                                 // panic!("You have not staked for the review");
+    //                             }
+    //                         }
+    //                     }
+    //                     None => {
+    //                         return false;
+    //                         // panic!("There are no stakes for the review");
+    //                     }
+    //                 }
+    //             } else {
+    //                 return false;
+    //                 // panic!("You are selected as juror to vote, can't unstake");
+    //             }
+    //         }
+    //         None => {
+    //             return false;
+    //             //panic!("Jury selection not done");
+    //         }
+    //     }
+    // }
 
     // user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>>
     // selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>
