@@ -5,6 +5,7 @@ import moment from "moment"
 import CommitVoteLink from "./CommitVoteLink"
 import SelectedJuror from "./SelectedJuror"
 import UnstakeVoteLink from './UnstakeVoteLInk';
+import JurorRevealLink from "./JurorRevealLink"
 
 function Loading(props) {
   const { error } = props
@@ -168,7 +169,7 @@ function TimeConditionRender(props) {
   // else if commit time ends
 
   // else if application time ends
-  // console.log("endreveal", endreveal)
+  console.log("endreveal", endreveal)
   if (moment().isSameOrAfter(endreveal)) {
     console.log("reveal time ends")
     return <React.Fragment></React.Fragment>
@@ -180,13 +181,15 @@ function TimeConditionRender(props) {
       <React.Fragment>
         <br />
         <span>Commit end time: {endcommit.fromNow()}</span> <br />
+        <span>End reveal time : {endreveal && endreveal.fromNow()}</span> <br/>
+        <JurorRevealLink rid={rid} />
       </React.Fragment>
     )
   }
 
-console.log(jurySelectionTime, "jury selection time");
-console.log(time, "time")
-console.log(endcommit, "commitendtime")
+// console.log(jurySelectionTime, "jury selection time");
+// console.log(time, "time")
+// console.log(endcommit, "commitendtime")
 
 let juryselectiontime_slice;
 if (jurySelectionTime) {

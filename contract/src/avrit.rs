@@ -1775,6 +1775,36 @@ impl Avrit {
         }
     }
 
+    pub fn can_juror_reveal(&self, review_id: U128, user_id: U128) -> bool {
+        let review_id: u128 = review_id.into();
+        let user_id: u128 = user_id.into();
+        let juror_voting_status_option = self.juror_voting_status.get(&review_id);
+        match juror_voting_status_option {
+            Some(juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 2 {
+                            return false;
+                        } else if value == 1 {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                    None => {
+                        return false;
+                        // panic!("Voting status doesnot exists, commit the vote first.");
+                    }
+                }
+            }
+            None => {
+                return false;
+                // panic!("Voting status lookup doesnot exists, commit the vote first.");
+            }
+        }
+    }
+
     fn add_juror_voting_status_reveal(&mut self, review_id: u128, user_id: u128) {
         let juror_voting_status_option = self.juror_voting_status.get(&review_id);
         match juror_voting_status_option {
@@ -1839,7 +1869,7 @@ impl Avrit {
         match count_option {
             Some(count) => count,
             None => {
-                panic!("Count is not set");
+               0
             }
         }
     }
@@ -1855,7 +1885,7 @@ impl Avrit {
         match count_option {
             Some(count) => count,
             None => {
-                panic!("Count is not set");
+               0
             }
         }
     }
