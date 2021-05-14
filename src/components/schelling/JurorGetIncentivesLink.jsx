@@ -11,21 +11,21 @@ function Error(props) {
 }
    
    
-function UnstakeVoteLink(props) {
+function JurorGetIncentivesLink(props) {
     const { nearvar, userId } = useContext(NearContext)
     const { rid } = props
     const [fetchError, setFetchError] = useState(false)
-    const [canUnstake, setCanUnstake] = useState(false)
+    const [canDrawIncentives, setCanDrawIncentives] = useState(false)
 
     useEffect(() => {
         async function fetchjurycount() {
           try {
-            const canUnstakevalue = await nearvar.contract.can_juror_unstake_bool({
+            const canDrawIncentivesvalue = await nearvar.contract.if_juror_will_get_incentives({
               review_id: rid.toString(),
               user_id: userId.toString(),
             })
-            console.log("canUnstakeValue", canUnstakevalue)
-            setCanUnstake(canUnstakevalue)
+            console.log("canDrawIncentivesValue", canDrawIncentivesvalue)
+            setCanDrawIncentives(canDrawIncentivesvalue)
           } catch (e) {
             console.error(e.message)
             setFetchError(e.message)
@@ -35,15 +35,14 @@ function UnstakeVoteLink(props) {
       }, [nearvar, userId, rid])
       return (
           <React.Fragment>
-            {canUnstake && <span className="badge badge-info">You are not selected as juror</span>} <br/>
-            { canUnstake && <Link to={`/unstake/${rid}/`} className="badge badge-secondary mr-3">
-         Unstake
+            { canDrawIncentives && <Link to={`/drawjurorincentives/${rid}/`} className="badge badge-secondary mr-3">
+          Draw Incentives
         </Link>}
-           {/* <p> Can You Commit Vote {JSON.stringify(canUnstake)}</p> */}
+           {/* <p> Can You Commit Vote {JSON.stringify(canDrawIncentives)}</p> */}
            {userId && <Error fetchError={fetchError} />}
            </React.Fragment>
        );
 }
   
   
-export default UnstakeVoteLink
+export default JurorGetIncentivesLink

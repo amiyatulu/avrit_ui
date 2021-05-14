@@ -1868,9 +1868,7 @@ impl Avrit {
         let count_option = self.schelling_decision_true_count.get(&review_id);
         match count_option {
             Some(count) => count,
-            None => {
-               0
-            }
+            None => 0,
         }
     }
 
@@ -1884,9 +1882,7 @@ impl Avrit {
         let count_option = self.schelling_decision_false_count.get(&review_id);
         match count_option {
             Some(count) => count,
-            None => {
-               0
-            }
+            None => 0,
         }
     }
 
@@ -1944,7 +1940,7 @@ impl Avrit {
                         // else if winning_decision == 2{   }
                         else if decision != winning_decision && winning_decision != 3 {
                             self.add_juror_voting_status_got_incentives(review_id, user_id);
-                            let mint_value = (juror_stake as f64).powf(0.8) as u128 + 1;
+                            let mint_value = (juror_stake as f64).powf(0.8) as u128;
                             // println!(">>>>>>>>>>>>>mintvalue{}<<<<<<<<<<<<<<<<<<<", mint_value);
                             if mint_value > self.jury_incentives {
                                 self.mint(&account_id, mint_value);
@@ -1958,6 +1954,41 @@ impl Avrit {
             }
             None => {
                 panic!("Juror decisions don't exist for this review id.");
+            }
+        }
+    }
+
+    pub fn if_juror_will_get_incentives(&self, review_id: U128, user_id: U128) -> bool {
+        let review_id = review_id.into();
+        let user_id = user_id.into();
+        let juror_voting_status_option = self.juror_voting_status.get(&review_id);
+        match juror_voting_status_option {
+            Some(juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 3 {
+                            return false;
+                            // panic!("Juror already got the incentives");
+                        } else if value == 2 {
+                            return true;
+                        } else if value == 1 {
+                            return false;
+                            // panic!("You have not yet revealed the vote");
+                        } else {
+                            return false;
+                            // panic!("Not at valid voter status");
+                        }
+                    }
+                    None => {
+                        return false;
+                        // panic!("Voting status doesnot exists, commit the vote first.");
+                    }
+                }
+            }
+            None => {
+                return false;
+                // panic!("Voting status lookup doesnot exists, commit the vote first.");
             }
         }
     }

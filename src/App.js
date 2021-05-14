@@ -44,7 +44,10 @@ const ProductPagination = lazy(() =>
 )
 const DrawJuror = lazy(() => import("./components/schelling/DrawJuror"))
 const UnstakeVote = lazy(() => import("./components/schelling/UnstakeVote"))
-const RevealVote = lazy(() => import('./components/schelling/RevealVote') )
+const RevealVote = lazy(() => import("./components/schelling/RevealVote"))
+const DrawIncentives = lazy(() =>
+  import("./components/schelling/DrawIncentives")
+)
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -221,6 +224,10 @@ function App(props) {
               <Route path="/drawjurors/:rid" component={DrawJuror} />
               <Route path="/unstake/:rid" component={UnstakeVote} />
               <Route path="/revealvote/:rid" component={RevealVote} />
+              <Route
+                path="/drawjurorincentives/:rid"
+                component={DrawIncentives}
+              />
             </Switch>
           </section>
         </React.Fragment>
