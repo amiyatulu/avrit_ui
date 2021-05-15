@@ -127,7 +127,10 @@ avrit7.testnet
 
 
 Incentive Distribution:
-Was 27, become 40 (27 + 13)
+Was 27, became 40 (27 + 13)
+
+Reviewer incentives
+Was 340, became 400 (10 + 50)
 
 
 

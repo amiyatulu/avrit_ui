@@ -11,7 +11,7 @@ function Error(props) {
 }
    
    
-function JurorGetIncentivesLink(props) {
+function ReviewIncentivesLink(props) {
     const { nearvar, userId } = useContext(NearContext)
     const { rid } = props
     const [fetchError, setFetchError] = useState(false)
@@ -20,9 +20,8 @@ function JurorGetIncentivesLink(props) {
     useEffect(() => {
         async function fetchjurycount() {
           try {
-            const canDrawIncentivesvalue = await nearvar.contract.if_juror_will_get_incentives({
-              review_id: rid.toString(),
-              user_id: userId.toString(),
+            const canDrawIncentivesvalue = await nearvar.contract.if_review_get_incentives_bool({
+              review_id: rid.toString()
             })
             console.log("canDrawIncentivesValue", canDrawIncentivesvalue)
             setCanDrawIncentives(canDrawIncentivesvalue)
@@ -32,14 +31,14 @@ function JurorGetIncentivesLink(props) {
           }
         }
         fetchjurycount()
-      }, [nearvar, userId, rid])
+      }, [nearvar, rid])
       return (
           <React.Fragment>
-            { canDrawIncentives && <span className="badge badge-info">You can draw your incentives</span>
+            { canDrawIncentives && <span className="badge badge-info">Reviewer can draw incentives</span>
         }
         <br />
-            { canDrawIncentives && <Link to={`/drawjurorincentives/${rid}/`} className="badge badge-secondary mr-3">
-          Draw Incentives
+            { canDrawIncentives && <Link to={`/drawreviewerincentives/${rid}/`} className="badge badge-secondary mr-3">
+          Draw Incentives for Reviewer
         </Link>}
 
            {/* <p> Can You Commit Vote {JSON.stringify(canDrawIncentives)}</p> */}
@@ -49,4 +48,4 @@ function JurorGetIncentivesLink(props) {
 }
   
   
-export default JurorGetIncentivesLink
+export default ReviewIncentivesLink

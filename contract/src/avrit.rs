@@ -2039,6 +2039,25 @@ impl Avrit {
         }
     }
 
+    pub fn if_review_get_incentives_bool(&self, review_id:U128) -> bool {
+        let review_id = review_id.into();
+        let review_got_incentives_option = self.review_got_incentives.get(&review_id);
+        match review_got_incentives_option {
+            Some(value) => {
+                if value == 1 {
+                    return false;
+                    // panic!("Incentives is already given")
+                } else {
+                   return true;
+                }
+            }
+            None => {
+                return true;
+            }
+        }
+
+    }
+
     pub fn incentive_distribution_reviewer(&mut self, review_id: U128) {
         let winning_decision = self.get_winning_decision(review_id);
         let review_id: u128 = review_id.into();

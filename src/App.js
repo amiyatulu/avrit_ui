@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from "react"
 import { Route, Switch } from "react-router-dom"
 import { NearContext } from "./commons/context/NearContext"
+
 const CreateProfile = lazy(() => import("./components/profile/CreateProfile"))
 const Nav = lazy(() => import("./components/Nav"))
 const ViewProfile = lazy(() => import("./components/profile/ViewProfile"))
@@ -47,6 +48,10 @@ const UnstakeVote = lazy(() => import("./components/schelling/UnstakeVote"))
 const RevealVote = lazy(() => import("./components/schelling/RevealVote"))
 const DrawIncentives = lazy(() =>
   import("./components/schelling/DrawIncentives")
+)
+
+const DrawReviewerIncentives = lazy(() =>
+  import("./components/schelling/DrawReviewerIncentives")
 )
 
 function App(props) {
@@ -227,6 +232,10 @@ function App(props) {
               <Route
                 path="/drawjurorincentives/:rid"
                 component={DrawIncentives}
+              />
+              <Route
+                path="/drawreviewerincentives/:rid"
+                component={DrawReviewerIncentives}
               />
             </Switch>
           </section>

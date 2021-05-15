@@ -9,6 +9,7 @@ import JurorRevealLink from "./JurorRevealLink"
 import GetTrueCount from "./GetTrueCount"
 import GetFalseCount from "./GetFalseCount"
 import JurorGetIncentivesLink from "./JurorGetIncentivesLink"
+import ReviewIncentivesLink from "./ReviewIncentivesLink"
 
 function Loading(props) {
   const { error } = props
@@ -181,11 +182,10 @@ function TimeConditionRender(props) {
           Reveal Time Ended : {endreveal && endreveal.fromNow()}
         </span>
         <br />
-        <span className="badge badge-info">You can draw your incentives</span>
-        <br />
         <GetTrueCount rid={rid} />
         <GetFalseCount rid={rid} />
         <JurorGetIncentivesLink rid={rid} />
+        <ReviewIncentivesLink rid={rid} />
       </React.Fragment>
     )
   }
@@ -226,7 +226,7 @@ function TimeConditionRender(props) {
         <br />
         <span className="badge badge-info">
           Commit end time: {endcommit && endcommit.fromNow()}
-        </span>{" "}
+        </span>
         <br />
         {/* To do: If already commited don't render commit vote */}
         <SelectedJuror rid={rid} />
@@ -253,7 +253,7 @@ function TimeConditionRender(props) {
         <br />
         <span className="badge badge-info">
           Jury application end time: {time.fromNow()}
-        </span>{" "}
+        </span>
         <br />
       </React.Fragment>
     )
