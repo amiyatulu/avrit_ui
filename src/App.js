@@ -53,6 +53,13 @@ const DrawIncentives = lazy(() =>
 const DrawReviewerIncentives = lazy(() =>
   import("./components/schelling/DrawReviewerIncentives")
 )
+const DrawProductIncentives = lazy(() =>
+  import("./components/schelling/DrawProductIncentives")
+)
+
+const CreateProductStake = lazy(() =>
+  import("./components/stakes/CreateProductStake")
+)
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -237,6 +244,11 @@ function App(props) {
                 path="/drawreviewerincentives/:rid"
                 component={DrawReviewerIncentives}
               />
+              <Route
+                path="/drawproductincentives/:pid/:rid"
+                component={DrawProductIncentives}
+              />
+              <Route path="/productstake/:id" component={CreateProductStake} />
             </Switch>
           </section>
         </React.Fragment>

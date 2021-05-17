@@ -131,6 +131,13 @@ function ProductById() {
                 Update Product
               </Link>
             )}
+
+           <Link
+              to={`/productstake/${id}`}
+              className="badge badge-secondary mr-3"
+            >
+              Add or Update Stake
+            </Link>
           </div>
           <div>
             <GetReviews pid={id} />

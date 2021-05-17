@@ -10,7 +10,7 @@ import longwords from "../products/LongWords.module.css"
 import Linkify from "react-linkify"
 
 function ReviewFullDetailsEvidence(props) {
-  let { ipfshash, rid, rating } = props
+  let { ipfshash, rid, rating, pid } = props
   const { nearvar, userId } = useContext(NearContext)
   const [reviewData, setReviewData] = useState(null)
 
@@ -60,7 +60,7 @@ function ReviewFullDetailsEvidence(props) {
               Add or Update Stake
             </Link>
             <GetReviewStake rid={rid} />
-            <TimeConditionRender rid={rid} />
+            <TimeConditionRender rid={rid} pid={pid} />
           </div>
         </div>
       )}

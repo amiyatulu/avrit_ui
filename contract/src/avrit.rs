@@ -2039,7 +2039,7 @@ impl Avrit {
         }
     }
 
-    pub fn if_review_get_incentives_bool(&self, review_id:U128) -> bool {
+    pub fn if_review_get_incentives_bool(&self, review_id: U128) -> bool {
         let review_id = review_id.into();
         let review_got_incentives_option = self.review_got_incentives.get(&review_id);
         match review_got_incentives_option {
@@ -2048,14 +2048,13 @@ impl Avrit {
                     return false;
                     // panic!("Incentives is already given")
                 } else {
-                   return true;
+                    return true;
                 }
             }
             None => {
                 return true;
             }
         }
-
     }
 
     pub fn incentive_distribution_reviewer(&mut self, review_id: U128) {
@@ -2090,6 +2089,38 @@ impl Avrit {
     /// Check the product is evidence of learning or open access  ✔️
     /// provide incentives only for this two category ✔️
     //  Incentives should be given when review is good, that is winning decision is 1 and review has rated the content >= 4 stars ✔️
+
+    pub fn check_product_will_get_incentives_bool(
+        &self,
+        product_id: U128,
+        review_id: U128,
+    ) -> bool {
+        let product_id = product_id.into();
+        let review_id = review_id.into();
+        let product_evidence_incentives_option = self.product_got_incentives.get(&product_id);
+        match product_evidence_incentives_option {
+            Some(review_product_incentives_lookup) => {
+                let review_product_incentives_lookup_option =
+                    review_product_incentives_lookup.get(&review_id);
+                match review_product_incentives_lookup_option {
+                    Some(value) => {
+                        if value == 1 {
+                            return false;
+                            // panic!("Incentives is already given");
+                        } else {
+                            return true;
+                        }
+                    }
+                    None => {
+                        return true;
+                    }
+                }
+            }
+            None => {
+                return true;
+            }
+        }
+    }
     fn check_if_product_will_get_incentives(&mut self, product_id: u128, review_id: u128) {
         let product_evidence_incentives_option = self.product_got_incentives.get(&product_id);
         match product_evidence_incentives_option {
@@ -2137,27 +2168,48 @@ impl Avrit {
         match product_incentive_count_option {
             Some(product_incentive_count) => {
                 let mut incentives = 0;
+                let count = product_incentive_count + 1;
+                self.product_incentives_count.insert(&product_id, &count);
                 if product_type == "oa" {
                     assert!(
                         product_incentive_count <= self.max_allowed_product_oa_incentives_count,
                         "Exceeds the number of allowed reviews"
                     );
-                    incentives = self.product_oa_incentives;
+                    if count <= 2 {
+                        incentives = self.product_oa_incentives/2;
+                    } else {
+                        incentives = self.product_oa_incentives / self.max_allowed_product_oa_incentives_count;
+                    }
+                    
                 } else if product_type == "ev" {
                     assert!(
                         product_incentive_count
                             <= self.max_allowed_product_evidence_incentives_count,
                         "Exceeds the number of allowed reviews"
                     );
-                    incentives = self.product_evidence_incentives;
+                    if count <= 2 {
+                        incentives = self.product_evidence_incentives/2;
+                    } else {
+                        incentives = self.product_evidence_incentives / self.max_allowed_product_evidence_incentives_count;
+                    }
+                    
                 }
-                let count = product_incentive_count + 1;
-                self.product_incentives_count.insert(&product_id, &count);
+
                 incentives
+                
+                
             }
             None => {
                 self.product_incentives_count.insert(&product_id, &1);
-                return 0;
+                let mut incentives = 0;
+                if product_type == "oa" {
+                    incentives = self.product_oa_incentives/2;
+                    
+                } else if product_type == "ev" {
+                    incentives = self.product_evidence_incentives/2;
+                    
+                }
+                incentives
             }
         }
     }
@@ -2185,7 +2237,7 @@ impl Avrit {
             "Incentives should be greater than 0"
         );
         let winning_decision = self.get_winning_decision(review_id.into());
-        if winning_decision == 1 && review.rating > 3 {
+        if winning_decision == 1 && review.rating >= 3 {
             self.mint(&user_address, product_incentives);
         } else {
             panic!("You are not eligible for incentives");

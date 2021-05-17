@@ -10,6 +10,7 @@ import GetTrueCount from "./GetTrueCount"
 import GetFalseCount from "./GetFalseCount"
 import JurorGetIncentivesLink from "./JurorGetIncentivesLink"
 import ReviewIncentivesLink from "./ReviewIncentivesLink"
+import ProductIncentivesLink from "./ProductIncentivesLink"
 
 function Loading(props) {
   const { error } = props
@@ -33,7 +34,7 @@ function Loading(props) {
 
 function TimeConditionRender(props) {
   const { nearvar, userId } = useContext(NearContext)
-  const { rid } = props
+  const { rid, pid } = props
   const [errorApplication, setApplicationError] = useState(false)
   const [jurySelectionTime, setJurySelectionTime] = useState(false)
   const [time, setTime] = useState(null)
@@ -186,6 +187,7 @@ function TimeConditionRender(props) {
         <GetFalseCount rid={rid} />
         <JurorGetIncentivesLink rid={rid} />
         <ReviewIncentivesLink rid={rid} />
+        <ProductIncentivesLink rid={rid} pid={pid} />
       </React.Fragment>
     )
   }
@@ -198,7 +200,7 @@ function TimeConditionRender(props) {
         {/* <span className="badge badge-info">Commit end time: {endcommit.fromNow()}</span> <br /> */}
         <span className="badge badge-info">
           End reveal time : {endreveal && endreveal.fromNow()}
-        </span>{" "}
+        </span>
         <br />
         <JurorRevealLink rid={rid} /> <br />
         <GetTrueCount rid={rid} />
