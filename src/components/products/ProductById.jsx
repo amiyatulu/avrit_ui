@@ -9,6 +9,7 @@ import longword from "./LongWords.module.css"
 import Linkify from "react-linkify"
 import TagsStyle from "./TagsStyle"
 import ProductTypeStyle from "./ProductTypeStyle"
+import UserName from "../profile/UserName"
 
 function ProductById() {
   const { nearvar, userId } = useContext(NearContext)
@@ -138,10 +139,12 @@ function ProductById() {
             >
               Add or Update Stake
             </Link>
+            <UserName uid={productUserId}/>
           </div>
           <div>
             <GetReviews pid={id} />
           </div>
+          
         </div>
       )}
     </React.Fragment>

@@ -8,9 +8,10 @@ import TimeConditionRender from "../schelling/TimeConditionRender"
 import Rating from "@material-ui/lab/Rating"
 import longwords from "../products/LongWords.module.css"
 import Linkify from "react-linkify"
+import UserName from "../profile/UserName"
 
 function ReviewFullDetailsEvidence(props) {
-  let { ipfshash, rid, rating, pid } = props
+  let { ipfshash, rid, rating, pid, uid } = props
   const { nearvar, userId } = useContext(NearContext)
   const [reviewData, setReviewData] = useState(null)
 
@@ -61,7 +62,9 @@ function ReviewFullDetailsEvidence(props) {
             </Link>
             <GetReviewStake rid={rid} />
             <TimeConditionRender rid={rid} pid={pid} />
+            <UserName uid={uid}/>
           </div>
+          
         </div>
       )}
     </React.Fragment>

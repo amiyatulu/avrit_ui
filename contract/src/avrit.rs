@@ -299,6 +299,13 @@ impl Avrit {
         let user = user_profile_option.unwrap();
         user
     }
+    pub fn get_username(&self, user_id:U128) -> String {
+        let user_id: u128 = user_id.into();
+        let user_profile_option = self.user_profile_map.get(&user_id);
+        let user = user_profile_option.unwrap();
+        user.username
+
+    }
     pub fn create_profile(&mut self, profile_hash: String) {
         let account_id = env::predecessor_account_id();
         if !self.ft.accounts.contains_key(&account_id) {
