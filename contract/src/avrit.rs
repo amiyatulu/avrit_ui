@@ -2285,7 +2285,7 @@ impl Avrit {
         let mut required_deposit =
             number_of_tokens * self.token_price;
         assert!(
-            amount >= required_deposit,
+            amount >= required_deposit + self.ft.storage_balance_bounds().min.0,
             "Requires attached deposit {}",
             required_deposit
         );
