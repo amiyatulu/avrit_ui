@@ -2270,13 +2270,20 @@ impl Avrit {
 
     // Crowdsale
 
+    pub fn required_deposit(&self, number_of_tokens: U128) -> U128 {
+        let number_of_tokens: u128 = number_of_tokens.into();
+        let required_deposit =
+            (number_of_tokens * self.token_price) + self.ft.storage_balance_bounds().min.0;
+        required_deposit.into()
+    }
+
     #[payable]
     pub fn buy_tokens(&mut self, number_of_tokens: U128) {
         let number_of_tokens: u128 = number_of_tokens.into();
-        assert!(self.on_crowdsale == true, "Crowsale has stalled");
+        assert!(self.on_crowdsale == true, "Crowdsale has stalled");
         let amount = env::attached_deposit();
-        let required_deposit =
-            (number_of_tokens * self.token_price) + self.ft.storage_balance_bounds().min.0;
+        let mut required_deposit =
+            number_of_tokens * self.token_price;
         assert!(
             amount >= required_deposit,
             "Requires attached deposit {}",
@@ -2287,6 +2294,7 @@ impl Avrit {
             // Not registered, register if enough $NEAR has been attached.
             // Subtract registration amount from the account balance.
             self.ft.internal_register_account(&account_id);
+            required_deposit = required_deposit + self.ft.storage_balance_bounds().min.0;
         }
         self.token_sold = (self.token_sold)
             .checked_add(number_of_tokens)
