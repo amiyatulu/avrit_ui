@@ -6,7 +6,7 @@ use near_contract_standards::fungible_token::FungibleToken;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, LookupSet, TreeMap, UnorderedSet};
 use near_sdk::json_types::{ValidAccountId, U128, U64};
-use near_sdk::{env, near_bindgen, AccountId, Balance, PanicOnDefault, PromiseOrValue};
+use near_sdk::{env, near_bindgen, AccountId, Balance, PanicOnDefault, Promise, PromiseOrValue};
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::{rngs::StdRng, SeedableRng};
@@ -93,6 +93,11 @@ pub struct Avrit {
     number_of_allowed_reviews_per_product: u64,
     product_review_count: LookupMap<u128, u64>,
     ft: FungibleToken,
+    // Crowdsale
+    token_price: u128,
+    token_sold: u128,
+    total_available_tokens: u128,
+    on_crowdsale: bool,
 }
 
 // Owner functions
@@ -104,6 +109,15 @@ impl Avrit {
             self.owner_id,
             "Can only be called by the owner"
         );
+    }
+    pub fn change_token_price(&mut self, token_price: U128) {
+        self.assert_owner();
+        let token_price: u128 = token_price.into();
+        self.token_price = token_price;
+    }
+    pub fn change_on_crowdsale(&mut self, on_crowdsale: bool) {
+        self.assert_owner();
+        self.on_crowdsale = on_crowdsale;
     }
     pub fn change_owner(&mut self, new_owner: AccountId) {
         self.assert_owner();
@@ -299,12 +313,11 @@ impl Avrit {
         let user = user_profile_option.unwrap();
         user
     }
-    pub fn get_username(&self, user_id:U128) -> String {
+    pub fn get_username(&self, user_id: U128) -> String {
         let user_id: u128 = user_id.into();
         let user_profile_option = self.user_profile_map.get(&user_id);
         let user = user_profile_option.unwrap();
         user.username
-
     }
     pub fn create_profile(&mut self, profile_hash: String) {
         let account_id = env::predecessor_account_id();
@@ -513,6 +526,7 @@ impl Avrit {
                     product_id,
                     user_id,
                     rating,
+                    review_expired: false,
                     review_hash,
                 };
                 self.review_id += 1;
@@ -811,6 +825,9 @@ impl Avrit {
     #[init]
     pub fn new(owner_id: AccountId, total_supply: U128) -> Self {
         assert!(!env::state_exists(), "Already initialized");
+        let total_supply_u128: u128 = total_supply.into();
+        let admin_balance = (total_supply_u128 * 20).checked_div(100).expect("oveflow");
+        let token_sale_balance = (total_supply_u128 * 80).checked_div(100).expect("oveflow");
         let mut this = Self {
             ft: FungibleToken::new(b"a".to_vec(), 0),
             owner_id: owner_id.clone(),
@@ -873,9 +890,13 @@ impl Avrit {
             schelling_decision_false_count: LookupMap::new(b"98396f41".to_vec()),
             number_of_allowed_reviews_per_product: 10,
             product_review_count: LookupMap::new(b"05d53b2b".to_vec()),
+            token_price: 100000,
+            token_sold: 0,
+            total_available_tokens: token_sale_balance,
+            on_crowdsale: true,
         };
         this.ft.internal_register_account(&owner_id);
-        this.ft.internal_deposit(&owner_id, total_supply.into());
+        this.ft.internal_deposit(&owner_id, admin_balance);
         this
     }
 }
@@ -891,7 +912,7 @@ impl FungibleTokenMetadataProvider for Avrit {
             icon: None,
             reference: None,
             reference_hash: None,
-            decimals: 24,
+            decimals: 18,
         }
     }
 }
@@ -2183,11 +2204,11 @@ impl Avrit {
                         "Exceeds the number of allowed reviews"
                     );
                     if count <= 2 {
-                        incentives = self.product_oa_incentives/2;
+                        incentives = self.product_oa_incentives / 2;
                     } else {
-                        incentives = self.product_oa_incentives / self.max_allowed_product_oa_incentives_count;
+                        incentives = self.product_oa_incentives
+                            / self.max_allowed_product_oa_incentives_count;
                     }
-                    
                 } else if product_type == "ev" {
                     assert!(
                         product_incentive_count
@@ -2195,26 +2216,22 @@ impl Avrit {
                         "Exceeds the number of allowed reviews"
                     );
                     if count <= 2 {
-                        incentives = self.product_evidence_incentives/2;
+                        incentives = self.product_evidence_incentives / 2;
                     } else {
-                        incentives = self.product_evidence_incentives / self.max_allowed_product_evidence_incentives_count;
+                        incentives = self.product_evidence_incentives
+                            / self.max_allowed_product_evidence_incentives_count;
                     }
-                    
                 }
 
                 incentives
-                
-                
             }
             None => {
                 self.product_incentives_count.insert(&product_id, &1);
                 let mut incentives = 0;
                 if product_type == "oa" {
-                    incentives = self.product_oa_incentives/2;
-                    
+                    incentives = self.product_oa_incentives / 2;
                 } else if product_type == "ev" {
-                    incentives = self.product_evidence_incentives/2;
-                    
+                    incentives = self.product_evidence_incentives / 2;
                 }
                 incentives
             }
@@ -2248,6 +2265,39 @@ impl Avrit {
             self.mint(&user_address, product_incentives);
         } else {
             panic!("You are not eligible for incentives");
+        }
+    }
+
+    // Crowdsale
+
+    #[payable]
+    pub fn buy_tokens(&mut self, number_of_tokens: U128) {
+        let number_of_tokens: u128 = number_of_tokens.into();
+        assert!(self.on_crowdsale == true, "Crowsale has stalled");
+        let amount = env::attached_deposit();
+        let required_deposit =
+            (number_of_tokens * self.token_price) + self.ft.storage_balance_bounds().min.0;
+        assert!(
+            amount >= required_deposit,
+            "Requires attached deposit {}",
+            required_deposit
+        );
+        let account_id = env::predecessor_account_id();
+        if !self.ft.accounts.contains_key(&account_id) {
+            // Not registered, register if enough $NEAR has been attached.
+            // Subtract registration amount from the account balance.
+            self.ft.internal_register_account(&account_id);
+        }
+        self.token_sold = (self.token_sold)
+            .checked_add(number_of_tokens)
+            .expect("Overflow");
+        assert!(
+            self.token_sold <= self.total_available_tokens,
+            "No more tokens to sale"
+        );
+        self.mint(&account_id, number_of_tokens);
+        if amount - required_deposit > 0 {
+            Promise::new(account_id).transfer(amount - required_deposit);
         }
     }
 }
