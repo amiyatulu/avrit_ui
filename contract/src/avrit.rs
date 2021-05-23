@@ -2287,7 +2287,7 @@ impl Avrit {
         assert!(
             amount >= required_deposit + self.ft.storage_balance_bounds().min.0,
             "Requires attached deposit {}",
-            required_deposit
+            required_deposit + self.ft.storage_balance_bounds().min.0
         );
         let account_id = env::predecessor_account_id();
         if !self.ft.accounts.contains_key(&account_id) {

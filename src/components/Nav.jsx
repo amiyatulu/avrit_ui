@@ -86,9 +86,9 @@ function Nav(props) {
                     </button>
                   </li>
                   <li className="nav-item">
-                    <button className="btn nav-link js-scroll-trigger">
+                    <span className="btn nav-link js-scroll-trigger">
                       <AvritToken />
-                    </button>
+                    </span>
                   </li>
                 </React.Fragment>
               ) : (
