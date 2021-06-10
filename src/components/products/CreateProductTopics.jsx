@@ -81,7 +81,6 @@ function CreateProductTopics() {
                   data-radius="none"
                 >
                   <div class="content">
-                    {/* <h6 class="category">Best cards</h6> */}
                     <h2 class="title">Assignment</h2>
                     <p class="description">
                     Upload your assignments and projects here
@@ -92,7 +91,7 @@ function CreateProductTopics() {
             </div>
           </div>
 
-          <div class="col-md-5 col-sm-6 content-card">
+          {/* <div class="col-md-5 col-sm-6 content-card">
             <div class="card-big-shadow">
               <Link to="/createproduct/rm/">
                 <div
@@ -102,7 +101,6 @@ function CreateProductTopics() {
                   data-radius="none"
                 >
                   <div class="content">
-                    {/* <h6 class="category">Best cards</h6> */}
                     <h2 class="title">Room</h2>
                     <p class="description">
                     If you are providing rooms for studies, give the details here
@@ -111,9 +109,9 @@ function CreateProductTopics() {
                 </div>
               </Link>
             </div>
-          </div>
+          </div> */}
 
-          <div class="col-md-5 col-sm-6 content-card">
+          {/* <div class="col-md-5 col-sm-6 content-card">
             <div class="card-big-shadow">
               <Link to="/createproduct/oh/">
                 <div
@@ -123,18 +121,12 @@ function CreateProductTopics() {
                   data-radius="none"
                 >
                   <div class="content">
-                    {/* <h6 class="category">Best cards</h6> */}
                     <h2 class="title">Others</h2>
-                    {/* <p class="description">
-                    What all of these have in common is that they're pulling
-                    information out of the app or the service and making it
-                    relevant to the moment.{" "}
-                  </p> */}
                   </div>
                 </div>
               </Link>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </React.Fragment>

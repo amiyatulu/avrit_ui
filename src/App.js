@@ -61,6 +61,17 @@ const CreateProductStake = lazy(() =>
   import("./components/stakes/CreateProductStake")
 )
 
+const Home = lazy(() => import("./components/Home"))
+
+const ProductCrowdfunding = lazy(() =>
+  import("./components/products/ProductCrowdfunding")
+)
+const FetchProductsPage = lazy(() =>
+  import("./components/products/FetchProductsPage")
+)
+
+const IcoFormPage = lazy(() => import("./components/ico/IcoFormPage"))
+
 function App(props) {
   const [login, setLogin] = useState(false)
   const [speech, setSpeech] = useState(null)
@@ -194,6 +205,9 @@ function App(props) {
           ) : (
             <Nav onClick={requestSignIn} login={login} />
           )}
+          <Switch>
+            <Route path="/" exact component={Home} />
+          </Switch>
           <section className="page-section">
             <Switch>
               <Route path="/createprofile" component={CreateProfile} />
@@ -249,6 +263,12 @@ function App(props) {
                 component={DrawProductIncentives}
               />
               <Route path="/productstake/:id" component={CreateProductStake} />
+              <Route
+                path="/productcrowdfund/:pid"
+                component={ProductCrowdfunding}
+              />
+              <Route path="/fetchproducts" component={FetchProductsPage} />
+              <Route path="/ico" component={IcoFormPage} />
             </Switch>
           </section>
         </React.Fragment>

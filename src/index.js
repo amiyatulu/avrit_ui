@@ -23,12 +23,12 @@ async function initContract() {
   window.accountId = window.walletAccount.getAccountId()
 
   // Initializing our contract APIs by contract name and configuration.
-  let acct = await new nearlib.Account(window.near.connection, window.accountId)
-  window.contract = await new nearlib.Contract(acct, window.nearConfig.contractName, {
+  // let acct = await new nearlib.Account(window.near.connection, window.accountId)
+  window.contract = await new nearlib.Contract(window.walletAccount.account(), window.nearConfig.contractName, {
     // View methods are read only. They don't modify the state, but usually return some value.
-    viewMethods: ["get_user_id_js","get_product_js", "ft_balance_of", "get_review_ids_by_product_id", "get_review_js", "get_products_of_user_id_js", "get_review_bounty_js", "get_juror_stakes_js", "get_jury_application_phase_time", "get_jury_application_start_time_js",  "get_juror_selection_time_js", "contract.get_commit_phase_time", "get_commit_phase_time", "get_reveal_phase_time","number_of_staked_jury", "can_juror_vote_bool", "get_selected_juror_count", "get_user_profile_js", "can_juror_unstake_bool", "can_juror_reveal", "get_true_count_js", "get_false_count_js", "if_juror_will_get_incentives", "if_review_get_incentives_bool", "check_product_will_get_incentives_bool"],
+    viewMethods: ["get_user_id_js","get_product_js", "ft_balance_of", "get_review_ids_by_product_id", "get_review_js", "get_products_of_user_id_js", "get_review_bounty_js", "get_juror_stakes_js", "get_jury_application_phase_time", "get_jury_application_start_time_js",  "get_juror_selection_time_js", "contract.get_commit_phase_time", "get_commit_phase_time", "get_reveal_phase_time","number_of_staked_jury", "can_juror_vote_bool", "get_selected_juror_count", "get_user_profile_js", "can_juror_unstake_bool", "can_juror_reveal", "get_true_count_js", "get_false_count_js", "if_juror_will_get_incentives", "if_review_get_incentives_bool", "check_product_will_get_incentives_bool", "get_product_crowdfunding_js", "get_final_product_id", "required_deposit", "get_token_sold", "get_phase_available_tokens"],
     // Change methods can modify the state. But you don't receive the returned value when called.
-    changeMethods: ["create_profile", "update_profile" , "get_profile_hash", 'create_product', "update_product", "create_review", "add_review_bounty", "apply_jurors", "commit_vote", "update_review", "draw_jurors", "unstaking_non_selected_juror", "reveal_vote", "incentives_distribution", "incentive_distribution_reviewer", "incentive_distribution_product", "add_product_bounty", "get_username"],
+    changeMethods: ["create_profile", "update_profile" , "get_profile_hash", 'create_product', "update_product", "create_review", "add_review_bounty", "apply_jurors", "commit_vote", "update_review", "draw_jurors", "unstaking_non_selected_juror", "reveal_vote", "incentives_distribution", "incentive_distribution_reviewer", "incentive_distribution_product", "add_product_bounty", "get_username", "add_product_crowdfunding", "buy_tokens"],
     // Sender is the account ID to initialize transactions.
     sender: window.accountId,
   })

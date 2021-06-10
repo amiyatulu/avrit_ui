@@ -1,0 +1,91 @@
+.top {
+  width: 100%;
+}
+.leftcolumnone {
+  height: 750px;
+  background-image: url("./image/library.jpg");
+  background-color: #eaeceb;
+  background-size: cover;
+}
+.rightcolumnone {
+  height: 750px;
+}
+
+.rowone {
+  height: 350px;
+  background-color: #f6f3f0;
+}
+
+.rowtwo {
+  height: 400px;
+  background-color: #c8ddd7;
+}
+
+@media only screen and (max-width: 770px) {
+  .rowtwo {
+    height: 600px;
+    background-color: #c8ddd7;
+  }
+  .leftcolumnone {
+    height: 200px;
+    background-image: url("./image/library.jpg");
+    background-color: #eaeceb;
+    background-size: cover;
+  }
+  .rightcolumnone {
+    height: 200px;
+  }
+
+  .fetchproduct {
+    margin-top: 750px;
+  }
+
+  .avritdescription {
+    padding-left: 50px;
+    padding-right: 50px;
+    animation: fadeInLeft ease 15s;
+  }
+}
+
+@font-face {
+  font-family: dindalove;
+  src: url("./fonts/Dindalove.ttf");
+}
+
+.avrittitle {
+  font-family: dindalove;
+  font-size: 50px;
+  animation: fadeInLeft ease 10s;
+}
+.avrittext {
+  font-family: dindalove;
+  font-size: 40px;
+  animation: fadeInLeft ease 15s;
+}
+
+@media only screen and (min-width: 770px) {
+  .avritdescription {
+    padding-left: 100px;
+    padding-right: 100px;
+    animation: fadeInLeft ease 15s;
+  }
+}
+
+@keyframes fadeInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.imagecss {
+  padding-top: 100px;
+  animation: fadeInLeft ease 5s;
+}
+.ball {
+  animation: fadeInLeft ease 5s;
+}

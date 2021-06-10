@@ -5,22 +5,29 @@ import { Link, NavLink } from "react-router-dom"
 import { NearContext } from "../commons/context/NearContext"
 import AvritToken from "./profile/AvritToken"
 import CreateProfileLink from "./commondom/CreateProfileLink"
+import "./Nav.css"
 
 function Nav(props) {
   const scroll = useScrollHandler()
   let { nearvar } = useContext(NearContext)
   return (
     <React.Fragment>
+      <div class="alert alert-info text-center" role="alert">
+        <button type="button" class="close" data-dismiss="alert">
+          ×
+        </button>
+        <strong>The app is on testnet!</strong>
+      </div>
       <nav
         className={
           scroll
-            ? "navbar navbar-expand-lg navbar-default fixed-top py-3 bg-warning mainbrand"
-            : "navbar navbar-expand-lg navbar-default fixed-top py-3 navbar-scrolled"
+            ? "navbar navbar-expand-lg navbar-default navbar-static-top py-3 bg-warning mainbrand"
+            : "navbar navbar-expand-lg navbar-default navbar-static-top py-3 navbar-scrolled"
         }
         id="mainNav"
       >
         <div className="container">
-          <a className="navbar-brand js-scroll-trigger" href="#page-top">
+          <a className="navbar-brand js-scroll-trigger" href="/">
             {/* <img src={Logo} width="50" height="50" class="d-inline-block align-top" alt="logo"/>  */}
             Avrit
           </a>
@@ -105,7 +112,7 @@ function Nav(props) {
           </div>
         </div>
       </nav>
-      <CreateProfileLink/>
+      <CreateProfileLink />
     </React.Fragment>
   )
 }

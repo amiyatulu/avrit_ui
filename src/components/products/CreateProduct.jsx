@@ -13,7 +13,7 @@ import DropProductPDFs from "./DropProductPDFs"
 function CreateProduct(props) {
   // const [count, setCount] = useState(0);
   let history = useHistory()
-  const {pt} = useParams()
+  const { pt } = useParams()
   let { nearvar } = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
   const selectedTags = (tags) => {
@@ -35,7 +35,9 @@ function CreateProduct(props) {
           }}
           validationSchema={Yup.object().shape({
             headline: Yup.string().required("headline is required"),
-            productimage: Yup.string().required("Image is required and it should be JPG or PNG"),
+            productimage: Yup.string().required(
+              "Image is required and it should be JPG or PNG"
+            ),
             details: Yup.string().required("Details is required"),
             pdfs: Yup.string().required("Upload the PDFs"),
             linkproductid: Yup.string(),
@@ -45,7 +47,17 @@ function CreateProduct(props) {
           onSubmit={async (values, actions) => {
             //   values.countvariable = count
             try {
-              const profile_type = pt
+              let profile_type
+              if (pt === "cm") {
+                profile_type = "oa"
+              }
+              if (pt === "as") {
+                profile_type = "ev"
+              } else {
+                profile_type = pt
+              }
+              values.profile_type_fullname = pt
+
               // console.log(values)
               // console.log(pt)
               const file = await ipfs.add({
@@ -84,7 +96,7 @@ function CreateProduct(props) {
             setFieldValue,
             setTouched,
             setFieldTouched,
-            validateForm
+            validateForm,
           }) => (
             <Form onSubmit={handleSubmit}>
               {errorThrow && <p>{errorThrow}</p>}
@@ -131,8 +143,12 @@ function CreateProduct(props) {
 
               <div className="form-group">
                 <label htmlFor="audience">Link Product Id:</label>
-                <p>Please provide the link product id if any.<br/>
-                For example, if you are submitting solution of assignment, please link the assignment product id</p>
+                <p>
+                  Please provide the link product id if any.
+                  <br />
+                  For example, if you are submitting solution of assignment,
+                  please link the assignment product id
+                </p>
                 {touched.linkproductid && errors.linkproductid && (
                   <p className="alert alert-danger">{errors.linkproductid}</p>
                 )}
@@ -143,7 +159,6 @@ function CreateProduct(props) {
                   tags={[]}
                 />
               </div>
-            
 
               <div className="form-group">
                 <label htmlFor="specialization">specialization</label>
@@ -184,7 +199,7 @@ function CreateProduct(props) {
                   Submit Form
                 </button>
               </div>
-              
+
               <FocusError />
             </Form>
           )}

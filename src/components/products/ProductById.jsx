@@ -10,6 +10,7 @@ import Linkify from "react-linkify"
 import TagsStyle from "./TagsStyle"
 import ProductTypeStyle from "./ProductTypeStyle"
 import UserName from "../profile/UserName"
+import ProductCrowdfundingGet from "./ProductCrowdfundingGet"
 
 function ProductById() {
   const { nearvar, userId } = useContext(NearContext)
@@ -138,6 +139,13 @@ function ProductById() {
               className="badge badge-secondary mr-3"
             >
               Add or Update Stake
+            </Link>
+            <ProductCrowdfundingGet pid={id}/>
+            <Link
+              to={`/productcrowdfund/${id}`}
+              className="badge badge-secondary mr-3"
+            >
+              Fund it
             </Link>
             <UserName uid={productUserId}/>
           </div>

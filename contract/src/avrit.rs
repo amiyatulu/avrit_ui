@@ -55,6 +55,7 @@ pub struct Avrit {
     product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
     product_commentproduct_map: LookupMap<u128, UnorderedSet<u128>>, // (product_id, set<commentproduct_id>)
     review_commentreview_map: LookupMap<u128, UnorderedSet<u128>>, // (review_id, set<commentreview_id>)
+    product_crowdfunding: LookupMap<u128, u128>,                   // (product_id, bounty)
     product_bounty: LookupMap<u128, u64>, // (product_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
     review_bounty: LookupMap<u128, u64>, // (review_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
     min_review_bounty: u64,
@@ -97,6 +98,7 @@ pub struct Avrit {
     token_price: u128,
     token_sold: u128,
     total_available_tokens: u128,
+    phase_available_tokens: u128,
     on_crowdsale: bool,
 }
 
@@ -281,6 +283,10 @@ impl Avrit {
         }
     }
 
+    pub fn get_final_product_id(&self) -> U128 {
+        self.product_id.into()
+    }
+
     pub fn set_burn_percentage(&mut self, value: U128) {
         self.assert_owner();
         self.ft.change_burn_percentage(value.into());
@@ -288,6 +294,23 @@ impl Avrit {
 
     pub fn get_burn_percentage(&self) -> u128 {
         self.ft.burn_percentage
+    }
+    pub fn get_total_available_tokens(&self) -> U128 {
+        self.total_available_tokens.into()
+    }
+    pub fn get_phase_available_tokens(&self) -> U128 {
+        self.phase_available_tokens.into()
+    }
+
+    pub fn set_phase_available_token(&mut self, value: U128){
+        self.assert_owner();
+        let value: u128 = value.into();
+        assert!(value <= self.total_available_tokens, "Value must be lower than total_available tokens");
+        self.phase_available_tokens=value;
+    }
+
+    pub fn get_token_sold(&self) -> U128 {
+        self.token_sold.into()
     }
 }
 
@@ -711,6 +734,51 @@ impl Avrit {
             }
         }
     }
+
+    pub fn add_product_crowdfunding(&mut self, bounty: U128, product_id: U128) {
+        let product_id: u128 = product_id.into();
+        let bounty: u128 = bounty.into();
+        assert!(bounty > 0, "Bounty can not be zero");
+        let account_id = env::predecessor_account_id();
+        let product = self.get_product(product_id);
+        let product_user_id = product.user_id;
+        let product_user_profile = self.get_user_profile(product_user_id);
+        let product_user_id_name = product_user_profile.username;
+        assert!(
+            account_id != product_user_id_name,
+            "You can't fund your won product"
+        );
+        let product_bounty_crowdfunding_exists_option = self.product_crowdfunding.get(&product_id);
+        match product_bounty_crowdfunding_exists_option {
+            Some(bountyvalue) => {
+                self.burn(&account_id, bounty);
+                self.mint(&product_user_id_name, bounty);
+                let new_bounty_value = bounty.checked_add(bountyvalue).expect("overflow");
+                self.product_crowdfunding
+                    .insert(&product_id, &new_bounty_value);
+            }
+            None => {
+                self.burn(&account_id, bounty);
+                self.mint(&product_user_id_name, bounty);
+                self.product_crowdfunding.insert(&product_id, &bounty);
+            }
+        }
+    }
+
+    pub fn get_product_crowdfunding_js(&self, product_id: U128) -> U128 {
+        let product_id: u128 = product_id.into();
+        let bounty = self.get_product_crowdfunding(product_id);
+        bounty.into()
+    }
+
+    fn get_product_crowdfunding(&self, product_id: u128) -> u128 {
+        let bounty_option = self.product_crowdfunding.get(&product_id);
+        match bounty_option {
+            Some(bounty) => bounty,
+            None => 0,
+        }
+    }
+
     pub fn add_product_bounty(&mut self, bounty: u64, product_id: U128) {
         let product_id: u128 = product_id.into();
         assert!(
@@ -853,11 +921,12 @@ impl Avrit {
             product_reviews_map: TreeMap::new(b"ea4ee217".to_vec()),
             product_commentproduct_map: LookupMap::new(b"fadfdeca".to_vec()),
             review_commentreview_map: LookupMap::new(b"00e72970".to_vec()),
+            product_crowdfunding: LookupMap::new(b"b3556b34".to_vec()),
             product_bounty: LookupMap::new(b"0566cfb4".to_vec()),
             review_bounty: LookupMap::new(b"00423f89".to_vec()),
-            min_review_bounty: 10,
-            min_product_bounty: 10,
-            min_jury_stake: 10,
+            min_review_bounty: 1000000000000000000,
+            min_product_bounty: 1000000000000000000,
+            min_jury_stake: 1000000000000000000,
             product_id_set_ucount: 0,
             review_id_set_ucount: 0,
             user_juror_stakes: LookupMap::new(b"e56291ef".to_vec()),
@@ -871,10 +940,10 @@ impl Avrit {
             jury_application_phase_time: 1296000, // 15 days in secs
             commit_phase_time: 2592000,           // 30 days in secs
             reveal_phase_time: 1296000,           // 15 days in secs
-            jury_incentives: 10,
-            review_incentives: 50,
-            product_oa_incentives: 10,
-            product_evidence_incentives: 10,
+            jury_incentives: 20000000000000000,
+            review_incentives: 50000000000000000,
+            product_oa_incentives: 100000000000000000,
+            product_evidence_incentives: 100000000000000000,
             review_got_incentives: LookupMap::new(b"c296306e".to_vec()),
             product_got_incentives: LookupMap::new(b"2cdd4a9d".to_vec()),
             product_incentives_count: LookupMap::new(b"d2e3cb69".to_vec()),
@@ -893,6 +962,7 @@ impl Avrit {
             token_price: 100000,
             token_sold: 0,
             total_available_tokens: token_sale_balance,
+            phase_available_tokens: token_sale_balance,
             on_crowdsale: true,
         };
         this.ft.internal_register_account(&owner_id);
@@ -2272,9 +2342,13 @@ impl Avrit {
 
     pub fn required_deposit(&self, number_of_tokens: U128) -> U128 {
         let number_of_tokens: u128 = number_of_tokens.into();
-        let required_deposit =
-            (number_of_tokens * self.token_price) + self.ft.storage_balance_bounds().min.0;
-        required_deposit.into()
+        if number_of_tokens == 0 {
+            return 0.into();
+        } else {
+            let required_deposit =
+                (number_of_tokens * self.token_price) + self.ft.storage_balance_bounds().min.0;
+            return required_deposit.into();
+        }
     }
 
     #[payable]
@@ -2282,8 +2356,7 @@ impl Avrit {
         let number_of_tokens: u128 = number_of_tokens.into();
         assert!(self.on_crowdsale == true, "Crowdsale has stalled");
         let amount = env::attached_deposit();
-        let mut required_deposit =
-            number_of_tokens * self.token_price;
+        let mut required_deposit = number_of_tokens * self.token_price;
         assert!(
             amount >= required_deposit + self.ft.storage_balance_bounds().min.0,
             "Requires attached deposit {}",
@@ -2301,6 +2374,10 @@ impl Avrit {
             .expect("Overflow");
         assert!(
             self.token_sold <= self.total_available_tokens,
+            "No more tokens to sale"
+        );
+        assert!(
+            self.token_sold <= self.phase_available_tokens,
             "No more tokens to sale"
         );
         self.mint(&account_id, number_of_tokens);

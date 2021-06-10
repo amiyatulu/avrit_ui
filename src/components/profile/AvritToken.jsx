@@ -4,6 +4,7 @@ import axios from "axios"
 import { Link, NavLink } from "react-router-dom"
 import { IPFS_URL } from "../../config/configvar"
 import styles from "./ViewProfile.module.css"
+// import BN from "bn.js"
 
 function Loading(props) {
   const { fetchError } = props
@@ -21,12 +22,16 @@ function Loading(props) {
 }
 
 function AvritToken() {
-  const [balanceData, setBalanceData] = useState(null)
   const { balance, balanceError } = useContext(NearContext)
+  // let balancebn = new BN(balance)
+  // let power = new BN("1000000000000000000")
+  // let balancenow = balancebn.div(power)
   return (
     <React.Fragment>
       {balance ? (
-        <span>Balance: {balance}</span>
+        <React.Fragment>
+          <span>Balance: {balance  * Math.pow(10, -18)}</span>
+        </React.Fragment>
       ) : (
         <Loading fetchError={balanceError} />
       )}
