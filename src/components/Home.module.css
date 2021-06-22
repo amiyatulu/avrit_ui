@@ -1,6 +1,4 @@
-.top {
-  width: 100%;
-}
+
 .leftcolumnone {
   height: 750px;
   background-image: url("./image/library.jpg");
@@ -45,6 +43,14 @@
     padding-right: 50px;
     animation: fadeInLeft ease 15s;
   }
+
+  .imagecss {
+    animation: fadeInLeft ease 5s;
+    margin-top:100px;
+  }
+  .imagecss img{
+    height:150px;
+  }
 }
 
 @font-face {
@@ -69,6 +75,14 @@
     padding-right: 100px;
     animation: fadeInLeft ease 15s;
   }
+
+  .imagecss {
+    padding-top: 100px;
+    animation: fadeInLeft ease 5s;
+  }
+  .imagecss img{
+    height:300px;
+  }
 }
 
 @keyframes fadeInLeft {
@@ -82,10 +96,7 @@
   }
 }
 
-.imagecss {
-  padding-top: 100px;
-  animation: fadeInLeft ease 5s;
-}
+
 .ball {
   animation: fadeInLeft ease 5s;
 }

@@ -8,7 +8,7 @@ function Home() {
   const [count, setCount] = useState(0)
   return (
     <React.Fragment>
-      <div className={`${styles.top}`}>
+      <div className={`container-fluid`}>
         <div className={`row`}>
           <div className={`col-md-6 ${styles.leftcolumnone}`}></div>
           <div className={`col-md-6 ${styles.rightcolumnone}`}>
@@ -24,7 +24,7 @@ function Home() {
               </div>
 
               <div className={`col-4 text-center ${styles.imagecss}`}>
-                <img src={child} alt="child" height="300px" />
+                <img src={child} alt="child" />
               </div>
             </div>
             <div className={`row ${styles.rowtwo} align-items-center`}>

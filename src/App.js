@@ -71,6 +71,7 @@ const FetchProductsPage = lazy(() =>
 )
 
 const IcoFormPage = lazy(() => import("./components/ico/IcoFormPage"))
+const ContentBestPractices = lazy(() => import('./components/pagestext/ContentBestPractices'))
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -183,7 +184,9 @@ function App(props) {
         userId,
         login,
         userIdEmpty,
+        callUserId,
         setUserIdEmpty,
+        requestSignIn
       }}
     >
       <Suspense
@@ -269,6 +272,7 @@ function App(props) {
               />
               <Route path="/fetchproducts" component={FetchProductsPage} />
               <Route path="/ico" component={IcoFormPage} />
+              <Route path="/content" component={ContentBestPractices} />
             </Switch>
           </section>
         </React.Fragment>

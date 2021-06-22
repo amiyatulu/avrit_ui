@@ -8,39 +8,46 @@ import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
 import GetPrice from "./GetPrice"
 import * as nearAPI from "near-api-js"
 import ProgressBar from "./ProgressBar"
-// import BN from "bn.js"
 import "./IcoFormPage.css"
+import PulseEffectTitle from "./PulseEffectTitle"
+import { BigNumber } from "bignumber.js";
 
 function IcoFormPage(props) {
   // const [count, setCount] = useState(0);
   // const { id } = useParams()
   let history = useHistory()
-  let { nearvar } = useContext(NearContext)
+  let { nearvar, login, requestSignIn} = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
-  const [numberOfTokens, setNumberOfTokens] = useState(1000000000000000000)
-  let { count } = GetPrice(numberOfTokens)
+  const [numberOfTokens, setNumberOfTokens] = useState(1)
+  let pw = BigNumber(10).pow(18)
+  
+  // let { count } = GetPrice(parseFloat(numberOfTokens) * Math.pow(10, 18))
+  let { count } = GetPrice(BigNumber(numberOfTokens).times(pw))
+  // console.log(count, 'count')
   const { utils } = nearAPI
   function handleChangeMethod(e) {
-    console.log(e)
+    // console.log(e)
     setNumberOfTokens(e.currentTarget.value)
   }
   return (
     <React.Fragment>
       <div className="container">
+        <PulseEffectTitle/>
         <Formik
           initialValues={{
-            numberOfTokens: "1000000000000000000",
+            numberOfTokens: "1",
           }}
           validationSchema={Yup.object().shape({
-            numberOfTokens: Yup.string().required("Number Of Avrit Tokens is required"),
+            numberOfTokens: Yup.number().required("Number Of Avrit Tokens is required"),
           })}
           onSubmit={async (values, actions) => {
             try {
               //   values.countvariable = count
-
+              let attotokens = BigNumber(values.numberOfTokens).times(pw)
+              // console.log(attotokens.toFixed(), "attotokens")
               //   const data = await nearvar.contract.add_liquidity({"tokens": parseInt(values.buy), "avrit_id": "dev-1616661269131-9185280"}, 95000000000000, 500)
               const data = await nearvar.contract.buy_tokens(
-                { number_of_tokens: values.numberOfTokens },
+                { number_of_tokens: attotokens.toFixed() },
                 95000000000000,
                 count
               )
@@ -70,13 +77,13 @@ function IcoFormPage(props) {
               {errorThrow && <p>{errorThrow}</p>}
 
               <div className="form-group">
-                <p className="badge bg-info text-white">
+                {/* <p className="badge bg-info text-white">
                   1 atto Avrit = 10<sup>-18</sup> Avrit
-                </p>
+                </p> */}
                 <br />
 
                 <label htmlFor="numberOfTokens" className="labelstyle">
-                  Enter the amount in atto Avrit:
+                  Enter the Avrit token amount to buy:
                 </label>
                 {touched.numberOfTokens && errors.numberOfTokens && (
                   <p className="alert alert-danger">{errors.numberOfTokens}</p>
@@ -94,23 +101,29 @@ function IcoFormPage(props) {
               <div className="alert alert-hover color-1">
                 Avrit token to buy: &nbsp;&nbsp;&nbsp;
                 {/* {(new BN(numberOfTokens)).div(new BN("1000000000000000000")).toString()} */}
-                {parseInt(numberOfTokens) * Math.pow(10, -18)}
+                {parseFloat(numberOfTokens)}
               </div>
 
               <div className="alert alert-hover color-4">
                 Near fees: &nbsp;&nbsp;&nbsp;
                 {utils.format.formatNearAmount(count)}
               </div>
-
               <div className="text-center">
-                <button
-                  type="submit"
-                  className="btn btn-hover color-7"
-                  disabled={isSubmitting}
-                >
-                  Submit Form
-                </button>
+                {login ? (
+                  <div className="text-center">
+                  <button
+                    type="submit"
+                    className="btn btn-hover color-7"
+                    disabled={isSubmitting}
+                  >
+                    Buy Avrit Token
+                  </button>
+                </div>
+                ) : (
+                  <p className="btn btn-hover color-7" onClick={requestSignIn}>Log In to Buy <br/>Avrit Token</p>
+                )}
               </div>
+              
               <SubmittingWheel isSubmitting={isSubmitting} />
               <FocusError />
             </Form>

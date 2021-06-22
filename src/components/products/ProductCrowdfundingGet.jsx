@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from "react"
 import { NearContext } from "../../commons/context/NearContext"
+import { BigNumber } from "bignumber.js";
 
 function Error(props) {
   const { fetchError } = props
@@ -14,6 +15,7 @@ function ProductCrowdfundingGet(props) {
   const { pid } = props
   const [fetchError, setFetchError] = useState(false)
   const [count, setCount] = useState(0)
+  let pw = BigNumber(10).pow(18)
   useEffect(() => {
     async function fetchjurycount() {
       try {
@@ -32,7 +34,7 @@ function ProductCrowdfundingGet(props) {
   return (
     <React.Fragment>
       <p className="badge badge-secondary mr-3">
-        Fund raised: {count}
+        Fund raised: {BigNumber(count).div(pw).toFixed()}
       </p>
       <Error fetchError={fetchError} />
     </React.Fragment>

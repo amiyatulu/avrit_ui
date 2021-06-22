@@ -2,12 +2,14 @@ import React, { useState, useContext, useEffect } from "react"
 import { NearContext } from "../../commons/context/NearContext"
 import { useParams, Link } from "react-router-dom"
 import JuryCount from "./JuryCount"
+import { BigNumber } from "bignumber.js";
 
 function GetJuryStake(props) {
   const { nearvar } = useContext(NearContext)
   const { rid, userId } = props
   const [stake, setStake] = useState(null)
   const [stakeError, setStakeError] = useState(null)
+  let pw = BigNumber(10).pow(18)
 
   useEffect(() => {
     async function fetchStake() {
@@ -31,7 +33,7 @@ function GetJuryStake(props) {
     <React.Fragment>
       {stake ? (
         <React.Fragment>
-          <p className="badge badge-secondary mr-3">Your jury Stake: {stake}</p>
+          <p className="badge badge-secondary mr-3">Your jury Stake: {BigNumber(stake).div(pw).toFixed()}</p>
           <JuryCount rid={rid} />
         </React.Fragment>
       ) : stakeError ? (

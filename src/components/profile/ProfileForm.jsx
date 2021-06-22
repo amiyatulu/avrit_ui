@@ -8,14 +8,14 @@ function ProfileForm(props) {
   return (
     <React.Fragment>
       <div className="form-group">
-        <label htmlFor="headline" className={styles.labelstyle}>Headline</label>
+        <label htmlFor="headline" className={styles.labelstyle}>Profile Title</label>
         {touched.headline && errors.headline && <p className="alert alert-danger">{errors.headline}</p>}
 
         <Field name="headline" className="form-control" />
       </div>
 
       <div className="form-group">
-        <label htmlFor="introduction" className={styles.labelstyle}>Introduction</label>
+        <label htmlFor="introduction" className={styles.labelstyle}>Intro</label>
         {touched.introduction && errors.introduction && <p className="alert alert-danger">{errors.introduction}</p>}
 
         <Field name="introduction" component="textarea" rows="5" className="form-control" />

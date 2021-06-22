@@ -56,6 +56,7 @@ function ProductById() {
     <React.Fragment>
       {ipfsData && (
         <div className="container">
+          <br/>
           <div className="jumbotron">
             <h3 className="display-4">{ipfsData.headline}</h3>
             {ipfsData.productimage && (
@@ -117,7 +118,7 @@ function ProductById() {
             </div>
             <h5>Product Type:</h5>
             <div>
-              <ProductTypeStyle type={productType} />
+              <ProductTypeStyle type={ipfsData.profile_type_fullname} />
             </div>
             <Link
               to={`/createreview/${id}`}

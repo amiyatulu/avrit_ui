@@ -4,7 +4,6 @@ import { useScrollHandler } from "./hooks/ScrollHandle"
 import { Link, NavLink } from "react-router-dom"
 import { NearContext } from "../commons/context/NearContext"
 import AvritToken from "./profile/AvritToken"
-import CreateProfileLink from "./commondom/CreateProfileLink"
 import "./Nav.css"
 
 function Nav(props) {
@@ -12,8 +11,8 @@ function Nav(props) {
   let { nearvar } = useContext(NearContext)
   return (
     <React.Fragment>
-      <div class="alert alert-info text-center" role="alert">
-        <button type="button" class="close" data-dismiss="alert">
+      <div className="alert alert-info text-center" role="alert">
+        <button type="button" className="close" data-dismiss="alert">
           ×
         </button>
         <strong>The app is on testnet!</strong>
@@ -76,14 +75,14 @@ function Nav(props) {
                       Products
                     </Link>
                   </li>
-                  <li className="nav-item">
+                  {/* <li className="nav-item">
                     <Link
                       className="nav-link js-scroll-trigger"
                       to="/createproducttopics"
                     >
                       Create Products
                     </Link>
-                  </li>
+                  </li> */}
                   <li className="nav-item">
                     <button
                       className="btn nav-link js-scroll-trigger"
@@ -112,7 +111,7 @@ function Nav(props) {
           </div>
         </div>
       </nav>
-      <CreateProfileLink />
+     
     </React.Fragment>
   )
 }

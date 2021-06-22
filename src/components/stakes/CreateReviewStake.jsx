@@ -5,6 +5,7 @@ import { useHistory, useParams } from "react-router-dom"
 import { NearContext } from "../../commons/context/NearContext"
 import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
+import { BigNumber } from "bignumber.js";
 
 function CreateReviewStake(props) {
   // const [count, setCount] = useState(0);
@@ -12,6 +13,7 @@ function CreateReviewStake(props) {
   let { nearvar, reloadBalance } = useContext(NearContext)
   const { rid } = useParams()
   const [errorThrow, setErrorThrow] = useState(false)
+  let pw = BigNumber(10).pow(18)
 
   return (
     <React.Fragment>
@@ -26,9 +28,12 @@ function CreateReviewStake(props) {
           onSubmit={async (values, actions) => {
             //   values.countvariable = count
             //   const data = await ...
+            let attotokens = BigNumber(values.stake).times(pw)
+            // let attotokens = parseFloat(values.stake) * Math.pow(10, 18)
+            // console.log(attotokens)
             try {
               await nearvar.contract.add_review_bounty({
-                bounty: parseInt(values.stake),
+                bounty: attotokens.toFixed(),
                 review_id: rid.toString(),
               })
               actions.setSubmitting(false)

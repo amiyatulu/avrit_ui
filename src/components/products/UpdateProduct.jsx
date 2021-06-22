@@ -46,10 +46,6 @@ function UpdateProduct(props) {
     fetchProduct()
   }, [])
   if (ipfsData && productType) {
-    let linkproduct = []
-    if (ipfsData.linkproductid) {
-        linkproduct = ipfsData.linkproductid.split(",")
-    }
     return (
       <React.Fragment>
         <div className="container">
@@ -59,27 +55,24 @@ function UpdateProduct(props) {
               productimage: ipfsData.productimage,
               details: ipfsData.details,
               pdfs: ipfsData.pdfs,
-              linkproductid: ipfsData.linkproductid,
               specialization: ipfsData.specialization,
               audience: ipfsData.audience,
             }}
             validationSchema={Yup.object().shape({
-              headline: Yup.string().required("headline is required"),
+              headline: Yup.string().required("Title is required"),
               productimage: Yup.string().required("Image is required and it should be JPG or PNG"),
               details: Yup.string().required("Details is required"),
               pdfs: Yup.string().required("Upload the PDFs"),
-              linkproductid: Yup.string(),
               specialization: Yup.string().required(
-                "specialization is required"
+                "Specialization is required"
               ),
-              audience: Yup.string().required("audience is required"),
+              audience: Yup.string().required("Audience is required"),
             })}
             onSubmit={async (values, actions) => {
-              //   values.countvariable = count
+              values.profile_type_fullname = ipfsData.profile_type_fullname
+              // values.profile_type_fullname = productType
               try {
-                const profile_type = productType
-                // console.log(values)
-                // console.log(pt)
+     
                 const file = await ipfs.add({
                   path: "product.json",
                   content: JSON.stringify(values),
@@ -121,7 +114,7 @@ function UpdateProduct(props) {
               <Form onSubmit={handleSubmit}>
                 {errorThrow && <p>{errorThrow}</p>}
                 <div className="form-group">
-                  <label htmlFor="headline">headline</label>
+                  <label htmlFor="headline">Title</label>
                   {touched.headline && errors.headline && (
                     <p className="alert alert-danger">{errors.headline}</p>
                   )}
@@ -143,7 +136,7 @@ function UpdateProduct(props) {
 
 
                 <div className="form-group">
-                  <label htmlFor="details">details</label>
+                  <label htmlFor="details">Details</label>
                   {touched.details && errors.details && (
                     <p className="alert alert-danger">{errors.details}</p>
                   )}
@@ -167,14 +160,14 @@ function UpdateProduct(props) {
                   />
                 </div>
 
-                <div className="form-group">
+                {/* <div className="form-group">
                   <label htmlFor="audience">Link Product Id:</label>
-                  <p>
-                    Please provide the link product id if any.
+                  <div className="p-3 mb-2 bg-light text-dark">
+                    This field is for linking the product with other products.
                     <br />
                     For example, if you are submitting solution of assignment,
-                    please link the assignment product id
-                  </p>
+                    please link the assignment product id number.
+                  </div>
                   {touched.linkproductid && errors.linkproductid && (
                     <p className="alert alert-danger">{errors.linkproductid}</p>
                   )}
@@ -184,10 +177,10 @@ function UpdateProduct(props) {
                     setFieldValue={setFieldValue}
                     tags={linkproduct}
                   />
-                </div>
+                </div> */}
 
                 <div className="form-group">
-                  <label htmlFor="specialization">specialization</label>
+                  <label htmlFor="specialization">Specialization</label>
                   {touched.specialization && errors.specialization && (
                     <p className="alert alert-danger">
                       {errors.specialization}
@@ -206,7 +199,7 @@ function UpdateProduct(props) {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="audience">audience</label>
+                  <label htmlFor="audience">Audience</label>
                   {touched.audience && errors.audience && (
                     <p className="alert alert-danger">{errors.audience}</p>
                   )}

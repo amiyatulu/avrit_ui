@@ -65,6 +65,7 @@ function LoadingOrCreateProduct(props) {
 
 function ProductList(props) {
   const { nearvar, userId } = useContext(NearContext)
+  const {setProductExists} = props
   const [productsData, setProductsData] = useState([])
   const [fetchError, setFetchError] = useState(false)
   const [noProduct, setNoProduct] = useState(false)
@@ -109,16 +110,21 @@ function ProductList(props) {
             "User profile does not exists"
           )
           setNoProfile(errornoprofile)
+          setProductExists(false)
           const failedtofetch = e.message
           setFetchError(failedtofetch)
         }
+      } else {
+        setNoProfile(true)
+        setProductExists(false)
       }
     }
 
     fetchProducts()
-  }, [page, nearvar, userId])
+  }, [page, nearvar, userId, setProductExists])
   return (
     <React.Fragment>
+      <br/>
       {productsData.length > 0 ? (
         <div className="container">
           <div className="text-center">

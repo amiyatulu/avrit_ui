@@ -10,11 +10,12 @@ import Ipfsadd from "../../commons/TextileIO"
 
 function CreateProfile() {
   const [count, setCount] = useState(0)
-  let { nearvar, setUserIdEmpty } = useContext(NearContext)
+  let { nearvar, callUserId, setUserIdEmpty } = useContext(NearContext)
   const history = useHistory()
 
   return (
     <React.Fragment>
+      <br/>
       <div className="container">
         <Formik
           initialValues={{
@@ -51,6 +52,7 @@ function CreateProfile() {
               // const filename = "profile.json"
               // const data = await Ipfsadd(content, filename)
               // await nearvar.contract.create_profile({ profile_hash: data.path.cid.string})
+              callUserId()
               setUserIdEmpty(false)
               history.push("/profile")
             } catch (e) {

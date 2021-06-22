@@ -5,6 +5,7 @@ import { useHistory, useParams } from "react-router-dom"
 import { NearContext } from "../../commons/context/NearContext"
 import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
+import { BigNumber } from "bignumber.js";
 
 function CreateProductStake(props) {
   // const [count, setCount] = useState(0);
@@ -12,6 +13,8 @@ function CreateProductStake(props) {
   let { nearvar, reloadBalance } = useContext(NearContext)
   const { id } = useParams()
   const [errorThrow, setErrorThrow] = useState(false)
+  let pw = BigNumber(10).pow(18)
+
 
   return (
     <React.Fragment>
@@ -27,8 +30,9 @@ function CreateProductStake(props) {
             //   values.countvariable = count
             //   const data = await ...
             try {
+              let attotokens = BigNumber(values.stake).times(pw)
               await nearvar.contract.add_product_bounty({
-                bounty: parseInt(values.stake),
+                bounty:  attotokens.toFixed(),
                 product_id: id.toString(),
               })
               actions.setSubmitting(false)

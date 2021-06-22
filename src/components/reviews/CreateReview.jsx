@@ -29,7 +29,7 @@ function CreateReview(props) {
             productRating: Yup.number()
               .typeError("Product rating is required")
               .required("Product rating is required"),
-            text: Yup.string().required("text field is required"),
+            text: Yup.string().required("Review text is required"),
             pdfs: Yup.string(),
           })}
           onSubmit={async (values, actions) => {
@@ -72,6 +72,7 @@ function CreateReview(props) {
             validateForm,
           }) => (
             <Form onSubmit={handleSubmit}>
+              <br/>
               {errorThrow && <p>{errorThrow}</p>}
               {!login && <p className="alert alert-warning">Log In to submit form</p>}
               <div className="form-group">

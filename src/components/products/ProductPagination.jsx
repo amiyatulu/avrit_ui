@@ -5,18 +5,21 @@ import Grid from "@material-ui/core/Grid"
 
 export default function ProductPagination() {
   const [page, setPage] = React.useState(1)
+  const [productExists, setProductExists] = React.useState(true)
   const handleChange = (event, value) => {
     setPage(value)
   }
 
   return (
     <div>
-      <ProductList page={page} />
-      <div className="container">
-        <Grid container justify="center">
-          <Pagination count={10} page={page} onChange={handleChange} />
-        </Grid>
-      </div>
+      <ProductList page={page} setProductExists={setProductExists} />
+      {productExists && (
+        <div className="container">
+          <Grid container justify="center">
+            <Pagination count={10} page={page} onChange={handleChange} />
+          </Grid>
+        </div>
+      )}
     </div>
   )
 }

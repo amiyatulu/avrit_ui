@@ -5,11 +5,13 @@ import { useHistory } from "react-router-dom"
 import { NearContext } from "../../commons/context/NearContext"
 import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
+import { BigNumber } from "bignumber.js";
 
 function ProductStake(props) {
   // const [count, setCount] = useState(0);
   let history = useHistory()
   let { nearvar } = useContext(NearContext)
+  let pw = BigNumber(10).pow(18)
 
   return (
     <React.Fragment>
@@ -19,14 +21,15 @@ function ProductStake(props) {
             stake: "",
           }}
           validationSchema={Yup.object().shape({
-            stake: Yup.number().required("stake is required"),
+            stake: Yup.string().required("stake is required"),
           })}
           onSubmit={async (values, actions) => {
             //   values.countvariable = count
             //   const data = await ...
             try {
+              let attotokens = BigNumber(values.stake).times(pw)
               await nearvar.contract.add_product_bounty({
-                bounty: values.stake,
+                bounty: attotokens.toFixed(),
                 product_id: 1,
               })
               actions.setSubmitting(false)

@@ -579,7 +579,7 @@ impl Avrit {
             }
         }
     }
-    fn can_not_update_review_if_staked(&self, review_id: u128) {
+    fn _can_not_update_review_if_staked(&self, review_id: u128) {
         let bounty_option = self.review_bounty.get(&review_id);
         match bounty_option {
             Some(_bounty) => {
@@ -590,7 +590,7 @@ impl Avrit {
     }
     pub fn update_review(&mut self, review_id: U128, review_hash: String, rating: u8) {
         let review_id = review_id.into();
-        self.can_not_update_review_if_staked(review_id);
+        // self.can_not_update_review_if_staked(review_id);
         let account_id = env::predecessor_account_id();
         let mut review = self.get_review(review_id);
         let user_id = self.get_user_id(&account_id);
@@ -707,13 +707,15 @@ impl Avrit {
 
     pub fn get_commentproduct_by_product_id(
         &self,
-        product_id: u128,
+        product_id: U128,
         start: usize,
         end: usize,
-    ) -> Vec<u128> {
+    ) -> Vec<U128> {
+        let product_id: u128 = product_id.into();
+
         let product_commentproduct_option = self.product_commentproduct_map.get(&product_id);
         match product_commentproduct_option {
-            Some(commentproduct_set) => commentproduct_set.iter().skip(start).take(end).collect(),
+            Some(commentproduct_set) => commentproduct_set.iter().skip(start).take(end).map(|x| x.into()).collect(),
             None => {
                 panic!("No comments on product");
             }
@@ -722,13 +724,14 @@ impl Avrit {
 
     pub fn get_commentreview_by_review_id(
         &self,
-        review_id: u128,
+        review_id: U128,
         start: usize,
         end: usize,
-    ) -> Vec<u128> {
+    ) -> Vec<U128> {
+        let review_id: u128 = review_id.into();
         let review_commentreview_option = self.review_commentreview_map.get(&review_id);
         match review_commentreview_option {
-            Some(commentreview_set) => commentreview_set.iter().skip(start).take(end).collect(),
+            Some(commentreview_set) => commentreview_set.iter().skip(start).take(end).map(|x| x.into()).collect(),
             None => {
                 panic!("No comments on review");
             }
@@ -779,7 +782,8 @@ impl Avrit {
         }
     }
 
-    pub fn add_product_bounty(&mut self, bounty: u64, product_id: U128) {
+    pub fn add_product_bounty(&mut self, bounty: U64, product_id: U128) {
+        let bounty: u64 = bounty.into();
         let product_id: u128 = product_id.into();
         assert!(
             bounty >= self.min_product_bounty,
@@ -819,7 +823,8 @@ impl Avrit {
             }
         }
     }
-    pub fn add_review_bounty(&mut self, bounty: u64, review_id: U128) {
+    pub fn add_review_bounty(&mut self, bounty: U64, review_id: U128) {
+        let bounty: u64 = bounty.into();
         let review_id: u128 = review_id.into();
         self.check_products_reviewer_crossed(review_id);
         assert!(
@@ -924,9 +929,9 @@ impl Avrit {
             product_crowdfunding: LookupMap::new(b"b3556b34".to_vec()),
             product_bounty: LookupMap::new(b"0566cfb4".to_vec()),
             review_bounty: LookupMap::new(b"00423f89".to_vec()),
-            min_review_bounty: 1000000000000000000,
-            min_product_bounty: 1000000000000000000,
-            min_jury_stake: 1000000000000000000,
+            min_review_bounty: 1000000000000000000,// 10^18
+            min_product_bounty: 156250000000000000, //1.5625 × 10^17 , half of the first product incentives ie. (x/2)/2
+            min_jury_stake: 1000000000000000000, // 10^18
             product_id_set_ucount: 0,
             review_id_set_ucount: 0,
             user_juror_stakes: LookupMap::new(b"e56291ef".to_vec()),
@@ -940,10 +945,14 @@ impl Avrit {
             jury_application_phase_time: 1296000, // 15 days in secs
             commit_phase_time: 2592000,           // 30 days in secs
             reveal_phase_time: 1296000,           // 15 days in secs
-            jury_incentives: 20000000000000000,
-            review_incentives: 50000000000000000,
-            product_oa_incentives: 100000000000000000,
-            product_evidence_incentives: 100000000000000000,
+            jury_incentives: 33000000000000000, // 3.3*10^16, 30 times less than 1 avrit
+            review_incentives: 66000000000000000, // 6.6*10^16, 15 times less than 1 avrit
+            product_oa_incentives: 625000000000000000, // 6.25 × 10^17 =>  x/2 + x/2 + 3 * x/5 = 1000000000000000000  (1 avrit)
+            product_evidence_incentives: 625000000000000000, // 6.25 × 10^17 =>  x/2 + x/2 + 3 * x/5 = 1000000000000000000  (1 avrit)
+            // Here is the gist of incentive
+            // 30 times judge, 1 avrit
+            // 15 times review, 1 avrit
+            // 1 time product, 1 avrit
             review_got_incentives: LookupMap::new(b"c296306e".to_vec()),
             product_got_incentives: LookupMap::new(b"2cdd4a9d".to_vec()),
             product_incentives_count: LookupMap::new(b"d2e3cb69".to_vec()),

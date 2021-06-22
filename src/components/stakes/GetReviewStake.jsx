@@ -3,6 +3,7 @@ import { NearContext } from "../../commons/context/NearContext"
 import { useParams, Link } from "react-router-dom"
 import axios from "axios"
 import GetJuryStake from "../schelling/GetJuryStake"
+import { BigNumber } from "bignumber.js";
 function LoadingOrNoStake(props) {
   const { noStake } = props
   if (noStake) {
@@ -26,6 +27,7 @@ function GetReviewStake(props) {
   const { rid } = props
   const [stake, setStake] = useState(null)
   const [noStake, setNoStake] = useState(null)
+  let pw = BigNumber(10).pow(18)
   useEffect(() => {
     async function fetchStake() {
       try {
@@ -46,7 +48,7 @@ function GetReviewStake(props) {
     <React.Fragment>
       {stake ? (
         <React.Fragment>
-        <p className="badge badge-secondary mr-3">Review Stake: {stake} </p>
+        <p className="badge badge-secondary mr-3">Review Stake: {BigNumber(stake).div(pw).toFixed()} </p>
         <GetJuryStake rid={rid} userId={userId}/>
         </React.Fragment>
       ) : (

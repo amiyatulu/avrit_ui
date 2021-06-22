@@ -4,6 +4,7 @@ import axios from "axios"
 import { Link, NavLink } from "react-router-dom"
 import { IPFS_URL } from "../../config/configvar"
 import styles from "./ViewProfile.module.css"
+import CreateProfileLink from "../commondom/CreateProfileLink"
 
 function LoadingOrCreateProfile(props) {
   const { noProfile, fetchError } = props
@@ -42,6 +43,7 @@ function ViewProfile() {
   useEffect(() => {
     async function fetchProfile() {
       if (userId) {
+        setNoProfile(false)
         let data
         try {
           data = await nearvar.contract.get_user_profile_js({
@@ -62,6 +64,9 @@ function ViewProfile() {
           setNoProfile(errorboolean)
           setFetchError(failedtofetch)
         }
+      } else {
+        console.log("Out of userid")
+        setNoProfile(true)
       }
     }
 
@@ -76,6 +81,8 @@ function ViewProfile() {
 
   return (
     <React.Fragment>
+      <br/>
+      <CreateProfileLink />
       {profileData ? (
         <div className="container">
           <Link

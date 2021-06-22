@@ -5,6 +5,7 @@ import { useHistory, useParams } from "react-router-dom"
 import { NearContext } from "../../commons/context/NearContext"
 import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
+import { BigNumber } from "bignumber.js";
 
 function ApplyJuryStake(props) {
   // const [count, setCount] = useState(0);
@@ -12,6 +13,7 @@ function ApplyJuryStake(props) {
   let history = useHistory()
   let { nearvar, reloadBalance} = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
+  let pw = BigNumber(10).pow(18)
 
   return (
     <React.Fragment>
@@ -26,9 +28,10 @@ function ApplyJuryStake(props) {
           onSubmit={async (values, actions) => {
             try {
               //   values.countvariable = count
+              let attotokens = BigNumber(values.stake).times(pw)
               await nearvar.contract.apply_jurors({
                 review_id: rid.toString(),
-                stake: values.stake.toString(),
+                stake: attotokens.toFixed(),
               })
               actions.setSubmitting(false)
               // console.log(data)

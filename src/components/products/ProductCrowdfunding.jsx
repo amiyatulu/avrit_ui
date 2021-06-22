@@ -5,6 +5,7 @@ import { useHistory, useParams } from "react-router-dom"
 import { NearContext } from "../../commons/context/NearContext"
 import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
+import { BigNumber } from "bignumber.js";
 
 function ProductCrowdfunding(props) {
   // const [count, setCount] = useState(0);
@@ -12,6 +13,7 @@ function ProductCrowdfunding(props) {
   let history = useHistory()
   let { nearvar, reloadBalance} = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
+  let pw = BigNumber(10).pow(18)
 
   return (
     <React.Fragment>
@@ -26,8 +28,10 @@ function ProductCrowdfunding(props) {
           onSubmit={async (values, actions) => {
             try {
               //   values.countvariable = count
+              
+              let attotokens = BigNumber(values.bounty).times(pw)
               await nearvar.contract.add_product_crowdfunding({
-                bounty: values.bounty.toString(),
+                bounty: attotokens.toFixed(),
                 product_id: pid.toString(),                
               })
               actions.setSubmitting(false)
@@ -54,10 +58,12 @@ function ProductCrowdfunding(props) {
             validateForm,
           }) => (
             <Form onSubmit={handleSubmit}>
+              <br/>
               {errorThrow && <p>{errorThrow}</p>}
 
               <div className="form-group">
-                <label htmlFor="bounty">Fund it</label>
+                <label htmlFor="bounty" className="badge badge-primary">Fund it</label>
+                <p>Enter amount in avrit</p>
                 {touched.bounty && errors.bounty && (
                   <p className="alert alert-danger">{errors.bounty}</p>
                 )}
