@@ -14,7 +14,7 @@ function DropProductPDFs(props) {
 
   const addDataFiles = (bufferResults) => {
     const addDataPromises = bufferResults.map((res) => {
-      return ipfs.add({ path: res[0], content: res[1] })
+      return ipfs({ path: res[0], content: res[1] })
     })
 
     Promise.all(addDataPromises).then((results) => {

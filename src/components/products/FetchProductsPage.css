@@ -1,8 +1,8 @@
-*{
+/* *{
   -ms-overflow-style: none;
-}
-::-webkit-scrollbar {
-  display: none;
+} */
+.infinite-scroll-component {
+  overflow:hidden !important;
 }
 .productrow {
   padding: 20px;

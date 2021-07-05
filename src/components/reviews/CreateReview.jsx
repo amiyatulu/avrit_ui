@@ -7,6 +7,7 @@ import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
 import Rating from "@material-ui/lab/Rating"
 import DropProductPDFs from "../products/DropProductPDFs"
+import { Link} from "react-router-dom"
 
 function CreateReview(props) {
   // const [count, setCount] = useState(0);
@@ -15,14 +16,14 @@ function CreateReview(props) {
   let { nearvar, login } = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
   const [product_rating, setProduct_rating] = React.useState(null)
-
+  // ➼ Originality \n➼ Probing Questions \n➼ Graphics
   return (
     <React.Fragment>
       <div className="container">
         <Formik
           initialValues={{
             productRating: "",
-            text: "➼ Originality \n➼ Probing Questions \n➼ Graphics",
+            text: "",
             pdfs: "",
           }}
           validationSchema={Yup.object().shape({
@@ -37,7 +38,7 @@ function CreateReview(props) {
             //   const data = await ...
             // console.log(values)
             try {
-              const file = await ipfs.add({
+              const file = await ipfs({
                 path: "review.json",
                 content: JSON.stringify(values),
               })
@@ -97,6 +98,13 @@ function CreateReview(props) {
                 <p className="p-2 mb-2 bg-primary text-white">
                   <label htmlFor="text">Review Text</label>
                 </p>
+                <p className="p-2 mb-2 bg-secondary text-white">
+                  Please assess the content quality as per the&nbsp; 
+                  <Link  to="/content" className="text-white">
+                                        review guidelines
+                    </Link>. 
+                </p>
+
                 {touched.text && errors.text && (
                   <p className="alert alert-danger">{errors.text}</p>
                 )}

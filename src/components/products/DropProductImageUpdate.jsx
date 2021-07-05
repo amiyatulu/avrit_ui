@@ -21,7 +21,7 @@ function DropProductImageUpdate(props) {
   const [ipfspath, setIpfspath] = useState(props.oldimage)
   const [loading, setLoading] = useState(false)
   async function addData(name, buffer) {
-    const file = await ipfs.add({ path: name, content: buffer })
+    const file = await ipfs({ path: name, content: buffer })
     console.log(name)
     console.log(file.cid.string)
     setIpfspath(file.cid.string)

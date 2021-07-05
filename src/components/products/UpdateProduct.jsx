@@ -73,7 +73,7 @@ function UpdateProduct(props) {
               // values.profile_type_fullname = productType
               try {
      
-                const file = await ipfs.add({
+                const file = await ipfs({
                   path: "product.json",
                   content: JSON.stringify(values),
                 })

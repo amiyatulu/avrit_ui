@@ -185,8 +185,11 @@ function TimeConditionRender(props) {
         <br />
         <GetTrueCount rid={rid} />
         <GetFalseCount rid={rid} />
+        <br/>
         <JurorGetIncentivesLink rid={rid} />
+        <br/>
         <ReviewIncentivesLink rid={rid} />
+        <br/>
         <ProductIncentivesLink rid={rid} pid={pid} />
       </React.Fragment>
     )
@@ -217,6 +220,10 @@ function TimeConditionRender(props) {
   if (jurySelectionTime) {
     juryselectiontime_slice = moment.unix(jurySelectionTime.slice(0, 10))
   }
+  let unstake
+  if (moment().isSameOrAfter(moment(juryselectiontime_slice).add(1, "hours")) &&  jurySelectionTime !== undefined) {
+    unstake = <UnstakeVoteLink rid={rid} />
+  }
 
   if (
     moment().isSameOrAfter(time) &&
@@ -232,7 +239,8 @@ function TimeConditionRender(props) {
         <br />
         {/* To do: If already commited don't render commit vote */}
         <SelectedJuror rid={rid} />
-        <UnstakeVoteLink rid={rid} />
+
+        {unstake}
         <CommitVoteLink rid={rid} />
       </React.Fragment>
     )

@@ -6,6 +6,7 @@ import { NearContext } from "../../commons/context/NearContext"
 import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
 import { BigNumber } from "bignumber.js";
+import GetMinJuryStake from "./GetMinJuryStake"
 
 function ApplyJuryStake(props) {
   // const [count, setCount] = useState(0);
@@ -57,10 +58,12 @@ function ApplyJuryStake(props) {
             validateForm,
           }) => (
             <Form onSubmit={handleSubmit}>
+              <br/>
+              <GetMinJuryStake/>
               {errorThrow && <p>{errorThrow}</p>}
 
               <div className="form-group">
-                <label htmlFor="stake">stake</label>
+                <label htmlFor="stake">Stake</label>
                 {touched.stake && errors.stake && (
                   <p className="alert alert-danger">{errors.stake}</p>
                 )}

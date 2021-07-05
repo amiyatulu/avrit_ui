@@ -43,23 +43,6 @@ function Nav(props) {
           </button>
           <div className="collapse navbar-collapse" id="navbarResponsive">
             <ul className="navbar-nav ml-auto my-2 my-lg-0">
-              <li className="nav-item">
-                <a
-                  className="nav-link js-scroll-trigger"
-                  href="paper/AvritWhitePaper.pdf"
-                >
-                  WHITEPAPER
-                </a>
-              </li>
-              <li className="nav-item">
-                <a
-                  className="nav-link js-scroll-trigger"
-                  href="https://github.com/amiyatulu/avrit_ui"
-                >
-                  Source Code
-                </a>
-              </li>
-
               {props.login ? (
                 <React.Fragment>
                   <li className="nav-item">
@@ -68,11 +51,26 @@ function Nav(props) {
                     </Link>
                   </li>
                   <li className="nav-item">
+                    <Link className="nav-link js-scroll-trigger" to="/products">
+                      Products
+                    </Link>
+                  </li>
+                  <li className="nav-item">
                     <Link
                       className="nav-link js-scroll-trigger"
                       to="/myproducts"
                     >
-                      Products
+                      My Products
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link js-scroll-trigger" to="/content">
+                      Review Guidelines
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link js-scroll-trigger" to="/process">
+                    Walkthrough
                     </Link>
                   </li>
                   {/* <li className="nav-item">
@@ -98,20 +96,36 @@ function Nav(props) {
                   </li>
                 </React.Fragment>
               ) : (
-                <li className="nav-item">
-                  <button
-                    className="btn nav-link js-scroll-trigger"
-                    onClick={props.onClick}
-                  >
-                    Log in
-                  </button>
-                </li>
+                <React.Fragment>
+                  <li className="nav-item">
+                    <Link className="nav-link js-scroll-trigger" to="/products">
+                      Products
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link js-scroll-trigger" to="/content">
+                      Review Guidelines
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link js-scroll-trigger" to="/process">
+                    Walkthrough
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <button
+                      className="btn nav-link js-scroll-trigger"
+                      onClick={props.onClick}
+                    >
+                      Log in
+                    </button>
+                  </li>
+                </React.Fragment>
               )}
             </ul>
           </div>
         </div>
       </nav>
-     
     </React.Fragment>
   )
 }

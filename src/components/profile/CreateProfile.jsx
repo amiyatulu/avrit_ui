@@ -36,7 +36,7 @@ function CreateProfile() {
             //values.countvariable = count
             console.log(values)
             try {
-              const file = await ipfs.add({
+              const file = await ipfs({
                 path: "profile.json",
                 content: JSON.stringify(values),
               })

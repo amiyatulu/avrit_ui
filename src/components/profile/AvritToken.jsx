@@ -4,10 +4,11 @@ import axios from "axios"
 import { Link, NavLink } from "react-router-dom"
 import { IPFS_URL } from "../../config/configvar"
 import styles from "./ViewProfile.module.css"
-// import BN from "bn.js"
+import { BigNumber } from "bignumber.js";
 
 function Loading(props) {
   const { fetchError } = props
+  
   if (fetchError) {
     return <p className="container">{fetchError}</p>
   }
@@ -23,14 +24,12 @@ function Loading(props) {
 
 function AvritToken() {
   const { balance, balanceError } = useContext(NearContext)
-  // let balancebn = new BN(balance)
-  // let power = new BN("1000000000000000000")
-  // let balancenow = balancebn.div(power)
+  let pw = BigNumber(10).pow(18)
   return (
     <React.Fragment>
       {balance ? (
         <React.Fragment>
-          <span>Balance: {balance  * Math.pow(10, -18)}</span>
+          <span>Balance: {BigNumber(balance).div(pw).toFixed()}</span>
         </React.Fragment>
       ) : (
         <Loading fetchError={balanceError} />

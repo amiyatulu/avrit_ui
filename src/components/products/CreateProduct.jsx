@@ -58,7 +58,7 @@ function CreateProduct(props) {
 
               // console.log(values)
               // console.log(pt)
-              const file = await ipfs.add({
+              const file = await ipfs({
                 path: "product.json",
                 content: JSON.stringify(values),
               })

@@ -64,7 +64,7 @@ function UpdateReview(props) {
               //   const data = await ...
               // console.log(values)
               try {
-                const file = await ipfs.add({
+                const file = await ipfs({
                   path: "review.json",
                   content: JSON.stringify(values),
                 })

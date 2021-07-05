@@ -52,7 +52,7 @@ function CreateProductEvidence(props) {
               let clonedValues = { ...values }
               delete clonedValues.profile_type
               console.log(clonedValues)
-              const file = await ipfs.add({
+              const file = await ipfs({
                 path: "product.json",
                 content: JSON.stringify(clonedValues),
               })
