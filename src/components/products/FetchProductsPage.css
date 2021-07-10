@@ -12,4 +12,7 @@
   .productcol {
     margin: 20px;
   }
+  .productrow {
+    padding:1px;
+  }
 }

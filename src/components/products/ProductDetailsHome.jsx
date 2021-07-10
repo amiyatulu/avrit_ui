@@ -35,7 +35,7 @@ function ProductDetailsHome(props) {
           {/* <h3 className={styles.labelstyle}>Headline</h3> */}
           <div className="card-deck">
             <Link to={`/product/${id}`}>
-              <div className="card" style={{ width: "18rem" }}>
+              <div className="card">
                 <img
                   src={`${IPFS_URL}${ipfsData.productimage}`}
                   className="card-img-top"

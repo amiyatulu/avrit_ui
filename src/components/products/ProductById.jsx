@@ -11,6 +11,7 @@ import TagsStyle from "./TagsStyle"
 import ProductTypeStyle from "./ProductTypeStyle"
 import UserName from "../profile/UserName"
 import ProductCrowdfundingGet from "./ProductCrowdfundingGet"
+import "./ProductById.css"
 
 function ProductById() {
   const { nearvar, userId } = useContext(NearContext)
@@ -59,7 +60,7 @@ function ProductById() {
           <br/>
           <div className="jumbotron">
             <h3 className="display-4">{ipfsData.headline}</h3>
-            {ipfsData.productimage && (
+            {/* {ipfsData.productimage && (
               <React.Fragment>
                 <a
                   target="_blank"
@@ -75,10 +76,11 @@ function ProductById() {
                 <br />
                 <br />
               </React.Fragment>
-            )}
+            )} */}
 
-            <h5>Details:</h5>
-            <p className={`${longword.linebreaks} ${longword.wraplongworld}`}>
+            <div className="details" dangerouslySetInnerHTML={{__html: ipfsData.details}} />
+
+            {/* <p className={`${longword.linebreaks} ${longword.wraplongworld}`}>
               <Linkify
                 componentDecorator={(decoratedHref, decoratedText, key) => (
                   <a target="blank" href={decoratedHref} key={key}>
@@ -88,7 +90,7 @@ function ProductById() {
               >
                 {ipfsData.details}
               </Linkify>
-            </p>
+            </p> */}
             <h5>PDFs:</h5>
             <div>
               {ipfsData.pdfs && (

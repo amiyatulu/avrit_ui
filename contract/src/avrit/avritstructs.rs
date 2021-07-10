@@ -33,6 +33,15 @@ pub struct Product {
 
 #[derive(Default, BorshDeserialize, BorshSerialize)]
 #[derive(serde::Serialize, serde::Deserialize)]
+pub struct Communication {
+    pub user_id: u128,
+    pub communication_details_hash: String, //IPFS Hash
+    pub communication_expired: bool,
+    pub communication_id: u128,
+}
+
+#[derive(Default, BorshDeserialize, BorshSerialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct CommentProduct {
     pub product_id: u128,
     pub user_id: u128,

@@ -12,10 +12,8 @@ use rand::prelude::*;
 use rand::{rngs::StdRng, SeedableRng};
 use sha3::{Digest, Keccak256};
 
-pub mod account;
-pub use self::account::Account;
 pub mod avritstructs;
-pub use self::avritstructs::{CommentProduct, CommentReview, Product, Review, User};
+pub use self::avritstructs::{CommentProduct, CommentReview, Communication, Product, Review, User};
 
 /// Price per 1 byte of storage from mainnet genesis config.
 pub const STORAGE_PRICE_PER_BYTE: Balance = 100000000000000000000;
@@ -37,6 +35,7 @@ pub struct Avrit {
     user_id: u128,
     product_id: u128,
     review_id: u128,
+    communication_id: u128,
     comment_product_id: u128,
     comment_review_id: u128,
     update_user_ids: LookupMap<u128, u128>, //(incremental time number, update_user_id)
@@ -49,6 +48,7 @@ pub struct Avrit {
     user_profile_map: TreeMap<u128, User>, // (user_id, User)
     product_map: TreeMap<u128, Product>,   // (product_id, Product)
     review_map: TreeMap<u128, Review>,     // (review_id, Review)
+    communication_map: TreeMap<u128, Communication>, // (communication_id, Communication)
     comment_product_map: LookupMap<u128, CommentProduct>, // (comment_product_id, CommentProduct)
     comment_review_map: LookupMap<u128, CommentReview>, // (comment_review_id, CommentReview)
     user_products_map: TreeMap<u128, UnorderedSet<u128>>, // (user_id, set<product_id>)
@@ -287,6 +287,14 @@ impl Avrit {
         self.product_id.into()
     }
 
+    pub fn get_final_review_id(&self) -> U128 {
+        self.review_id.into()
+    }
+
+    pub fn get_final_communcation_id(&self) -> U128 {
+        self.communication_id.into()
+    }
+
     pub fn set_burn_percentage(&mut self, value: U128) {
         self.assert_owner();
         self.ft.change_burn_percentage(value.into());
@@ -302,16 +310,20 @@ impl Avrit {
         self.phase_available_tokens.into()
     }
 
-    pub fn set_phase_available_token(&mut self, value: U128){
+    pub fn set_phase_available_token(&mut self, value: U128) {
         self.assert_owner();
         let value: u128 = value.into();
-        assert!(value <= self.total_available_tokens, "Value must be lower than total_available tokens");
-        self.phase_available_tokens=value;
+        assert!(
+            value <= self.total_available_tokens,
+            "Value must be lower than total_available tokens"
+        );
+        self.phase_available_tokens = value;
     }
 
     pub fn get_token_sold(&self) -> U128 {
         self.token_sold.into()
     }
+
 }
 
 #[near_bindgen]
@@ -460,6 +472,54 @@ impl Avrit {
                 panic!("User profile does not exists");
             }
         }
+    }
+
+    pub fn create_communication(&mut self, communication_details_hash: String) {
+        let account_id = env::predecessor_account_id();
+        let user_id = self.get_user_id(&account_id);
+        let com = Communication {
+            user_id,
+            communication_details_hash,
+            communication_expired: false,
+            communication_id: self.communication_id,
+        };
+        self.communication_map.insert(&self.communication_id, &com);
+        self.communication_id += 1;
+    }
+
+    pub fn get_communication_js(&self, communication_id: U128) -> Communication {
+        let communication_id: u128 = communication_id.into();
+        self.get_communication(communication_id)
+    }
+
+    fn get_communication(&self, communication_id: u128) -> Communication {
+        let communication_option = self.communication_map.get(&communication_id);
+        match communication_option {
+            Some(communication) => communication,
+            None => {
+                panic!("No communiction for the id");
+            }
+        }
+    }
+
+    pub fn update_communication(
+        &mut self,
+        communication_id: U128,
+        communication_details_hash: String,
+        communication_expired: bool,
+    ) {
+        let communication_id: u128 = communication_id.into();
+        let account_id = env::predecessor_account_id();
+        let user_id = self.get_user_id(&account_id);
+        let mut communication = self.get_communication(communication_id);
+        if user_id == communication.user_id {
+            communication.communication_details_hash = communication_details_hash;
+            communication.communication_expired = communication_expired;
+        } else {
+            panic!("You are not owner of communication");
+        }
+        self.communication_map
+            .insert(&communication_id, &communication);
     }
 
     pub fn get_products_of_user_id_js(&self, user_id: U128, start: usize, end: usize) -> Vec<U128> {
@@ -715,7 +775,12 @@ impl Avrit {
 
         let product_commentproduct_option = self.product_commentproduct_map.get(&product_id);
         match product_commentproduct_option {
-            Some(commentproduct_set) => commentproduct_set.iter().skip(start).take(end).map(|x| x.into()).collect(),
+            Some(commentproduct_set) => commentproduct_set
+                .iter()
+                .skip(start)
+                .take(end)
+                .map(|x| x.into())
+                .collect(),
             None => {
                 panic!("No comments on product");
             }
@@ -731,7 +796,12 @@ impl Avrit {
         let review_id: u128 = review_id.into();
         let review_commentreview_option = self.review_commentreview_map.get(&review_id);
         match review_commentreview_option {
-            Some(commentreview_set) => commentreview_set.iter().skip(start).take(end).map(|x| x.into()).collect(),
+            Some(commentreview_set) => commentreview_set
+                .iter()
+                .skip(start)
+                .take(end)
+                .map(|x| x.into())
+                .collect(),
             None => {
                 panic!("No comments on review");
             }
@@ -827,6 +897,9 @@ impl Avrit {
         let bounty: u64 = bounty.into();
         let review_id: u128 = review_id.into();
         self.check_products_reviewer_crossed(review_id);
+        // let review = self.get_review(review_id);
+        // let product_review_id = review.product_id;
+        // let _bounty = self.get_product_bounty(product_review_id);
         assert!(
             bounty >= self.min_review_bounty,
             "Bounty can not be less than minimum review bounty"
@@ -899,8 +972,10 @@ impl Avrit {
     pub fn new(owner_id: AccountId, total_supply: U128) -> Self {
         assert!(!env::state_exists(), "Already initialized");
         let total_supply_u128: u128 = total_supply.into();
-        let admin_balance = (total_supply_u128 * 20).checked_div(100).expect("oveflow");
+        let admin_balance_x = (total_supply_u128 * 20).checked_div(100).expect("oveflow");
+        let admin_balance = admin_balance_x.checked_div(10).expect("overflow");
         let token_sale_balance = (total_supply_u128 * 80).checked_div(100).expect("oveflow");
+        let phase_sale_balance = token_sale_balance.checked_div(100).expect("overflow");
         let mut this = Self {
             ft: FungibleToken::new(b"a".to_vec(), 0),
             owner_id: owner_id.clone(),
@@ -908,6 +983,7 @@ impl Avrit {
             user_id: 0,
             product_id: 0,
             review_id: 0,
+            communication_id: 0,
             comment_product_id: 0,
             comment_review_id: 0,
             update_user_ids: LookupMap::new(b"f657bf68".to_vec()),
@@ -920,6 +996,7 @@ impl Avrit {
             user_profile_map: TreeMap::new(b"589d167f".to_vec()),
             product_map: TreeMap::new(b"cf27d94f".to_vec()),
             review_map: TreeMap::new(b"5fc2c77f".to_vec()),
+            communication_map: TreeMap::new(b"67ca9fd8".to_vec()),
             comment_product_map: LookupMap::new(b"fc337b34".to_vec()),
             comment_review_map: LookupMap::new(b"7859e655".to_vec()),
             user_products_map: TreeMap::new(b"e7b6e8a6".to_vec()),
@@ -929,9 +1006,9 @@ impl Avrit {
             product_crowdfunding: LookupMap::new(b"b3556b34".to_vec()),
             product_bounty: LookupMap::new(b"0566cfb4".to_vec()),
             review_bounty: LookupMap::new(b"00423f89".to_vec()),
-            min_review_bounty: 1000000000000000000,// 10^18
+            min_review_bounty: 1000000000000000000, // 10^18
             min_product_bounty: 156250000000000000, //1.5625 × 10^17 , half of the first product incentives ie. (x/2)/2
-            min_jury_stake: 1000000000000000000, // 10^18
+            min_jury_stake: 1000000000000000000,    // 10^18
             product_id_set_ucount: 0,
             review_id_set_ucount: 0,
             user_juror_stakes: LookupMap::new(b"e56291ef".to_vec()),
@@ -945,7 +1022,7 @@ impl Avrit {
             jury_application_phase_time: 1296000, // 15 days in secs
             commit_phase_time: 2592000,           // 30 days in secs
             reveal_phase_time: 1296000,           // 15 days in secs
-            jury_incentives: 33000000000000000, // 3.3*10^16, 30 times less than 1 avrit
+            jury_incentives: 33000000000000000,   // 3.3*10^16, 30 times less than 1 avrit
             review_incentives: 66000000000000000, // 6.6*10^16, 15 times less than 1 avrit
             product_oa_incentives: 625000000000000000, // 6.25 × 10^17 =>  x/2 + x/2 + 3 * x/5 = 1000000000000000000  (1 avrit)
             product_evidence_incentives: 625000000000000000, // 6.25 × 10^17 =>  x/2 + x/2 + 3 * x/5 = 1000000000000000000  (1 avrit)
@@ -971,7 +1048,7 @@ impl Avrit {
             token_price: 100000,
             token_sold: 0,
             total_available_tokens: token_sale_balance,
-            phase_available_tokens: token_sale_balance,
+            phase_available_tokens: phase_sale_balance,
             on_crowdsale: true,
         };
         this.ft.internal_register_account(&owner_id);
@@ -2331,7 +2408,7 @@ impl Avrit {
         let product_user_id = product.user_id;
         let user = self.get_user_profile(product_user_id);
         let user_address = user.username;
-        let _bounty = self.get_product_bounty(product_id);
+        // let _bounty = self.get_product_bounty(product_id);
         self.check_if_product_will_get_incentives(product_id, review_id);
         let product_incentives =
             self.increment_product_incentive_count_check_allowed_limit(product_type, product_id);
@@ -2394,6 +2471,181 @@ impl Avrit {
             Promise::new(account_id).transfer(amount - required_deposit);
         }
     }
+
+    // Upgrade contract
+
+    // #[init(ignore_state)]
+    // pub fn migrate() -> Self {
+    //     #[derive(BorshDeserialize)]
+    //     pub struct Avrit {
+    //         // UserId
+    //         // ProductId
+    //         // ReviewId
+    //         // Map(Username, UserId)
+    //         // Map(UserId, User)
+    //         // Map(UserId, Set(ProductId))
+    //         // Map(ProductId, Product)
+    //         // Map(ProductId, Set(ReviewId))
+    //         // Map(ReviewId, Review)
+    //         owner_id: AccountId,
+    //         saving_id: AccountId,
+    //         user_id: u128,
+    //         product_id: u128,
+    //         review_id: u128,
+    //         communication_id: u128,
+    //         comment_product_id: u128,
+    //         comment_review_id: u128,
+    //         update_user_ids: LookupMap<u128, u128>, //(incremental time number, update_user_id)
+    //         update_user_id_time_counter: u128,
+    //         update_product_ids: LookupMap<u128, u128>, //(incremental time number, updated_product_id)
+    //         update_product_id_time_counter: u128,
+    //         update_review_ids: LookupMap<u128, u128>, //(incremental time number, updated_review_id)
+    //         update_review_id_time_counter: u128,
+    //         user_map: TreeMap<String, u128>, // (username, user_id)
+    //         user_profile_map: TreeMap<u128, User>, // (user_id, User)
+    //         product_map: TreeMap<u128, Product>, // (product_id, Product)
+    //         review_map: TreeMap<u128, Review>, // (review_id, Review)
+    //         communication_map: TreeMap<u128, Communication>, // (communication_id, Communication)
+    //         comment_product_map: LookupMap<u128, CommentProduct>, // (comment_product_id, CommentProduct)
+    //         comment_review_map: LookupMap<u128, CommentReview>, // (comment_review_id, CommentReview)
+    //         user_products_map: TreeMap<u128, UnorderedSet<u128>>, // (user_id, set<product_id>)
+    //         product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
+    //         product_commentproduct_map: LookupMap<u128, UnorderedSet<u128>>, // (product_id, set<commentproduct_id>)
+    //         review_commentreview_map: LookupMap<u128, UnorderedSet<u128>>, // (review_id, set<commentreview_id>)
+    //         product_crowdfunding: LookupMap<u128, u128>,                   // (product_id, bounty)
+    //         product_bounty: LookupMap<u128, u64>, // (product_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
+    //         review_bounty: LookupMap<u128, u64>, // (review_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
+    //         min_review_bounty: u64,
+    //         min_product_bounty: u64,
+    //         min_jury_stake: u64,
+    //         // max_number_of_jury_can_stake: u64,
+    //         user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>> #Delete
+    //         user_juror_stakes_clone: LookupMap<u128, TreeMap<u128, u128>>, // #Delete
+    //         user_juror_stake_count: LookupMap<u128, u64>, // <review_id, juror that staked count>
+    //         juror_stake_unique_id: u128,
+    //         juror_unstaked: LookupMap<u128, LookupSet<u128>>, // <review_id, jurorid>
+    //         selected_juror_count: LookupMap<u128, u64>, // <review_id, selected_juror_count> #Delete
+    //         selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>  #Delete
+    //         juror_selection_time: LookupMap<u128, u64>, // <review_id, timestamp>
+    //         jury_application_start_time: LookupMap<u128, u64>, // <review_id, time>
+    //         product_id_set_ucount: u128,
+    //         review_id_set_ucount: u128,
+    //         jury_count: u64,
+    //         jury_application_phase_time: u64, // Jury selection time in seconds
+    //         commit_phase_time: u64,           // Commit phase time in seconds
+    //         reveal_phase_time: u64,           // Reveal phase time in seconds
+    //         voter_commit: LookupMap<u128, LookupMap<String, u8>>, // review_id, vote_commits, 1 if commited, 2 if revealed
+    //         juror_voting_status: LookupMap<u128, LookupMap<u128, u8>>, // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed, 3=got the incentives>
+    //         schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <review_id, <jurorid, 1=true 0=false>>
+    //         schelling_decision_true_count: LookupMap<u128, u128>, // <review_id, true_count>
+    //         schelling_decision_false_count: LookupMap<u128, u128>, // <review_id, false_count>
+    //         jury_incentives: u128,                                // Extra incentives on winning
+    //         review_incentives: u128,                              // Extra incentives on winning
+    //         product_oa_incentives: u128, // Extra incentives for each review for open access content
+    //         product_evidence_incentives: u128, // Extra incentives for each review for evidence of learning
+    //         review_got_incentives: LookupMap<u128, u8>, // <review_id, 1 if got incentives>
+    //         product_got_incentives: LookupMap<u128, LookupMap<u128, u8>>, // product_id <review_id, 1 if got incentives>
+    //         product_incentives_count: LookupMap<u128, u128>, // product_id, product_incentives_count
+    //         max_allowed_product_oa_incentives_count: u128,
+    //         max_allowed_product_evidence_incentives_count: u128,
+    //         number_of_allowed_reviews_per_product: u64,
+    //         product_review_count: LookupMap<u128, u64>,
+    //         ft: FungibleToken,
+    //         // Crowdsale
+    //         token_price: u128,
+    //         token_sold: u128,
+    //         total_available_tokens: u128,
+    //         phase_available_tokens: u128,
+    //         on_crowdsale: bool,
+    //     }
+
+    //     let state: Avrit = env::state_read().unwrap();
+
+    //     assert_eq!(
+    //         &env::predecessor_account_id(),
+    //         &state.owner_id,
+    //         "Can only be called by the owner"
+    //     );
+
+    //     Self {
+    //         ft: state.ft,
+    //         owner_id: state.owner_id,
+    //         saving_id: state.saving_id,
+    //         user_id: state.user_id,
+    //         product_id: state.product_id,
+    //         review_id: state.review_id,
+    //         // update
+    //         communication_id: state.communication_id,
+    //         comment_product_id: state.comment_product_id,
+    //         comment_review_id: state.comment_review_id,
+    //         update_user_ids: state.update_user_ids,
+    //         update_user_id_time_counter: state.update_user_id_time_counter,
+    //         update_product_ids: state.update_product_ids,
+    //         update_product_id_time_counter: state.update_product_id_time_counter,
+    //         update_review_ids: state.update_review_ids,
+    //         update_review_id_time_counter: state.update_review_id_time_counter,
+    //         user_map: state.user_map,
+    //         user_profile_map: state.user_profile_map,
+    //         product_map: state.product_map,
+    //         review_map: state.review_map,
+    //         // update
+    //         communication_map: state.communication_map,
+    //         comment_product_map: state.comment_product_map,
+    //         comment_review_map: state.comment_review_map,
+    //         user_products_map: state.user_products_map,
+    //         product_reviews_map: state.product_reviews_map,
+    //         product_commentproduct_map: state.product_commentproduct_map,
+    //         review_commentreview_map: state.review_commentreview_map,
+    //         product_crowdfunding: state.product_crowdfunding,
+    //         product_bounty: state.product_bounty,
+    //         review_bounty: state.review_bounty,
+    //         min_review_bounty: state.min_review_bounty,
+    //         min_product_bounty: state.min_product_bounty,
+    //         min_jury_stake: state.min_jury_stake,
+    //         product_id_set_ucount: state.product_id_set_ucount,
+    //         review_id_set_ucount: state.review_id_set_ucount,
+    //         user_juror_stakes: state.user_juror_stakes,
+    //         user_juror_stakes_clone: state.user_juror_stakes_clone,
+    //         user_juror_stake_count: state.user_juror_stake_count,
+    //         juror_unstaked: state.juror_unstaked,
+    //         juror_stake_unique_id: state.juror_stake_unique_id,
+    //         selected_juror: state.selected_juror,
+    //         jury_count: state.jury_count,
+    //         // max_number_of_jury_can_stake:state.// max_number_of_jury_can_stake,
+    //         jury_application_phase_time: state.jury_application_phase_time,
+    //         commit_phase_time: state.commit_phase_time,
+    //         reveal_phase_time: state.reveal_phase_time,
+    //         jury_incentives: state.jury_incentives,
+    //         review_incentives: state.review_incentives,
+    //         product_oa_incentives: state.product_oa_incentives,
+    //         product_evidence_incentives: state.product_evidence_incentives,
+    //         // Here is the gist of incentivestate.// Here is the gist of incentiv,
+    //         // 30 times judge, 1 avritstate.// 30 times judge, 1 avri,
+    //         // 15 times review, 1 avritstate.// 15 times review, 1 avri,
+    //         // 1 time product, 1 avritstate.// 1 time product, 1 avri,
+    //         review_got_incentives: state.review_got_incentives,
+    //         product_got_incentives: state.product_got_incentives,
+    //         product_incentives_count: state.product_incentives_count,
+    //         max_allowed_product_oa_incentives_count: state.max_allowed_product_oa_incentives_count,
+    //         max_allowed_product_evidence_incentives_count: state
+    //             .max_allowed_product_evidence_incentives_count,
+    //         selected_juror_count: state.selected_juror_count,
+    //         jury_application_start_time: state.jury_application_start_time,
+    //         juror_selection_time: state.juror_selection_time,
+    //         voter_commit: state.voter_commit,
+    //         juror_voting_status: state.juror_voting_status,
+    //         schelling_decisions_juror: state.schelling_decisions_juror,
+    //         schelling_decision_true_count: state.schelling_decision_true_count,
+    //         schelling_decision_false_count: state.schelling_decision_false_count,
+    //         number_of_allowed_reviews_per_product: state.number_of_allowed_reviews_per_product,
+    //         product_review_count: state.product_review_count,
+    //         token_price: state.token_price,
+    //         token_sold: state.token_sold,
+    //         total_available_tokens: state.total_available_tokens,
+    //         phase_available_tokens: state.phase_available_tokens,
+    //         on_crowdsale: state.on_crowdsale,
+    //     }
+    // }
 }
 
 // To Do:

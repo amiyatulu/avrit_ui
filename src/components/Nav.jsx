@@ -15,7 +15,7 @@ function Nav(props) {
         <button type="button" className="close" data-dismiss="alert">
           ×
         </button>
-        <strong>The app is on testnet!</strong>
+        <strong>The app is on mainnet! Live!</strong>
       </div>
       <nav
         className={

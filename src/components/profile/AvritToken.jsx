@@ -25,6 +25,8 @@ function Loading(props) {
 function AvritToken() {
   const { balance, balanceError } = useContext(NearContext)
   let pw = BigNumber(10).pow(18)
+
+  console.log("balance", balance)
   return (
     <React.Fragment>
       {balance ? (

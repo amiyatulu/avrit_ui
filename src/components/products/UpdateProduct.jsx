@@ -11,9 +11,41 @@ import TagsInput from "./TagsInput"
 import DropProductImageUpdate from "./DropProductImageUpdate"
 import { IPFS_URL } from "../../config/configvar"
 import DropProductPDFsUpdate from "./DropProductPDFsUpdate"
+import ReactQuill from "react-quill"
+import "react-quill/dist/quill.snow.css"
+import "./CreateProduct.css"
 
 function UpdateProduct(props) {
   // const [count, setCount] = useState(0);
+  let modules = {
+    toolbar: [
+      [{ header: [1, 2, false] }],
+      ["bold", "italic", "underline", "strike", "blockquote"],
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+      ["link", "image", "video"],
+      ["clean"],
+    ],
+  }
+
+  let formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "blockquote",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+    "image",
+    "video",
+  ]
   let history = useHistory()
   const { pid } = useParams()
   let { nearvar } = useContext(NearContext)
@@ -27,7 +59,7 @@ function UpdateProduct(props) {
 
   useEffect(() => {
     async function fetchProduct() {
-        console.log(pid)
+      console.log(pid)
       try {
         let data = await nearvar.contract.get_product_js({
           product_id: pid.toString(),
@@ -60,7 +92,9 @@ function UpdateProduct(props) {
             }}
             validationSchema={Yup.object().shape({
               headline: Yup.string().required("Title is required"),
-              productimage: Yup.string().required("Image is required and it should be JPG or PNG"),
+              productimage: Yup.string().required(
+                "Image is required and it should be JPG or PNG"
+              ),
               details: Yup.string().required("Details is required"),
               pdfs: Yup.string().required("Upload the PDFs"),
               specialization: Yup.string().required(
@@ -72,7 +106,6 @@ function UpdateProduct(props) {
               values.profile_type_fullname = ipfsData.profile_type_fullname
               // values.profile_type_fullname = productType
               try {
-     
                 const file = await ipfs({
                   path: "product.json",
                   content: JSON.stringify(values),
@@ -134,19 +167,23 @@ function UpdateProduct(props) {
                 />
                 {/* <TagsInput selectedTags={selectedTags} name={"audience"} setFieldValue={setFieldValue} tags={['Novice', 'Intermediate']}/> */}
 
-
                 <div className="form-group">
                   <label htmlFor="details">Details</label>
                   {touched.details && errors.details && (
                     <p className="alert alert-danger">{errors.details}</p>
                   )}
 
-                  <Field
-                    name="details"
-                    component="textarea"
-                    rows="5"
-                    className="form-control"
-                  />
+                  <Field id="details" name="details" className="form-control">
+                    {({ field }) => (
+                      <ReactQuill
+                        value={field.value}
+                        onChange={field.onChange(field.name)}
+                        modules={modules}
+                        formats={formats}
+                        // modules={CreateProduct.modules}
+                      />
+                    )}
+                  </Field>
                 </div>
                 <div className="form-group">
                   <label htmlFor="PDFs">PDFs</label>
@@ -229,11 +266,11 @@ function UpdateProduct(props) {
       </React.Fragment>
     )
   } else if (fetchProductError) {
-      return (
-          <React.Fragment>
-              {JSON.stringify(fetchProductError.message)}
-          </React.Fragment>
-      )
+    return (
+      <React.Fragment>
+        {JSON.stringify(fetchProductError.message)}
+      </React.Fragment>
+    )
   } else {
     return (
       <React.Fragment>

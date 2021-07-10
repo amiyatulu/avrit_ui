@@ -9,9 +9,28 @@ import Ipfsadd from "../../commons/TextileIO"
 import TagsInput from "./TagsInput"
 import DropProductImage from "./DropProductImage"
 import DropProductPDFs from "./DropProductPDFs"
+import ReactQuill from "react-quill"
+import "react-quill/dist/quill.snow.css"
+import "./CreateProduct.css"
 
 function CreateProduct(props) {
   // const [count, setCount] = useState(0);
+  let modules = {
+    toolbar: [
+      [{ 'header': [1, 2, false] }],
+      ['bold', 'italic', 'underline','strike', 'blockquote'],
+      [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+      ['link', 'image', 'video'],
+      ['clean']
+    ],
+  }
+
+  let formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike', 'blockquote',
+    'list', 'bullet', 'indent',
+    'link', 'image', 'video'
+  ]
   let history = useHistory()
   const { pt } = useParams()
   let { nearvar } = useContext(NearContext)
@@ -125,12 +144,17 @@ function CreateProduct(props) {
                   <p className="alert alert-danger">{errors.details}</p>
                 )}
 
-                <Field
-                  name="details"
-                  component="textarea"
-                  rows="5"
-                  className="form-control"
-                />
+                <Field id="details" name="details" className="form-control">
+                  {({ field }) => (
+                    <ReactQuill
+                      value={field.value}
+                      onChange={field.onChange(field.name)}
+                      modules={modules}
+                      formats={formats}
+                      // modules={CreateProduct.modules}
+                    />
+                  )}
+                </Field>
               </div>
               <div className="form-group">
                 <label htmlFor="PDFs">PDFs</label>
@@ -208,4 +232,9 @@ function CreateProduct(props) {
   )
 }
 
+
+
+
+
 export default CreateProduct
+

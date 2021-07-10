@@ -15,10 +15,7 @@ function Process() {
         <article className="jumbotron">
           <h3>Login into the account</h3>
           <p>
-            Create an account if it doesn't exist. To create an account in
-            mainnet you need some near tokens, you can buy near from different
-            exchanges like binance, Huobi Global or WazirX. If you already have
-            an account, log in using it.
+            Create an account if it doesn't exist. Then login using the account.
           </p>
         </article>
         <article className="jumbotron">
@@ -80,6 +77,12 @@ function Process() {
             the reviewer will get incentives if the judgment is in for the
             review. Product too will get incentives if the rating is more than 2
             stars.
+          </p>
+        </article>
+        <article className="jumbotron">
+          <h3>Fund your favorite content</h3>
+          <p>
+          You can also tip your favorite content so that content creators and students can earn some extra money. 
           </p>
         </article>
       </div>

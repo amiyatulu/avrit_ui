@@ -1,16 +1,33 @@
-import { CONTRACT_NAME } from "./configvar";
+import { CONTRACT_NAME } from "./configvar"
 
 // console.log(CONTRACT_NAME)
+
+// Mainnet
+// return {
+//   networkId: 'mainnet',
+//   nodeUrl: 'https://rpc.mainnet.near.org',
+//   contractName: CONTRACT_NAME,
+//   walletUrl: 'https://wallet.near.org',
+//   helperUrl: 'https://helper.mainnet.near.org',
+//   explorerUrl: 'https://explorer.mainnet.near.org',
+// }
+
+
+// networkId: "default",
+// nodeUrl: "https://rpc.testnet.near.org",
+// contractName: CONTRACT_NAME,
+// walletUrl: "https://wallet.testnet.near.org",
+// helperUrl: "https://helper.testnet.near.org",
 
 const getConfig = (env) => {
   switch (env) {
     case "production":
       return {
-        networkId: "default",
-        nodeUrl: "https://rpc.testnet.near.org",
+        networkId: "mainnet",
+        nodeUrl: "https://rpc.mainnet.near.org",
         contractName: CONTRACT_NAME,
-        walletUrl: "https://wallet.testnet.near.org",
-        helperUrl: "https://helper.testnet.near.org",
+        walletUrl: "https://wallet.near.org",
+        helperUrl: "https://helper.mainnet.near.org",
       }
 
     case "development":
@@ -62,8 +79,10 @@ const getConfig = (env) => {
         masterAccount: "test.near",
       }
     default:
-      throw Error(`Unconfigured environment '${env}'. Can be configured in src/config.js.`)
+      throw Error(
+        `Unconfigured environment '${env}'. Can be configured in src/config.js.`
+      )
   }
 }
 
-export default getConfig;
+export default getConfig

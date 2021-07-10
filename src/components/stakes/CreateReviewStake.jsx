@@ -6,6 +6,7 @@ import { NearContext } from "../../commons/context/NearContext"
 import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
 import { BigNumber } from "bignumber.js";
+import GetReviewMinStake from "../schelling/GetReviewMinStake"
 
 function CreateReviewStake(props) {
   // const [count, setCount] = useState(0);
@@ -62,7 +63,8 @@ function CreateReviewStake(props) {
           }) => (
             <Form onSubmit={handleSubmit}>
               {errorThrow && <p>{errorThrow}</p>}
-
+              <br/>
+              <GetReviewMinStake />
               <div className="form-group">
                 <label htmlFor="stake">stake</label>
                 {touched.stake && errors.stake && (
