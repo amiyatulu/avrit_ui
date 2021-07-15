@@ -275,7 +275,7 @@ function App(props) {
                 component={ProductCrowdfunding}
               />
               <Route path="/fetchproducts" component={FetchProductsPage} />
-              <Route path="/ico" component={IcoFormPage} />
+              <Route path="/crowdsale" component={IcoFormPage} />
               <Route path="/content" component={ContentBestPractices} />
               <Route path="/products" component={ProductsAll} />
               <Route path="/process" component={Process} />

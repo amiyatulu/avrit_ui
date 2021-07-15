@@ -73,6 +73,11 @@ function Nav(props) {
                     Walkthrough
                     </Link>
                   </li>
+                  <li className="nav-item">
+                    <Link className="nav-link js-scroll-trigger" to="/crowdsale">
+                    Crowdsale
+                    </Link>
+                  </li>
                   {/* <li className="nav-item">
                     <Link
                       className="nav-link js-scroll-trigger"
@@ -110,6 +115,11 @@ function Nav(props) {
                   <li className="nav-item">
                     <Link className="nav-link js-scroll-trigger" to="/process">
                     Walkthrough
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link js-scroll-trigger" to="/crowdsale">
+                    Crowdsale
                     </Link>
                   </li>
                   <li className="nav-item">

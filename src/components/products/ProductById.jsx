@@ -78,9 +78,9 @@ function ProductById() {
               </React.Fragment>
             )} */}
 
-            <div className="details" dangerouslySetInnerHTML={{__html: ipfsData.details}} />
+            <div className={`details ${longword.linebreaks} ${longword.wraplongworld}`} dangerouslySetInnerHTML={{__html: ipfsData.details}} />
 
-            {/* <p className={`${longword.linebreaks} ${longword.wraplongworld}`}>
+             {/* <p className={`${longword.linebreaks} ${longword.wraplongworld}`}>
               <Linkify
                 componentDecorator={(decoratedHref, decoratedText, key) => (
                   <a target="blank" href={decoratedHref} key={key}>
@@ -90,7 +90,7 @@ function ProductById() {
               >
                 {ipfsData.details}
               </Linkify>
-            </p> */}
+            </p>  */}
             <h5>PDFs:</h5>
             <div>
               {ipfsData.pdfs && (
