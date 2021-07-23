@@ -14,10 +14,7 @@
   background-color: #f6f3f0;
 }
 
-.rowtwo {
-  height: 400px;
-  background-color: #c8ddd7;
-}
+
 
 @media only screen and (max-width: 770px) {
   .rowtwo {
@@ -74,6 +71,11 @@
     padding-left: 100px;
     padding-right: 100px;
     animation: fadeInLeft ease 15s;
+  }
+
+  .rowtwo {
+    height: 400px;
+    background-color: #c8ddd7;
   }
 
   .imagecss {

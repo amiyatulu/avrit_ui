@@ -21,7 +21,7 @@ rand = "0.7.3"
 
 
 [dev-dependencies]
-near-sdk-sim = "3.1.0"
+near-sdk-sim = "3.2.0"
 
 
 

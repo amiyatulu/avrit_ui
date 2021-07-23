@@ -1,3 +1,6 @@
+use avrit::avrit::AvritContract as Contract;
+use avrit::avrit::Product;
+use chrono::{DateTime, Utc};
 use near_sdk::json_types::U128;
 use near_sdk::serde_json::json;
 use near_sdk::Balance;
@@ -5,9 +8,6 @@ use near_sdk_sim::{
     call, deploy, init_simulator, to_yocto, view, ContractAccount, ExecutionResult, UserAccount,
     DEFAULT_GAS,
 };
-use avrit::avrit::AvritContract as Contract;
-use avrit::avrit::Product;
-use chrono::{DateTime, Utc};
 use rand::Rng;
 use sha3::{Digest, Keccak256};
 
@@ -17,19 +17,33 @@ near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
 
 const CONTRACT_ID: &str = "avrit";
 
+pub fn register_user(user: &near_sdk_sim::UserAccount) {
+    user.call(
+        CONTRACT_ID.to_string(),
+        "storage_deposit",
+        &json!({
+            "account_id": user.valid_account_id()
+        })
+        .to_string()
+        .into_bytes(),
+        near_sdk_sim::DEFAULT_GAS / 2,
+        near_sdk::env::storage_byte_cost() * 125, // attached deposit
+    )
+    .assert_success();
+}
 
 fn get_timestamp() -> u64 {
     let now: DateTime<Utc> = Utc::now();
-    now.timestamp()  as u64  * 1000000000 
+    now.timestamp() as u64 * 1000000000
 }
 
 fn get_timestamp_add(add: u64) -> u64 {
     let now: DateTime<Utc> = Utc::now();
-    now.timestamp() as u64   * 1000000000 + add
+    now.timestamp() as u64 * 1000000000 + add
 }
 
 fn draw_time_add() -> u64 {
-    1296000 * 1000000000 
+    1296000 * 1000000000
 }
 
 fn rand_vector() -> Vec<u8> {
@@ -49,40 +63,33 @@ fn rand_vector() -> Vec<u8> {
     return result;
 }
 
-
-
-fn deploy_avrit() -> (UserAccount, UserAccount, ContractAccount<Contract>) {
+pub fn deploy_avrit() -> (UserAccount, UserAccount, ContractAccount<Contract>) {
     let root = init_simulator(None);
-    let owner = root.create_user("alice".to_string(), to_yocto("10000"));
+    let owner = root.create_user("alice".to_string(), to_yocto("10"));
     let avrit_contract = deploy!(
         contract: Contract,
-        contract_id: CONTRACT_ID.to_string(),
+        contract_id: CONTRACT_ID,
         bytes: &AVRIT_WASM_BYTES,
         signer_account: root,
+        deposit: near_sdk_sim::STORAGE_AMOUNT, // Deposit required to cover contract storage.
+        gas: near_sdk_sim::DEFAULT_GAS,
         init_method: new(owner.valid_account_id().as_ref().to_string(), 10000000000.into())
     );
     (root, owner, avrit_contract)
 }
 
-
-
 #[test]
 pub fn test_ft_transfer() {
     let (root, owner, avrit_contract) = deploy_avrit();
     let  owner_balance: U128 = view!(avrit_contract.ft_balance_of(owner.valid_account_id())).unwrap_json();
-    assert_eq!(owner_balance.0, 10000000000);
-    
+    assert_eq!(owner_balance.0, 200000000);
     let bob = root.create_user("bob".to_string(), to_yocto("1000000"));
     call!(bob, avrit_contract.storage_deposit(Some(bob.valid_account_id()), None), deposit= to_yocto("100")).assert_success();
-    call!(bob, avrit_contract.register_account(bob.valid_account_id())).assert_success();
-    call!(owner, avrit_contract.storage_deposit(Some(owner.valid_account_id()), None), deposit= to_yocto("100")).assert_success();
     call!(owner, avrit_contract.ft_transfer(bob.valid_account_id(), 5000.into(), None),
     deposit = 1).assert_success();
-
     let bob_balance: U128 = view!(avrit_contract.ft_balance_of(bob.valid_account_id())).unwrap_json();
     assert_eq!(bob_balance.0, 5000);
 }
-
 
 // #[test]
 // fn profile() {

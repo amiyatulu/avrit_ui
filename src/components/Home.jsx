@@ -3,6 +3,7 @@ import styles from "./Home.module.css"
 import child from "./image/child.svg"
 import ball from "./image/ball.svg"
 import FetchProductsPage from "./products/FetchProductsPage"
+import HomeDetails from "./HomeDetails"
 
 function Home() {
   const [count, setCount] = useState(0)
@@ -43,7 +44,9 @@ function Home() {
         </div>
         <br/>
         <br/>
+      
         <div className={styles.fetchproduct}>
+            <HomeDetails/>
         <h3 className="text-center"> Products </h3>
         <FetchProductsPage />
         </div>
