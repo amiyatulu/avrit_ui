@@ -101,12 +101,6 @@ function ViewProfile() {
           <p className={styles.profilepara}>{profileData.headline}</p>
           <h3 className={styles.labelstyle}>Introduction</h3>
           <p className={styles.profilepara}>{profileData.introduction}</p>
-          <h3 className={styles.labelstyle}>Details</h3>
-          <p className={styles.profilepara}>{profileData.details}</p>
-          <h3 className={styles.labelstyle}>You are</h3>
-          <p className={styles.profilepara}>{profileData.youAre}</p>
-          <h3 className={styles.labelstyle}>Skills</h3>
-          <p className={styles.profilepara}>{profileData.skills}</p>
           {/* <pre>{JSON.stringify(profileData)}</pre> */}
         </div>
       ) : (

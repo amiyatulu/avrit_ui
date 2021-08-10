@@ -12,6 +12,9 @@
   .productcol {
     margin: 20px;
   }
+  .card-img-top {
+    height: 300px;
+  }
   .productrow {
     padding:1px;
   }

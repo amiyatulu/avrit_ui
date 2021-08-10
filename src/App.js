@@ -77,6 +77,8 @@ const ContentBestPractices = lazy(() =>
 const ProductsAll = lazy(() => import("./components/products/ProductsAll"))
 const Process = lazy(() => import("./components/pagestext/Process"))
 
+const PrivacyPolicy = lazy(() => import('./components/pagestext/PrivacyPolicy'))
+
 function App(props) {
   const [login, setLogin] = useState(false)
   const [speech, setSpeech] = useState(null)
@@ -279,6 +281,7 @@ function App(props) {
               <Route path="/content" component={ContentBestPractices} />
               <Route path="/products" component={ProductsAll} />
               <Route path="/process" component={Process} />
+              <Route path="/privacypolicy" component={PrivacyPolicy} />
             </Switch>
           </section>
         </React.Fragment>

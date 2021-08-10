@@ -22,9 +22,8 @@ function GetReviews(props) {
           let hash = await nearvar.contract.get_review_js({ review_id: x })
           hash.review_id = x
           return hash
-
         })
-        Promise.all(reviewPromises).then(hash => {
+        Promise.all(reviewPromises).then((hash) => {
           console.log("hash", hash)
           setReviewsData(hash)
         })
@@ -48,13 +47,17 @@ function GetReviews(props) {
           <h3>Reviews</h3>
           {reviewsData.map((data) => (
             <React.Fragment key={data.review_id}>
-              <ReviewFullDetailsEvidence
-                ipfshash={data.review_hash}
-                rid={data.review_id}
-                uid={data.user_id}
-                pid={pid}
-                rating={data.rating}
-              />
+              {data.review_expired === false && (
+                <React.Fragment>
+                  <ReviewFullDetailsEvidence
+                    ipfshash={data.review_hash}
+                    rid={data.review_id}
+                    uid={data.user_id}
+                    pid={pid}
+                    rating={data.rating}
+                  />
+                </React.Fragment>
+              )}
             </React.Fragment>
           ))}
         </div>

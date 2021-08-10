@@ -12,6 +12,7 @@ import "./IcoFormPage.css"
 import PulseEffectTitle from "./PulseEffectTitle"
 import { BigNumber } from "bignumber.js";
 
+
 function IcoFormPage(props) {
   // const [count, setCount] = useState(0);
   // const { id } = useParams()

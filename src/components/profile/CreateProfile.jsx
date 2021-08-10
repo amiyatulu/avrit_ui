@@ -21,16 +21,10 @@ function CreateProfile() {
           initialValues={{
             headline: "",
             introduction: "",
-            details: "",
-            youAre: "",
-            skills: "",
           }}
           validationSchema={Yup.object().shape({
             headline: Yup.string().required("Headline is required"),
             introduction: Yup.string().required("Introduction is required"),
-            details: Yup.string().required("Details is required"),
-            youAre: Yup.string().required("You are is required"),
-            skills: Yup.string().required("Skills is required"),
           })}
           onSubmit={async (values, actions) => {
             //values.countvariable = count

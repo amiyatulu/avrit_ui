@@ -27,6 +27,7 @@ import cognitiveload from "../image/cognitive-load.png"
 import learningobjectives from "../image/learning_objectives.png"
 import reference from "../image/reference.png"
 
+
 function ContentBestPractices() {
   return (
     <React.Fragment>

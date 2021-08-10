@@ -18,17 +18,11 @@ function UpdateProfile(props) {
   let initialValues = {
     headline: "",
     introduction: "",
-    details: "",
-    youAre: "",
-    skills: "",
   }
   if (profileData) {
     initialValues = {
       headline: profileData.headline,
       introduction: profileData.introduction,
-      details: profileData.details,
-      youAre: profileData.youAre,
-      skills: profileData.skills,
     }
   }
   const history = useHistory()
@@ -42,9 +36,6 @@ function UpdateProfile(props) {
           validationSchema={Yup.object().shape({
             headline: Yup.string().required("Headline is required"),
             introduction: Yup.string().required("Introduction is required"),
-            details: Yup.string().required("Details is required"),
-            youAre: Yup.string().required("You are is required"),
-            skills: Yup.string().required("Skills is required"),
           })}
           onSubmit={async (values, actions) => {
             //values.countvariable = count

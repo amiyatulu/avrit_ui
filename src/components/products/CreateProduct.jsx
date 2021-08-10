@@ -57,7 +57,7 @@ function CreateProduct(props) {
               "Image is required and it should be JPG or PNG"
             ),
             details: Yup.string().required("Details is required"),
-            pdfs: Yup.string().required("Upload the PDFs"),
+            pdfs: Yup.string(),
             specialization: Yup.string().required("Specialization is required"),
             audience: Yup.string().required("Audience is required"),
           })}

@@ -1,0 +1,24 @@
+
+  
+  
+
+  
+  
+  
+  .homeimagediv {
+    overflow: hidden;
+  
+  }
+  
+  .homeimagediv img {
+    transition: transform 1s; 
+  }
+  
+  .homeimagediv:hover img {
+    transform: scale(1.1);
+    transform-origin: 50% 50%;
+  }
+  
+  .challenge {
+    background-color: white;
+  }

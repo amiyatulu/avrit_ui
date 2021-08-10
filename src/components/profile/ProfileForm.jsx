@@ -21,7 +21,7 @@ function ProfileForm(props) {
         <Field name="introduction" component="textarea" rows="5" className="form-control" />
       </div>
 
-      <div className="form-group">
+      {/* <div className="form-group">
         <label htmlFor="details" className={styles.labelstyle}>Details</label>
         {touched.details && errors.details && <p className="alert alert-danger">{errors.details}</p>}
 
@@ -40,7 +40,7 @@ function ProfileForm(props) {
         {touched.skills && errors.skills && <p className="alert alert-danger">{errors.skills}</p>}
 
         <Field name="skills" component="textarea" rows="5" className="form-control" />
-      </div>
+      </div> */}
 
       <div className="text-center">
         <button type="submit" className="btn btn-primary" disabled={isSubmitting}>

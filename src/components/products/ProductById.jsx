@@ -57,7 +57,7 @@ function ProductById() {
     <React.Fragment>
       {ipfsData && (
         <div className="container">
-          <br/>
+          <br />
           <div className="jumbotron">
             <h3 className="display-4">{ipfsData.headline}</h3>
             {/* {ipfsData.productimage && (
@@ -78,9 +78,12 @@ function ProductById() {
               </React.Fragment>
             )} */}
 
-            <div className={`details ${longword.linebreaks} ${longword.wraplongworld}`} dangerouslySetInnerHTML={{__html: ipfsData.details}} />
+            <div
+              className={`details ${longword.linebreaks} ${longword.wraplongworld}`}
+              dangerouslySetInnerHTML={{ __html: ipfsData.details }}
+            />
 
-             {/* <p className={`${longword.linebreaks} ${longword.wraplongworld}`}>
+            {/* <p className={`${longword.linebreaks} ${longword.wraplongworld}`}>
               <Linkify
                 componentDecorator={(decoratedHref, decoratedText, key) => (
                   <a target="blank" href={decoratedHref} key={key}>
@@ -91,7 +94,7 @@ function ProductById() {
                 {ipfsData.details}
               </Linkify>
             </p>  */}
-            <h5>PDFs:</h5>
+            {ipfsData.pdfs && <h5>PDFs:</h5>}
             <div>
               {ipfsData.pdfs && (
                 <React.Fragment>
@@ -137,25 +140,24 @@ function ProductById() {
               </Link>
             )}
 
-           <Link
+            <Link
               to={`/productstake/${id}`}
               className="badge badge-secondary mr-3"
             >
               Add or Update Stake
             </Link>
-            <ProductCrowdfundingGet pid={id}/>
+            <ProductCrowdfundingGet pid={id} />
             <Link
               to={`/productcrowdfund/${id}`}
               className="badge badge-secondary mr-3"
             >
               Fund it
             </Link>
-            <UserName uid={productUserId}/>
+            <UserName uid={productUserId} />
           </div>
           <div>
             <GetReviews pid={id} />
           </div>
-          
         </div>
       )}
     </React.Fragment>

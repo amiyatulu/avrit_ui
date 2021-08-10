@@ -17,7 +17,7 @@ function Home() {
               <div className={`col-8 text-center`}>
                 <div className={`${styles.avrittitle}`}>Avrit</div>
                 <div className={`${styles.avrittext}`}>
-                  Decentralized Learning
+                  Earn for Learning
                 </div>
                 <div className={`${styles.ball}`}>
                   <img src={ball} alt="ball" height="80px" />

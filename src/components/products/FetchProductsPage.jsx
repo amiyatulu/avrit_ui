@@ -46,7 +46,7 @@ function FetchProductsPage() {
       rows
     )
   }, [])
-  
+
   return (
     <React.Fragment>
       <div className="container myscrolldiv">
@@ -59,20 +59,26 @@ function FetchProductsPage() {
           {rows &&
             rows.map((row, index) => (
               <React.Fragment key={index}>
-              <div className="row productrow">
-                {row.map((data) => (
-                  <div className="col-md-4 productcol" key={data.product_id}>
+                <div className="row productrow">
+                  {row.map((data) => (
                     <React.Fragment>
-                      {/* {JSON.stringify(data)} */}
-                      <ProductDetailsHome
-                        ipfshash={data.product_details_hash}
-                        id={data.product_id}
-                      />
+                      {data.product_expired === false && (
+                        <div
+                          className="col-md-4 productcol"
+                          key={data.product_id}
+                        >
+                          <React.Fragment>
+                            {/* {JSON.stringify(data)} */}
+                            <ProductDetailsHome
+                              ipfshash={data.product_details_hash}
+                              id={data.product_id}
+                            />
+                          </React.Fragment>
+                        </div>
+                      )}
                     </React.Fragment>
-                  </div>
-                 
-                ))}
-              </div>
+                  ))}
+                </div>
               </React.Fragment>
             ))}
           {/* {productsData &&
