@@ -77,7 +77,10 @@ const ContentBestPractices = lazy(() =>
 const ProductsAll = lazy(() => import("./components/products/ProductsAll"))
 const Process = lazy(() => import("./components/pagestext/Process"))
 
-const PrivacyPolicy = lazy(() => import('./components/pagestext/PrivacyPolicy'))
+const PrivacyPolicy = lazy(() => import("./components/pagestext/PrivacyPolicy"))
+const SetNFTPrice = lazy(() => import("./components/NFT/SetNFTPrice"))
+const BuyNFT = lazy(() => import("./components/NFT/BuyNFT"))
+const ViewNFT = lazy(() => import("./components/NFT/ViewNFT"));
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -282,6 +285,9 @@ function App(props) {
               <Route path="/products" component={ProductsAll} />
               <Route path="/process" component={Process} />
               <Route path="/privacypolicy" component={PrivacyPolicy} />
+              <Route path="/setnftprice/:pid" component={SetNFTPrice} />
+              <Route path="/buynft/:pid" component={BuyNFT} />
+              <Route path="/viewnft" component={ViewNFT} />
             </Switch>
           </section>
         </React.Fragment>

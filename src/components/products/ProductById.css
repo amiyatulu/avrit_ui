@@ -1,3 +1,40 @@
 .details img {
-    max-width: 100%;
+  max-width: 100%;
+}
+
+
+.ql-video {
+    background:url(../image/doublering.gif) center center no-repeat;
+  }
+
+@media only screen and (min-width: 768px) and (max-width: 1200px ) {
+    .ql-video {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      width: 500px;
+      height: 500px;
+    }
+  }
+
+@media only screen and (min-width: 1200px ) {
+  .ql-video {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 800px;
+    height: 500px;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .display-4 {
+    font-size: large;
+  }
+
+  .ql-video {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }

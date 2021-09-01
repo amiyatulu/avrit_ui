@@ -3,14 +3,23 @@ use near_contract_standards::fungible_token::metadata::{
     FungibleTokenMetadata, FungibleTokenMetadataProvider, FT_METADATA_SPEC,
 };
 use near_contract_standards::fungible_token::FungibleToken;
+use near_contract_standards::non_fungible_token::metadata::{
+    NFTContractMetadata, NonFungibleTokenMetadataProvider, TokenMetadata, NFT_METADATA_SPEC,
+};
+use near_contract_standards::non_fungible_token::NonFungibleToken;
+use near_contract_standards::non_fungible_token::{Token, TokenId};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap, LookupSet, TreeMap, UnorderedSet};
-use near_sdk::json_types::{ValidAccountId, U128, U64};
-use near_sdk::{env, near_bindgen, AccountId, Balance, PanicOnDefault, Promise, PromiseOrValue};
+use near_sdk::collections::{LazyOption, LookupMap, LookupSet, TreeMap, UnorderedSet};
+use near_sdk::json_types::{ValidAccountId, U64};
+use near_sdk::{
+    env, log, near_bindgen, AccountId, Balance, BorshStorageKey, PanicOnDefault, Promise,
+    PromiseOrValue,
+};
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::{rngs::StdRng, SeedableRng};
 use sha3::{Digest, Keccak256};
+use std::convert::TryInto;
 
 pub mod avritstructs;
 pub use self::avritstructs::{CommentProduct, CommentReview, Communication, Product, Review, User};
@@ -100,6 +109,13 @@ pub struct Avrit {
     total_available_tokens: u128,
     phase_available_tokens: u128,
     on_crowdsale: bool,
+    // NFT
+    tokens: NonFungibleToken,
+    metadata: LazyOption<NFTContractMetadata>,
+    nft_token_count: LookupMap<u128, u128>, // <NFT token id, nft count>
+    nft_token_mint_count: LookupMap<u128, u128>, // <NFT token id, nft mint count>
+    nft_token_price: LookupMap<u128, u128>, // <NFT token id, price in yocto near>
+    nft_owner_incentives: LookupMap<u128, u128>, // <Profile id, incentives>
 }
 
 // Owner functions
@@ -324,7 +340,6 @@ impl Avrit {
         self.token_sold.into()
     }
 
-
     // Expire product, review, communication
 
     pub fn expire_product(&mut self, product_id: U128) {
@@ -335,22 +350,21 @@ impl Avrit {
         self.product_map.insert(&product_id, &product);
     }
 
-    pub fn expire_review(&mut self, review_id:U128) {
+    pub fn expire_review(&mut self, review_id: U128) {
         self.assert_owner();
         let review_id: u128 = review_id.into();
         let mut review = self.get_review(review_id);
         review.review_expired = true;
         self.review_map.insert(&review_id, &review);
     }
-   pub fn expire_communication(&mut self, communication_id: U128) {
-       self.assert_owner();
-       let communication_id: u128 = communication_id.into();
-       let mut communication = self.get_communication(communication_id);
-       communication.communication_expired = true;
-       self.communication_map.insert(&communication_id, &communication);
-
-   }
-
+    pub fn expire_communication(&mut self, communication_id: U128) {
+        self.assert_owner();
+        let communication_id: u128 = communication_id.into();
+        let mut communication = self.get_communication(communication_id);
+        communication.communication_expired = true;
+        self.communication_map
+            .insert(&communication_id, &communication);
+    }
 }
 
 #[near_bindgen]
@@ -607,8 +621,6 @@ impl Avrit {
             .insert(&self.update_product_id_time_counter, &product_id);
     }
 
-
-
     pub fn get_product_js(&self, product_id: U128) -> Product {
         let product_id: u128 = product_id.into();
         self.get_product(product_id)
@@ -854,14 +866,14 @@ impl Avrit {
         match product_bounty_crowdfunding_exists_option {
             Some(bountyvalue) => {
                 self.burn(&account_id, bounty);
-                self.mint(&product_user_id_name, bounty);
+                self.mint_myft(&product_user_id_name, bounty);
                 let new_bounty_value = bounty.checked_add(bountyvalue).expect("overflow");
                 self.product_crowdfunding
                     .insert(&product_id, &new_bounty_value);
             }
             None => {
                 self.burn(&account_id, bounty);
-                self.mint(&product_user_id_name, bounty);
+                self.mint_myft(&product_user_id_name, bounty);
                 self.product_crowdfunding.insert(&product_id, &bounty);
             }
         }
@@ -999,7 +1011,18 @@ impl Avrit {
     /// Initializes the contract with the given total supply owned by the given `owner_id`.
     #[init]
     pub fn new(owner_id: AccountId, total_supply: U128) -> Self {
+        let contract_id = env::current_account_id();
         assert!(!env::state_exists(), "Already initialized");
+        let metadata: NFTContractMetadata = NFTContractMetadata {
+            spec: NFT_METADATA_SPEC.to_string(),
+            name: "Example NEAR non-fungible token".to_string(),
+            symbol: "EXAMPLE".to_string(),
+            icon: Some(DATA_IMAGE_SVG_NEAR_ICON.to_string()),
+            base_uri: None,
+            reference: None,
+            reference_hash: None,
+        };
+        metadata.assert_valid();
         let total_supply_u128: u128 = total_supply.into();
         let admin_balance_x = (total_supply_u128 * 20).checked_div(100).expect("oveflow");
         let admin_balance = admin_balance_x.checked_div(10).expect("overflow");
@@ -1079,6 +1102,18 @@ impl Avrit {
             total_available_tokens: token_sale_balance,
             phase_available_tokens: phase_sale_balance,
             on_crowdsale: true,
+            tokens: NonFungibleToken::new(
+                StorageKey::NonFungibleToken,
+                contract_id.clone().try_into().unwrap(),
+                Some(StorageKey::TokenMetadata),
+                Some(StorageKey::Enumeration),
+                Some(StorageKey::Approval),
+            ),
+            metadata: LazyOption::new(StorageKey::Metadata, Some(&metadata)),
+            nft_token_count: LookupMap::new(b"d0903ca3".to_vec()),
+            nft_token_mint_count: LookupMap::new(b"a9ec8b8d".to_vec()),
+            nft_owner_incentives: LookupMap::new(b"8f574fbd".to_vec()),
+            nft_token_price: LookupMap::new(b"42d54eac".to_vec()),
         };
         this.ft.internal_register_account(&owner_id);
         this.ft.internal_deposit(&owner_id, admin_balance);
@@ -1105,6 +1140,18 @@ impl FungibleTokenMetadataProvider for Avrit {
     }
 }
 
+// NFT
+near_contract_standards::impl_non_fungible_token_core!(Avrit, tokens);
+near_contract_standards::impl_non_fungible_token_approval!(Avrit, tokens);
+near_contract_standards::impl_non_fungible_token_enumeration!(Avrit, tokens);
+
+#[near_bindgen]
+impl NonFungibleTokenMetadataProvider for Avrit {
+    fn nft_metadata(&self) -> NFTContractMetadata {
+        self.metadata.get().unwrap()
+    }
+}
+
 #[near_bindgen]
 impl Avrit {
     pub fn register_account(&mut self, account_id: ValidAccountId) {
@@ -1115,7 +1162,7 @@ impl Avrit {
 // Burn and mint
 #[near_bindgen]
 impl Avrit {
-    fn mint(&mut self, owner_id: &AccountId, amount: u128) {
+    fn mint_myft(&mut self, owner_id: &AccountId, amount: u128) {
         if amount == 0 {
             env::panic(b"Can't transfer 0 tokens");
         }
@@ -1745,7 +1792,7 @@ impl Avrit {
         self.check_and_add_jury_unstaked(review_id, user_id);
         let user_profile = self.get_user_profile(user_id);
         let user_address = user_profile.username;
-        self.mint(&user_address, stake);
+        self.mint_myft(&user_address, stake);
     }
 
     /// Fetch the juror selection time from review id, get the commit phase time, add the both and get the endtime, if its less than now, panic
@@ -2151,7 +2198,7 @@ impl Avrit {
                         if decision == winning_decision {
                             let mint_value = juror_stake + self.jury_incentives;
                             self.add_juror_voting_status_got_incentives(review_id, user_id);
-                            self.mint(&account_id, mint_value);
+                            self.mint_myft(&account_id, mint_value);
                         }
                         // else if winning_decision == 2{   }
                         else if decision != winning_decision && winning_decision != 3 {
@@ -2159,7 +2206,7 @@ impl Avrit {
                             let mint_value = (juror_stake as f64).powf(0.8) as u128;
                             // println!(">>>>>>>>>>>>>mintvalue{}<<<<<<<<<<<<<<<<<<<", mint_value);
                             if mint_value > self.jury_incentives {
-                                self.mint(&account_id, mint_value);
+                                self.mint_myft(&account_id, mint_value);
                             }
                         }
                     }
@@ -2284,7 +2331,7 @@ impl Avrit {
         let user_address = user.username;
         if winning_decision == 1 {
             self.check_review_got_incentives(review_id);
-            self.mint(&user_address, review_incentives + bountyvalue as u128);
+            self.mint_myft(&user_address, review_incentives + bountyvalue as u128);
         }
     }
 
@@ -2450,7 +2497,7 @@ impl Avrit {
         );
         let winning_decision = self.get_winning_decision(review_id.into());
         if winning_decision == 1 && review.rating >= 3 {
-            self.mint(&user_address, product_incentives);
+            self.mint_myft(&user_address, product_incentives);
         } else {
             panic!("You are not eligible for incentives");
         }
@@ -2498,7 +2545,7 @@ impl Avrit {
             self.token_sold <= self.phase_available_tokens,
             "No more tokens to sale"
         );
-        self.mint(&account_id, number_of_tokens);
+        self.mint_myft(&account_id, number_of_tokens);
         if amount - required_deposit > 0 {
             Promise::new(account_id).transfer(amount - required_deposit);
         }
@@ -2506,178 +2553,203 @@ impl Avrit {
 
     // Upgrade contract
 
-    // #[init(ignore_state)]
-    // pub fn migrate() -> Self {
-    //     #[derive(BorshDeserialize)]
-    //     pub struct Avrit {
-    //         // UserId
-    //         // ProductId
-    //         // ReviewId
-    //         // Map(Username, UserId)
-    //         // Map(UserId, User)
-    //         // Map(UserId, Set(ProductId))
-    //         // Map(ProductId, Product)
-    //         // Map(ProductId, Set(ReviewId))
-    //         // Map(ReviewId, Review)
-    //         owner_id: AccountId,
-    //         saving_id: AccountId,
-    //         user_id: u128,
-    //         product_id: u128,
-    //         review_id: u128,
-    //         communication_id: u128,
-    //         comment_product_id: u128,
-    //         comment_review_id: u128,
-    //         update_user_ids: LookupMap<u128, u128>, //(incremental time number, update_user_id)
-    //         update_user_id_time_counter: u128,
-    //         update_product_ids: LookupMap<u128, u128>, //(incremental time number, updated_product_id)
-    //         update_product_id_time_counter: u128,
-    //         update_review_ids: LookupMap<u128, u128>, //(incremental time number, updated_review_id)
-    //         update_review_id_time_counter: u128,
-    //         user_map: TreeMap<String, u128>, // (username, user_id)
-    //         user_profile_map: TreeMap<u128, User>, // (user_id, User)
-    //         product_map: TreeMap<u128, Product>, // (product_id, Product)
-    //         review_map: TreeMap<u128, Review>, // (review_id, Review)
-    //         communication_map: TreeMap<u128, Communication>, // (communication_id, Communication)
-    //         comment_product_map: LookupMap<u128, CommentProduct>, // (comment_product_id, CommentProduct)
-    //         comment_review_map: LookupMap<u128, CommentReview>, // (comment_review_id, CommentReview)
-    //         user_products_map: TreeMap<u128, UnorderedSet<u128>>, // (user_id, set<product_id>)
-    //         product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
-    //         product_commentproduct_map: LookupMap<u128, UnorderedSet<u128>>, // (product_id, set<commentproduct_id>)
-    //         review_commentreview_map: LookupMap<u128, UnorderedSet<u128>>, // (review_id, set<commentreview_id>)
-    //         product_crowdfunding: LookupMap<u128, u128>,                   // (product_id, bounty)
-    //         product_bounty: LookupMap<u128, u64>, // (product_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
-    //         review_bounty: LookupMap<u128, u64>, // (review_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
-    //         min_review_bounty: u64,
-    //         min_product_bounty: u64,
-    //         min_jury_stake: u64,
-    //         // max_number_of_jury_can_stake: u64,
-    //         user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>> #Delete
-    //         user_juror_stakes_clone: LookupMap<u128, TreeMap<u128, u128>>, // #Delete
-    //         user_juror_stake_count: LookupMap<u128, u64>, // <review_id, juror that staked count>
-    //         juror_stake_unique_id: u128,
-    //         juror_unstaked: LookupMap<u128, LookupSet<u128>>, // <review_id, jurorid>
-    //         selected_juror_count: LookupMap<u128, u64>, // <review_id, selected_juror_count> #Delete
-    //         selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>  #Delete
-    //         juror_selection_time: LookupMap<u128, u64>, // <review_id, timestamp>
-    //         jury_application_start_time: LookupMap<u128, u64>, // <review_id, time>
-    //         product_id_set_ucount: u128,
-    //         review_id_set_ucount: u128,
-    //         jury_count: u64,
-    //         jury_application_phase_time: u64, // Jury selection time in seconds
-    //         commit_phase_time: u64,           // Commit phase time in seconds
-    //         reveal_phase_time: u64,           // Reveal phase time in seconds
-    //         voter_commit: LookupMap<u128, LookupMap<String, u8>>, // review_id, vote_commits, 1 if commited, 2 if revealed
-    //         juror_voting_status: LookupMap<u128, LookupMap<u128, u8>>, // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed, 3=got the incentives>
-    //         schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <review_id, <jurorid, 1=true 0=false>>
-    //         schelling_decision_true_count: LookupMap<u128, u128>, // <review_id, true_count>
-    //         schelling_decision_false_count: LookupMap<u128, u128>, // <review_id, false_count>
-    //         jury_incentives: u128,                                // Extra incentives on winning
-    //         review_incentives: u128,                              // Extra incentives on winning
-    //         product_oa_incentives: u128, // Extra incentives for each review for open access content
-    //         product_evidence_incentives: u128, // Extra incentives for each review for evidence of learning
-    //         review_got_incentives: LookupMap<u128, u8>, // <review_id, 1 if got incentives>
-    //         product_got_incentives: LookupMap<u128, LookupMap<u128, u8>>, // product_id <review_id, 1 if got incentives>
-    //         product_incentives_count: LookupMap<u128, u128>, // product_id, product_incentives_count
-    //         max_allowed_product_oa_incentives_count: u128,
-    //         max_allowed_product_evidence_incentives_count: u128,
-    //         number_of_allowed_reviews_per_product: u64,
-    //         product_review_count: LookupMap<u128, u64>,
-    //         ft: FungibleToken,
-    //         // Crowdsale
-    //         token_price: u128,
-    //         token_sold: u128,
-    //         total_available_tokens: u128,
-    //         phase_available_tokens: u128,
-    //         on_crowdsale: bool,
-    //     }
+    #[init(ignore_state)]
+    pub fn migrate() -> Self {
+        #[derive(BorshDeserialize)]
+        pub struct Avrit {
+            // UserId
+            // ProductId
+            // ReviewId
+            // Map(Username, UserId)
+            // Map(UserId, User)
+            // Map(UserId, Set(ProductId))
+            // Map(ProductId, Product)
+            // Map(ProductId, Set(ReviewId))
+            // Map(ReviewId, Review)
+            owner_id: AccountId,
+            saving_id: AccountId,
+            user_id: u128,
+            product_id: u128,
+            review_id: u128,
+            communication_id: u128,
+            comment_product_id: u128,
+            comment_review_id: u128,
+            update_user_ids: LookupMap<u128, u128>, //(incremental time number, update_user_id)
+            update_user_id_time_counter: u128,
+            update_product_ids: LookupMap<u128, u128>, //(incremental time number, updated_product_id)
+            update_product_id_time_counter: u128,
+            update_review_ids: LookupMap<u128, u128>, //(incremental time number, updated_review_id)
+            update_review_id_time_counter: u128,
+            user_map: TreeMap<String, u128>, // (username, user_id)
+            user_profile_map: TreeMap<u128, User>, // (user_id, User)
+            product_map: TreeMap<u128, Product>, // (product_id, Product)
+            review_map: TreeMap<u128, Review>, // (review_id, Review)
+            communication_map: TreeMap<u128, Communication>, // (communication_id, Communication)
+            comment_product_map: LookupMap<u128, CommentProduct>, // (comment_product_id, CommentProduct)
+            comment_review_map: LookupMap<u128, CommentReview>, // (comment_review_id, CommentReview)
+            user_products_map: TreeMap<u128, UnorderedSet<u128>>, // (user_id, set<product_id>)
+            product_reviews_map: TreeMap<u128, UnorderedSet<u128>>, // (product_id, set<review_id>)
+            product_commentproduct_map: LookupMap<u128, UnorderedSet<u128>>, // (product_id, set<commentproduct_id>)
+            review_commentreview_map: LookupMap<u128, UnorderedSet<u128>>, // (review_id, set<commentreview_id>)
+            product_crowdfunding: LookupMap<u128, u128>,                   // (product_id, bounty)
+            product_bounty: LookupMap<u128, u64>, // (product_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
+            review_bounty: LookupMap<u128, u64>, // (review_id, (bounty -> 0 index,  0_bountyperiodover 1_bountyperiodexists -> 1 index))
+            min_review_bounty: u64,
+            min_product_bounty: u64,
+            min_jury_stake: u64,
+            // max_number_of_jury_can_stake: u64,
+            user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>> #Delete
+            user_juror_stakes_clone: LookupMap<u128, TreeMap<u128, u128>>, // #Delete
+            user_juror_stake_count: LookupMap<u128, u64>, // <review_id, juror that staked count>
+            juror_stake_unique_id: u128,
+            juror_unstaked: LookupMap<u128, LookupSet<u128>>, // <review_id, jurorid>
+            selected_juror_count: LookupMap<u128, u64>, // <review_id, selected_juror_count> #Delete
+            selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>  #Delete
+            juror_selection_time: LookupMap<u128, u64>, // <review_id, timestamp>
+            jury_application_start_time: LookupMap<u128, u64>, // <review_id, time>
+            product_id_set_ucount: u128,
+            review_id_set_ucount: u128,
+            jury_count: u64,
+            jury_application_phase_time: u64, // Jury selection time in seconds
+            commit_phase_time: u64,           // Commit phase time in seconds
+            reveal_phase_time: u64,           // Reveal phase time in seconds
+            voter_commit: LookupMap<u128, LookupMap<String, u8>>, // review_id, vote_commits, 1 if commited, 2 if revealed
+            juror_voting_status: LookupMap<u128, LookupMap<u128, u8>>, // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed, 3=got the incentives>
+            schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <review_id, <jurorid, 1=true 0=false>>
+            schelling_decision_true_count: LookupMap<u128, u128>, // <review_id, true_count>
+            schelling_decision_false_count: LookupMap<u128, u128>, // <review_id, false_count>
+            jury_incentives: u128,                                // Extra incentives on winning
+            review_incentives: u128,                              // Extra incentives on winning
+            product_oa_incentives: u128, // Extra incentives for each review for open access content
+            product_evidence_incentives: u128, // Extra incentives for each review for evidence of learning
+            review_got_incentives: LookupMap<u128, u8>, // <review_id, 1 if got incentives>
+            product_got_incentives: LookupMap<u128, LookupMap<u128, u8>>, // product_id <review_id, 1 if got incentives>
+            product_incentives_count: LookupMap<u128, u128>, // product_id, product_incentives_count
+            max_allowed_product_oa_incentives_count: u128,
+            max_allowed_product_evidence_incentives_count: u128,
+            number_of_allowed_reviews_per_product: u64,
+            product_review_count: LookupMap<u128, u64>,
+            ft: FungibleToken,
+            // Crowdsale
+            token_price: u128,
+            token_sold: u128,
+            total_available_tokens: u128,
+            phase_available_tokens: u128,
+            on_crowdsale: bool,
+        }
 
-    //     let state: Avrit = env::state_read().unwrap();
+        let state: Avrit = env::state_read().unwrap();
 
-    //     assert_eq!(
-    //         &env::predecessor_account_id(),
-    //         &state.owner_id,
-    //         "Can only be called by the owner"
-    //     );
+        assert_eq!(
+            &env::predecessor_account_id(),
+            &state.owner_id,
+            "Can only be called by the owner"
+        );
 
-    //     Self {
-    //         ft: state.ft,
-    //         owner_id: state.owner_id,
-    //         saving_id: state.saving_id,
-    //         user_id: state.user_id,
-    //         product_id: state.product_id,
-    //         review_id: state.review_id,
-    //         // update
-    //         communication_id: state.communication_id,
-    //         comment_product_id: state.comment_product_id,
-    //         comment_review_id: state.comment_review_id,
-    //         update_user_ids: state.update_user_ids,
-    //         update_user_id_time_counter: state.update_user_id_time_counter,
-    //         update_product_ids: state.update_product_ids,
-    //         update_product_id_time_counter: state.update_product_id_time_counter,
-    //         update_review_ids: state.update_review_ids,
-    //         update_review_id_time_counter: state.update_review_id_time_counter,
-    //         user_map: state.user_map,
-    //         user_profile_map: state.user_profile_map,
-    //         product_map: state.product_map,
-    //         review_map: state.review_map,
-    //         // update
-    //         communication_map: state.communication_map,
-    //         comment_product_map: state.comment_product_map,
-    //         comment_review_map: state.comment_review_map,
-    //         user_products_map: state.user_products_map,
-    //         product_reviews_map: state.product_reviews_map,
-    //         product_commentproduct_map: state.product_commentproduct_map,
-    //         review_commentreview_map: state.review_commentreview_map,
-    //         product_crowdfunding: state.product_crowdfunding,
-    //         product_bounty: state.product_bounty,
-    //         review_bounty: state.review_bounty,
-    //         min_review_bounty: state.min_review_bounty,
-    //         min_product_bounty: state.min_product_bounty,
-    //         min_jury_stake: state.min_jury_stake,
-    //         product_id_set_ucount: state.product_id_set_ucount,
-    //         review_id_set_ucount: state.review_id_set_ucount,
-    //         user_juror_stakes: state.user_juror_stakes,
-    //         user_juror_stakes_clone: state.user_juror_stakes_clone,
-    //         user_juror_stake_count: state.user_juror_stake_count,
-    //         juror_unstaked: state.juror_unstaked,
-    //         juror_stake_unique_id: state.juror_stake_unique_id,
-    //         selected_juror: state.selected_juror,
-    //         jury_count: state.jury_count,
-    //         // max_number_of_jury_can_stake:state.// max_number_of_jury_can_stake,
-    //         jury_application_phase_time: state.jury_application_phase_time,
-    //         commit_phase_time: state.commit_phase_time,
-    //         reveal_phase_time: state.reveal_phase_time,
-    //         jury_incentives: state.jury_incentives,
-    //         review_incentives: state.review_incentives,
-    //         product_oa_incentives: state.product_oa_incentives,
-    //         product_evidence_incentives: state.product_evidence_incentives,
-    //         // Here is the gist of incentivestate.// Here is the gist of incentiv,
-    //         // 30 times judge, 1 avritstate.// 30 times judge, 1 avri,
-    //         // 15 times review, 1 avritstate.// 15 times review, 1 avri,
-    //         // 1 time product, 1 avritstate.// 1 time product, 1 avri,
-    //         review_got_incentives: state.review_got_incentives,
-    //         product_got_incentives: state.product_got_incentives,
-    //         product_incentives_count: state.product_incentives_count,
-    //         max_allowed_product_oa_incentives_count: state.max_allowed_product_oa_incentives_count,
-    //         max_allowed_product_evidence_incentives_count: state
-    //             .max_allowed_product_evidence_incentives_count,
-    //         selected_juror_count: state.selected_juror_count,
-    //         jury_application_start_time: state.jury_application_start_time,
-    //         juror_selection_time: state.juror_selection_time,
-    //         voter_commit: state.voter_commit,
-    //         juror_voting_status: state.juror_voting_status,
-    //         schelling_decisions_juror: state.schelling_decisions_juror,
-    //         schelling_decision_true_count: state.schelling_decision_true_count,
-    //         schelling_decision_false_count: state.schelling_decision_false_count,
-    //         number_of_allowed_reviews_per_product: state.number_of_allowed_reviews_per_product,
-    //         product_review_count: state.product_review_count,
-    //         token_price: state.token_price,
-    //         token_sold: state.token_sold,
-    //         total_available_tokens: state.total_available_tokens,
-    //         phase_available_tokens: state.phase_available_tokens,
-    //         on_crowdsale: state.on_crowdsale,
-    //     }
-    // }
+        let metadata: NFTContractMetadata = NFTContractMetadata {
+            spec: NFT_METADATA_SPEC.to_string(),
+            name: "Example NEAR non-fungible token".to_string(),
+            symbol: "EXAMPLE".to_string(),
+            icon: Some(DATA_IMAGE_SVG_NEAR_ICON.to_string()),
+            base_uri: None,
+            reference: None,
+            reference_hash: None,
+        };
+
+        let contract_id = env::current_account_id();
+
+        Self {
+            ft: state.ft,
+            owner_id: state.owner_id,
+            saving_id: state.saving_id,
+            user_id: state.user_id,
+            product_id: state.product_id,
+            review_id: state.review_id,
+            // update
+            communication_id: state.communication_id,
+            comment_product_id: state.comment_product_id,
+            comment_review_id: state.comment_review_id,
+            update_user_ids: state.update_user_ids,
+            update_user_id_time_counter: state.update_user_id_time_counter,
+            update_product_ids: state.update_product_ids,
+            update_product_id_time_counter: state.update_product_id_time_counter,
+            update_review_ids: state.update_review_ids,
+            update_review_id_time_counter: state.update_review_id_time_counter,
+            user_map: state.user_map,
+            user_profile_map: state.user_profile_map,
+            product_map: state.product_map,
+            review_map: state.review_map,
+            // update
+            communication_map: state.communication_map,
+            comment_product_map: state.comment_product_map,
+            comment_review_map: state.comment_review_map,
+            user_products_map: state.user_products_map,
+            product_reviews_map: state.product_reviews_map,
+            product_commentproduct_map: state.product_commentproduct_map,
+            review_commentreview_map: state.review_commentreview_map,
+            product_crowdfunding: state.product_crowdfunding,
+            product_bounty: state.product_bounty,
+            review_bounty: state.review_bounty,
+            min_review_bounty: state.min_review_bounty,
+            min_product_bounty: state.min_product_bounty,
+            min_jury_stake: state.min_jury_stake,
+            product_id_set_ucount: state.product_id_set_ucount,
+            review_id_set_ucount: state.review_id_set_ucount,
+            user_juror_stakes: state.user_juror_stakes,
+            user_juror_stakes_clone: state.user_juror_stakes_clone,
+            user_juror_stake_count: state.user_juror_stake_count,
+            juror_unstaked: state.juror_unstaked,
+            juror_stake_unique_id: state.juror_stake_unique_id,
+            selected_juror: state.selected_juror,
+            jury_count: state.jury_count,
+            // max_number_of_jury_can_stake:state.// max_number_of_jury_can_stake,
+            jury_application_phase_time: state.jury_application_phase_time,
+            commit_phase_time: state.commit_phase_time,
+            reveal_phase_time: state.reveal_phase_time,
+            jury_incentives: state.jury_incentives,
+            review_incentives: state.review_incentives,
+            product_oa_incentives: state.product_oa_incentives,
+            product_evidence_incentives: state.product_evidence_incentives,
+            // Here is the gist of incentivestate.// Here is the gist of incentiv,
+            // 30 times judge, 1 avritstate.// 30 times judge, 1 avri,
+            // 15 times review, 1 avritstate.// 15 times review, 1 avri,
+            // 1 time product, 1 avritstate.// 1 time product, 1 avri,
+            review_got_incentives: state.review_got_incentives,
+            product_got_incentives: state.product_got_incentives,
+            product_incentives_count: state.product_incentives_count,
+            max_allowed_product_oa_incentives_count: state.max_allowed_product_oa_incentives_count,
+            max_allowed_product_evidence_incentives_count: state
+                .max_allowed_product_evidence_incentives_count,
+            selected_juror_count: state.selected_juror_count,
+            jury_application_start_time: state.jury_application_start_time,
+            juror_selection_time: state.juror_selection_time,
+            voter_commit: state.voter_commit,
+            juror_voting_status: state.juror_voting_status,
+            schelling_decisions_juror: state.schelling_decisions_juror,
+            schelling_decision_true_count: state.schelling_decision_true_count,
+            schelling_decision_false_count: state.schelling_decision_false_count,
+            number_of_allowed_reviews_per_product: state.number_of_allowed_reviews_per_product,
+            product_review_count: state.product_review_count,
+            token_price: state.token_price,
+            token_sold: state.token_sold,
+            total_available_tokens: state.total_available_tokens,
+            phase_available_tokens: state.phase_available_tokens,
+            on_crowdsale: state.on_crowdsale,
+            // New code
+            tokens: NonFungibleToken::new(
+                StorageKey::NonFungibleToken,
+                contract_id.clone().try_into().unwrap(),
+                Some(StorageKey::TokenMetadata),
+                Some(StorageKey::Enumeration),
+                Some(StorageKey::Approval),
+            ),
+            metadata: LazyOption::new(StorageKey::Metadata, Some(&metadata)),
+            nft_token_count: LookupMap::new(b"d0903ca3".to_vec()),
+            nft_token_mint_count: LookupMap::new(b"a9ec8b8d".to_vec()),
+            nft_owner_incentives: LookupMap::new(b"8f574fbd".to_vec()),
+            nft_token_price: LookupMap::new(b"42d54eac".to_vec()),
+        }
+    }
 }
 
 // To Do:
@@ -2698,3 +2770,278 @@ impl Avrit {
 // juror_selection_time
 // commit votes end time = juror_selection_time + commit_phase_time
 // reveal vote end time = juror_selection_time + comit_phase_time + reveal_phase_time
+
+// NFT Code
+
+const DATA_IMAGE_SVG_NEAR_ICON: &str = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 288 288'%3E%3Cg id='l' data-name='l'%3E%3Cpath d='M187.58,79.81l-30.1,44.69a3.2,3.2,0,0,0,4.75,4.2L191.86,103a1.2,1.2,0,0,1,2,.91v80.46a1.2,1.2,0,0,1-2.12.77L102.18,77.93A15.35,15.35,0,0,0,90.47,72.5H87.34A15.34,15.34,0,0,0,72,87.84V201.16A15.34,15.34,0,0,0,87.34,216.5h0a15.35,15.35,0,0,0,13.08-7.31l30.1-44.69a3.2,3.2,0,0,0-4.75-4.2L96.14,186a1.2,1.2,0,0,1-2-.91V104.61a1.2,1.2,0,0,1,2.12-.77l89.55,107.23a15.35,15.35,0,0,0,11.71,5.43h3.13A15.34,15.34,0,0,0,216,201.16V87.84A15.34,15.34,0,0,0,200.66,72.5h0A15.35,15.35,0,0,0,187.58,79.81Z'/%3E%3C/g%3E%3C/svg%3E";
+
+#[derive(BorshSerialize, BorshStorageKey)]
+enum StorageKey {
+    NonFungibleToken,
+    Metadata,
+    TokenMetadata,
+    Enumeration,
+    Approval,
+}
+
+#[near_bindgen]
+impl Avrit {
+    pub fn setup_nft_price_and_token_count(
+        &mut self,
+        product_id: U128,
+        price: U128,
+        token_count: U128,
+    ) {
+        let product_id: u128 = product_id.into();
+        let price: u128 = price.into();
+        let token_count: u128 = token_count.into();
+        let account_id = env::predecessor_account_id();
+        let product = self.get_product(product_id);
+        let user_id = self.get_user_id(&account_id);
+        if user_id == product.user_id {
+            // Logic
+            self.set_nft_price(product_id, price);
+            self.set_total_nft_count(product_id, token_count);
+        } else {
+            panic!("You are not the product owner");
+        }
+    }
+
+    pub fn update_nft_price(&mut self, product_id: U128, price: U128) {
+        let product_id: u128 = product_id.into();
+        let price: u128 = price.into();
+        let account_id = env::predecessor_account_id();
+        let product = self.get_product(product_id);
+        let user_id = self.get_user_id(&account_id);
+        if user_id == product.user_id {
+            // Logic
+            self.set_nft_price_update(product_id, price);
+        } else {
+            panic!("You are not the product owner");
+        }
+    }
+
+    fn set_nft_price(&mut self, product_id: u128, price: u128) {
+        match self.nft_token_price.get(&product_id) {
+            Some(_price) => {
+                panic!("NFT price already set");
+            }
+            None => {
+                self.nft_token_price.insert(&product_id, &price);
+            }
+        }
+    }
+
+    fn set_nft_price_update(&mut self, product_id: u128, price: u128) {
+        match self.nft_token_price.get(&product_id) {
+            Some(_price) => {
+                self.nft_token_price.insert(&product_id, &price);
+            }
+            None => {
+                panic!("NFT price is not set yet");
+            }
+        }
+    }
+
+    fn set_total_nft_count(&mut self, product_id: u128, token_count: u128) {
+        match self.nft_token_count.get(&product_id) {
+            Some(_count) => {
+                panic!("NFT count already set");
+            }
+            None => {
+                self.nft_token_count.insert(&product_id, &token_count);
+            }
+        }
+    }
+
+    fn get_nft_price(&self, product_id: u128) -> u128 {
+        let price_option = self.nft_token_price.get(&product_id);
+        match price_option {
+            Some(price) => price,
+            None => {
+                panic!("Price not set.");
+            }
+        }
+    }
+
+    pub fn get_nft_price_js(&self, product_id: U128) -> U128 {
+        let product_id: u128 = product_id.into();
+        let price = self.get_nft_price(product_id);
+        price.into()
+    }
+
+    fn get_total_nft_count(&self, product_id: u128) -> u128 {
+        let count_option = self.nft_token_count.get(&product_id);
+        match count_option {
+            Some(count) => count,
+            None => {
+                panic!("Nft count not set");
+            }
+        }
+    }
+
+    pub fn get_total_nft_count_js(&self, product_id: U128) -> U128 {
+        let product_id: u128 = product_id.into();
+        let count = self.get_total_nft_count(product_id);
+        count.into()
+    }
+
+    fn get_nft_count_name(&self, product_id: u128) -> String {
+        let count_option = self.nft_token_mint_count.get(&product_id);
+        match count_option {
+            Some(count) => count.to_string(),
+            None => "1".to_string(),
+        }
+    }
+
+    // To Do:
+    // Check deposit is the price of token
+    // Check nft mint availabe from nft token count
+    // Add the amount to nft owner incentives
+
+    fn check_and_increment_nft_token_mint_count(&mut self, product_id: u128) {
+        let total_nft_count = self.get_total_nft_count(product_id);
+        let token_mint_count_option = self.nft_token_mint_count.get(&product_id);
+        match token_mint_count_option {
+            Some(count) => {
+                if count >= total_nft_count {
+                    panic!("You can not mint more tokens");
+                } else {
+                    let new_count = count.checked_add(1).expect("overflow");
+                    self.nft_token_mint_count.insert(&product_id, &new_count);
+                }
+            }
+            None => {
+                self.nft_token_mint_count.insert(&product_id, &1);
+            }
+        }
+    }
+
+    fn increment_owner_incentives(&mut self, product_owner_id: u128, incentives_got: u128) {
+        let incentives_option = self.nft_owner_incentives.get(&product_owner_id);
+        match incentives_option {
+            Some(incentives) => {
+                let new_incentives = incentives.checked_add(incentives_got).expect("Overflow");
+                self.nft_owner_incentives
+                    .insert(&product_owner_id, &new_incentives);
+            }
+            None => {
+                self.nft_owner_incentives
+                    .insert(&product_owner_id, &incentives_got);
+            }
+        }
+    }
+
+    #[payable]
+    pub fn buy_nft(&mut self, token_id: U128) {
+        let product_id: u128 = token_id.into();
+        let token_owner_id = env::predecessor_account_id();
+        let product = self.get_product(product_id);
+        let price = self.get_nft_price(product_id);
+        let amount = env::attached_deposit();
+        assert!(amount == price, "Price should be equal to deposit");
+        let product_owner_id: u128 = product.user_id;
+        self.increment_owner_incentives(product_owner_id, amount);
+        self.check_and_increment_nft_token_mint_count(product_id);
+        let countname = self.get_nft_count_name(product_id);
+        let names = [product_id.to_owned().to_string(), countname];
+        let joined_name = names.join("_");
+        log!("NFT token id {}", joined_name);
+        let token_metadata = TokenMetadata {
+            title: Some(product.product_details_hash.into()),
+            description: None,
+            media: None,
+            media_hash: None,
+            copies: Some(1u64),
+            issued_at: None,
+            expires_at: None,
+            starts_at: None,
+            updated_at: None,
+            extra: None,
+            reference: None,
+            reference_hash: None,
+        };
+        self.tokens.mint(
+            joined_name,
+            token_owner_id.try_into().unwrap(),
+            Some(token_metadata),
+        );
+    }
+
+    // To Do, withdraw incentives product owner
+
+    pub fn get_owner_incentives(&self, user_id: U128) -> U128 {
+        let user_id: u128 = user_id.into();
+        let incentives_option = self.nft_owner_incentives.get(&user_id);
+        match incentives_option {
+            Some(incentives) => incentives.into(),
+            None => 0.into(),
+        }
+    }
+
+    pub fn withdraw_product_owner_incentives(&mut self) {
+        let account_id = env::predecessor_account_id();
+        let user_id = self.get_user_id(&account_id);
+        let incentives_option = self.nft_owner_incentives.get(&user_id);
+        let storage_balance = self.ft.storage_balance_bounds().min.0;
+        match incentives_option {
+            Some(incentives) => {
+                self.nft_owner_incentives.insert(&user_id, &0);
+                if incentives == 0 {
+                    panic!("You have no incentives to withdraw");
+                } else if incentives > storage_balance {
+                    let transfer_amount =
+                        incentives.checked_sub(storage_balance).expect("Overflow");
+                    Promise::new(account_id).transfer(transfer_amount);
+                } else {
+                    panic!("Incentives are less than storage balance");
+                }
+            }
+            None => {
+                panic!("No incentives to withdraw");
+            }
+        }
+    }
+
+    pub fn last_ten_tokens_for_owner(
+        &self,
+        user_id:U128
+    ) -> Vec<Token> {
+        let user_id: u128 = user_id.into();
+        let user = self.get_user_profile(user_id);
+        let user_address = user.username;
+        let tokens_per_owner = self.tokens.tokens_per_owner.as_ref().expect(
+            "Could not find tokens_per_owner when calling a method on the enumeration standard.",
+        );
+        let token_set = if let Some(token_set) = tokens_per_owner.get(&user_address) {
+            token_set
+        } else {
+            return vec![];
+        };
+
+        let length_of_tokens = token_set.len() as u128;
+        let start_index;
+        let end_index;
+        if length_of_tokens > 10 {
+            start_index = length_of_tokens.checked_sub(10).expect("Overflow");
+            end_index = 10;
+        } else {
+            start_index = 0;
+            end_index = length_of_tokens;
+        }
+        token_set
+            .iter()
+            .skip(start_index as usize)
+            .take(end_index as usize)
+            .map(|token_id| self.enum_get_token_x(user_address.clone(), token_id))
+            .collect()
+    }
+
+    fn enum_get_token_x(&self, owner_id: AccountId, token_id: TokenId) -> Token {
+        let metadata = self.tokens.token_metadata_by_id.as_ref().unwrap().get(&token_id);
+        let approved_account_ids =
+            Some(self.tokens.approvals_by_id.as_ref().unwrap().get(&token_id).unwrap_or_default());
+
+        Token { token_id, owner_id, metadata, approved_account_ids }
+    }
+}
