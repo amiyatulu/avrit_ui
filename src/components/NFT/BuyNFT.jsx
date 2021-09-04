@@ -32,7 +32,7 @@ function BuyNFT(props) {
                 },
                 gas: 95000000000000,
                 amount: price,
-                callbackUrl:`${window.location.origin.toString()}`
+                callbackUrl:`${window.location.origin.toString()}/#/viewnft`
 
               })
               actions.setSubmitting(false)

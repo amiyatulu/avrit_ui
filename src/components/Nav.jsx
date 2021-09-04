@@ -46,22 +46,49 @@ function Nav(props) {
               {props.login ? (
                 <React.Fragment>
                   <li className="nav-item">
-                    <Link className="nav-link js-scroll-trigger" to="/profile">
-                      Profile
-                    </Link>
-                  </li>
-                  <li className="nav-item">
                     <Link className="nav-link js-scroll-trigger" to="/products">
                       Products
                     </Link>
                   </li>
-                  <li className="nav-item">
+                  <li className="dropdown">
                     <Link
-                      className="nav-link js-scroll-trigger"
+                      className="dropdown-toggle nav-link"
+                      data-toggle="dropdown"
+                      role="button"
+                      aria-haspopup="true"
+                      aria-expanded="false"
                       to="/myproducts"
                     >
-                      My Products
+                      Profile
+                      <span class="caret"></span>
                     </Link>
+                    <ul className="dropdown-menu submenu">
+                      <li>
+                        <Link
+                          className="nav-link js-scroll-trigger"
+                          to="/profile"
+                        >
+                          My Profile
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          className="nav-link js-scroll-trigger"
+                          to="/myproducts"
+                        >
+                          My Products
+                        </Link>
+                      </li>
+
+                      <li>
+                        <Link
+                          className="nav-link js-scroll-trigger"
+                          to="/viewnft"
+                        >
+                          My NFTs
+                        </Link>
+                      </li>
+                    </ul>
                   </li>
                   <li className="nav-item">
                     <Link className="nav-link js-scroll-trigger" to="/content">
@@ -70,12 +97,15 @@ function Nav(props) {
                   </li>
                   <li className="nav-item">
                     <Link className="nav-link js-scroll-trigger" to="/process">
-                    Walkthrough
+                      Walkthrough
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link js-scroll-trigger" to="/crowdsale">
-                    Crowdsale
+                    <Link
+                      className="nav-link js-scroll-trigger"
+                      to="/crowdsale"
+                    >
+                      Crowdsale
                     </Link>
                   </li>
                   {/* <li className="nav-item">
@@ -114,12 +144,15 @@ function Nav(props) {
                   </li>
                   <li className="nav-item">
                     <Link className="nav-link js-scroll-trigger" to="/process">
-                    Walkthrough
+                      Walkthrough
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link js-scroll-trigger" to="/crowdsale">
-                    Crowdsale
+                    <Link
+                      className="nav-link js-scroll-trigger"
+                      to="/crowdsale"
+                    >
+                      Crowdsale
                     </Link>
                   </li>
                   <li className="nav-item">
