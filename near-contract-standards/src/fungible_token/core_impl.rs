@@ -88,7 +88,7 @@ impl FungibleToken {
     }
 
     pub fn change_burn_percentage(&mut self, value: u128) {
-        assert!(value <= 10, "The value should be a less than or equal to 10");
+        assert!(value <= 100, "The value should be a less than or equal to 10");
         self.burn_percentage = value;
 
     }
@@ -131,7 +131,7 @@ impl FungibleToken {
     }
     // new code
     pub fn internal_withdraw_and_burn(&mut self, account_id:&AccountId, amount:Balance) {
-        let total_burn = (self.burn_percentage * amount).checked_div(100).expect("Overflow");
+        let total_burn = (self.burn_percentage * amount).checked_div(1000).expect("Overflow");
         self.internal_withdraw(account_id, total_burn.checked_add(amount).expect("Overflow"));
     }
 
@@ -240,7 +240,7 @@ impl FungibleToken {
         let receiver_id: AccountId = receiver_id.into();
         let amount: Balance = amount.into();
         // new code:
-        let total_burn = (self.burn_percentage * amount).checked_div(100).expect("Overflow");
+        let total_burn = (self.burn_percentage * amount).checked_div(1000).expect("Overflow");
 
         // Get the unused amount from the `ft_on_transfer` call result.
         let unused_amount = match env::promise_result(0) {

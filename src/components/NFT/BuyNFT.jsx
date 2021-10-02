@@ -16,7 +16,8 @@ function BuyNFT(props) {
   let { nearvar } = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
   let price  = GetNFTPriceBuy(pid)
-  let pw = BigNumber(10).pow(24)
+  let pw = BigNumber(10).pow(18)
+  console.log("price", price)
   return (
     <React.Fragment>
       <div className="container">
@@ -25,19 +26,21 @@ function BuyNFT(props) {
           validationSchema={Yup.object().shape({})}
           onSubmit={async (values, actions) => {
             try {
+
               //   values.countvariable = count
               await nearvar.contract.buy_nft({
                 args:{
                   token_id: pid.toString(),
+                  amount: "10000000000000000000",
                 },
-                gas: 95000000000000,
-                amount: price,
-                callbackUrl:`${window.location.origin.toString()}/#/viewnft`
+                callbackUrl: `${window.location.origin.toString()}/#/viewnft`,
+                amount: "6100000000000000000000",
+                gas: 95000000000000
 
               })
               actions.setSubmitting(false)
               // console.log(data)
-              // history.push(`/thankyou${data.mutationoutputname}`)
+              // history.push(`/viewnft`)
               // history.goBack()
             } catch (e) {
               console.error(e)
@@ -62,7 +65,7 @@ function BuyNFT(props) {
               {price && (
                 <React.Fragment>
                   <p className="badge badge-secondary mr-3">
-                    NFT Price: {BigNumber(price).div(pw).toFixed()} Near{" "}
+                    NFT Price: {BigNumber(price).div(pw).toFixed()} Avrit
                   </p>
                 </React.Fragment>
               )}

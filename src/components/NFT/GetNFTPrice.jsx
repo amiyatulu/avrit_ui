@@ -7,7 +7,7 @@ function GetNFTPrice(props) {
   const { nearvar, userId } = useContext(NearContext)
   const { pid } = props
   const [price, setPrice] = useState(null)
-  let pw = BigNumber(10).pow(24)
+  let pw = BigNumber(10).pow(18)
   useEffect(() => {
     async function fetchPrice() {
       try {
@@ -27,7 +27,7 @@ function GetNFTPrice(props) {
   return (
     <React.Fragment>
       {price && (<React.Fragment>
-        <p className="badge badge-secondary mr-3">NFT Price: {BigNumber(price).div(pw).toFixed()} Near </p>
+        <p className="badge badge-secondary mr-3">NFT Price: {BigNumber(price).div(pw).toFixed()} Avrit </p>
           </React.Fragment>)}
     </React.Fragment>
   )

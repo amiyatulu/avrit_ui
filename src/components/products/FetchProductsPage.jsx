@@ -61,7 +61,7 @@ function FetchProductsPage() {
               <React.Fragment key={index}>
                 <div className="row productrow">
                   {row.map((data) => (
-                    <React.Fragment>
+                    <React.Fragment key={data.product_id}>
                       {data.product_expired === false && (
                         <div
                           className="col-md-4 productcol"

@@ -2,47 +2,43 @@ import React, { useState, useContext } from "react"
 import * as Yup from "yup"
 import { Formik, Form, Field } from "formik"
 import { useHistory, useParams } from "react-router-dom"
-import ipfs from "../../commons/ipfs"
 import { NearContext } from "../../commons/context/NearContext"
+import ipfs from "../../commons/ipfs"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
-import { BigNumber } from "bignumber.js"
+import { BigNumber } from "bignumber.js";
+import PGetMinJuryStake from "./PGetMinJuryStake"
 
-function SetNFTPrice(props) {
+function PApplyJuryStake(props) {
   // const [count, setCount] = useState(0);
   const { pid } = useParams()
   let history = useHistory()
-  let { nearvar } = useContext(NearContext)
+  let { nearvar, reloadBalance} = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
   let pw = BigNumber(10).pow(18)
 
   return (
     <React.Fragment>
       <div className="container">
-        <br/>
-        <br/>
         <Formik
           initialValues={{
-            price: "",
-            token_count: "",
+            stake: "",
           }}
           validationSchema={Yup.object().shape({
-            price: Yup.string().required("Price is required"),
-            token_count: Yup.string().required("NFT count is required"),
+            stake: Yup.number().required("stake is required"),
           })}
           onSubmit={async (values, actions) => {
             try {
               //   values.countvariable = count
-              let attotokens = BigNumber(values.price).times(pw)
-              console.log(attotokens.toFixed())
-              await nearvar.contract.setup_nft_price_and_token_count({
+              let attotokens = BigNumber(values.stake).times(pw)
+              await nearvar.contract.p_apply_jurors({
                 product_id: pid.toString(),
-                price: attotokens.toFixed(),
-                token_count: values.token_count.toString(),
+                stake: attotokens.toFixed(),
               })
               actions.setSubmitting(false)
               // console.log(data)
-               history.push(`/product/${pid}`)
-              // history.goBack()
+              // history.push(`/thankyou${data.mutationoutputname}`)
+              reloadBalance()
+              history.goBack()
             } catch (e) {
               console.error(e)
               setErrorThrow(e.message)
@@ -62,24 +58,17 @@ function SetNFTPrice(props) {
             validateForm,
           }) => (
             <Form onSubmit={handleSubmit}>
+              <br/>
+              <PGetMinJuryStake/>
               {errorThrow && <p>{errorThrow}</p>}
 
               <div className="form-group">
-                <label htmlFor="price">Price in Avrit</label>
-                {touched.price && errors.price && (
-                  <p className="alert alert-danger">{errors.price}</p>
+                <label htmlFor="stake">Stake</label>
+                {touched.stake && errors.stake && (
+                  <p className="alert alert-danger">{errors.stake}</p>
                 )}
 
-                <Field name="price" className="form-control" />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="token_count">NFT count to be minted</label>
-                {touched.token_count && errors.token_count && (
-                  <p className="alert alert-danger">{errors.token_count}</p>
-                )}
-
-                <Field name="token_count" className="form-control" />
+                <Field name="stake" className="form-control" />
               </div>
 
               <div className="text-center">
@@ -101,4 +90,4 @@ function SetNFTPrice(props) {
   )
 }
 
-export default SetNFTPrice
+export default PApplyJuryStake

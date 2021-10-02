@@ -1,47 +1,42 @@
 import React, { useState, useContext } from "react"
 import * as Yup from "yup"
 import { Formik, Form, Field } from "formik"
-import { useHistory, useParams } from "react-router-dom"
+import { useHistory, useParams, useLocation } from "react-router-dom"
 import ipfs from "../../commons/ipfs"
 import { NearContext } from "../../commons/context/NearContext"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
+import GetNFTPriceBuy from "./GetNFTPriceBuy"
 import { BigNumber } from "bignumber.js"
 
-function SetNFTPrice(props) {
+function BuyNFT2Test(props) {
   // const [count, setCount] = useState(0);
   const { pid } = useParams()
+  let location = useLocation()
   let history = useHistory()
   let { nearvar } = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
-  let pw = BigNumber(10).pow(18)
-
+  let price  = GetNFTPriceBuy(pid)
+  let pw = BigNumber(10).pow(24)
   return (
     <React.Fragment>
       <div className="container">
-        <br/>
-        <br/>
         <Formik
-          initialValues={{
-            price: "",
-            token_count: "",
-          }}
-          validationSchema={Yup.object().shape({
-            price: Yup.string().required("Price is required"),
-            token_count: Yup.string().required("NFT count is required"),
-          })}
+          initialValues={{}}
+          validationSchema={Yup.object().shape({})}
           onSubmit={async (values, actions) => {
             try {
               //   values.countvariable = count
-              let attotokens = BigNumber(values.price).times(pw)
-              console.log(attotokens.toFixed())
-              await nearvar.contract.setup_nft_price_and_token_count({
-                product_id: pid.toString(),
-                price: attotokens.toFixed(),
-                token_count: values.token_count.toString(),
+              await nearvar.contract.buy_nft2({
+                args:{
+                  },
+                gas: 95000000000000,
+                amount: price,
+                callbackUrl:`${window.location.origin.toString()}/#/viewnft`
+
               })
               actions.setSubmitting(false)
               // console.log(data)
-               history.push(`/product/${pid}`)
+              // history.push(`/thankyou${data.mutationoutputname}`)
               // history.goBack()
             } catch (e) {
               console.error(e)
@@ -63,32 +58,21 @@ function SetNFTPrice(props) {
           }) => (
             <Form onSubmit={handleSubmit}>
               {errorThrow && <p>{errorThrow}</p>}
-
-              <div className="form-group">
-                <label htmlFor="price">Price in Avrit</label>
-                {touched.price && errors.price && (
-                  <p className="alert alert-danger">{errors.price}</p>
-                )}
-
-                <Field name="price" className="form-control" />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="token_count">NFT count to be minted</label>
-                {touched.token_count && errors.token_count && (
-                  <p className="alert alert-danger">{errors.token_count}</p>
-                )}
-
-                <Field name="token_count" className="form-control" />
-              </div>
-
+              <p> Hell World</p>
+              {price && (
+                <React.Fragment>
+                  <p className="badge badge-secondary mr-3">
+                    NFT Price: {BigNumber(price).div(pw).toFixed()} Near{" "}
+                  </p>
+                </React.Fragment>
+              )}
               <div className="text-center">
                 <button
                   type="submit"
                   className="btn btn-primary"
                   disabled={isSubmitting}
                 >
-                  Submit Form
+                  Buy NFT
                 </button>
               </div>
               <SubmittingWheel isSubmitting={isSubmitting} />
@@ -101,4 +85,4 @@ function SetNFTPrice(props) {
   )
 }
 
-export default SetNFTPrice
+export default BuyNFT2Test

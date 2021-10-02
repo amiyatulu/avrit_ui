@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, Suspense, lazy } from "react"
 import { Route, Switch } from "react-router-dom"
 import { NearContext } from "./commons/context/NearContext"
 
+
 const CreateProfile = lazy(() => import("./components/profile/CreateProfile"))
 const Nav = lazy(() => import("./components/Nav"))
 const ViewProfile = lazy(() => import("./components/profile/ViewProfile"))
@@ -81,6 +82,17 @@ const PrivacyPolicy = lazy(() => import("./components/pagestext/PrivacyPolicy"))
 const SetNFTPrice = lazy(() => import("./components/NFT/SetNFTPrice"))
 const BuyNFT = lazy(() => import("./components/NFT/BuyNFT"))
 const ViewNFT = lazy(() => import("./components/NFT/ViewNFT"));
+const NFTBalance = lazy(() => import('./components/NFT/NFTBalance'))
+const BuyNFT2Test = lazy(() => import("./components/NFT/BuyNFT2Test"))
+
+const ProductData = lazy(() => import("./components/schelling_product/ProductData")) 
+const PApplyJuryStake = lazy(() => import("./components/schelling_product/PApplyJuryStake"))
+const PDrawJuror = lazy(() => import('./components/schelling_product/PDrawJuror'))
+const PCommitVote = lazy(() => import('./components/schelling_product/PCommitVote'))
+const PUnstakeVote = lazy(() => import('./components/schelling_product/PUnstakeVote'))
+const PRevealVote  = lazy(() => import('./components/schelling_product/PRevealVote'))
+const PDrawIncentives  = lazy(() => import('./components/schelling_product/PDrawIncentives'))
+const PDrawProductIncentives  = lazy(() => import('./components/schelling_product/PDrawProductIncentives'))
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -116,7 +128,7 @@ function App(props) {
       setUserId(parseInt(userid))
 
       // console.log(props.wallet.getAccountId())
-      // console.log(data)
+      console.log("userid", userid)
       // console.log("fetchuserid")
     } catch (e) {
       console.log(e.message)
@@ -287,7 +299,17 @@ function App(props) {
               <Route path="/privacypolicy" component={PrivacyPolicy} />
               <Route path="/setnftprice/:pid" component={SetNFTPrice} />
               <Route path="/buynft/:pid" component={BuyNFT} />
+              <Route path="/buynft2/:pid" component={BuyNFT2Test} />
               <Route path="/viewnft" component={ViewNFT} />
+              <Route path="/nftbalance" component={NFTBalance} />
+              <Route path="/productdata/:pid" component={ProductData} />
+              <Route path="/productapplyjury/:pid" component={PApplyJuryStake} />
+              <Route path="/drawjuryforproduct/:pid" component={PDrawJuror} />
+              <Route path="/commitvoteproduct/:pid" component={PCommitVote} />
+              <Route path="/unstakeproduct/:pid" component={PUnstakeVote} />
+              <Route path="/revealvoteproduct/:pid" component={PRevealVote} />
+              <Route path="/drawincentivesjuryproduct/:pid" component={PDrawIncentives} />
+              <Route path="/productdrawincentives/:pid" component={PDrawProductIncentives} />
             </Switch>
           </section>
         </React.Fragment>

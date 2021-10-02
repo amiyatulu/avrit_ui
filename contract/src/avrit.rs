@@ -116,6 +116,37 @@ pub struct Avrit {
     nft_token_mint_count: LookupMap<u128, u128>, // <NFT token id, nft mint count>
     nft_token_price: LookupMap<u128, u128>, // <NFT token id, price in yocto near>
     nft_owner_incentives: LookupMap<u128, u128>, // <Profile id, incentives>
+
+    // Product schelling game:
+    // p_product_disapproval_bounty:LookupMap<u128, u64>, // Product id, bounty
+    // p_product_disapproval_user:LookupMap<u128, u128>, //product id, user_id
+    // p_min_product_disapproval_bounty: u64,
+    p_min_product_bounty: u64,
+    p_min_jury_stake: u64,
+    // max_number_of_jury_can_stake: u64,
+    p_user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>> #Delete
+    p_user_juror_stakes_clone: LookupMap<u128, TreeMap<u128, u128>>, // #Delete
+    p_user_juror_stake_count: LookupMap<u128, u64>, // <review_id, juror that staked count>
+    p_juror_stake_unique_id: u128,
+    p_juror_unstaked: LookupMap<u128, LookupSet<u128>>, // <review_id, jurorid>
+    p_selected_juror_count: LookupMap<u128, u64>,       // <review_id, selected_juror_count> #Delete
+    p_selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>  #Delete
+    p_juror_selection_time: LookupMap<u128, u64>,       // <review_id, timestamp>
+    p_jury_application_start_time: LookupMap<u128, u64>, // <review_id, time>
+    p_product_id_set_ucount: u128,
+    p_review_id_set_ucount: u128,
+    p_jury_count: u64,
+    p_jury_application_phase_time: u64, // Jury selection time in seconds
+    p_commit_phase_time: u64,           // Commit phase time in seconds
+    p_reveal_phase_time: u64,           // Reveal phase time in seconds
+    p_voter_commit: LookupMap<u128, LookupMap<String, u8>>, // review_id, vote_commits, 1 if commited, 2 if revealed
+    p_juror_voting_status: LookupMap<u128, LookupMap<u128, u8>>, // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed, 3=got the incentives>
+    p_schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <review_id, <jurorid, 1=true 0=false>>
+    p_schelling_decision_true_count: LookupMap<u128, u128>,            // <review_id, true_count>
+    p_schelling_decision_false_count: LookupMap<u128, u128>,           // <review_id, false_count>
+    p_jury_incentives: u128,    // Extra incentives on winning
+    p_product_incentives: u128, // Extra incentives on winning
+    p_product_got_incentives: LookupMap<u128, u8>,
 }
 
 // Owner functions
@@ -191,6 +222,47 @@ impl Avrit {
     pub fn get_jury_incentives(&self) -> U128 {
         self.jury_incentives.into()
     }
+
+    // p product schelling game
+
+    pub fn p_set_commit_phase_time(&mut self, time_in_secs: u64) {
+        self.assert_owner();
+        self.p_commit_phase_time = time_in_secs;
+    }
+    pub fn p_get_commit_phase_time(self) -> U64 {
+        self.p_commit_phase_time.into()
+    }
+    pub fn p_set_reveal_phase_time(&mut self, time_in_secs: u64) {
+        self.assert_owner();
+        self.p_reveal_phase_time = time_in_secs;
+    }
+    pub fn p_get_reveal_phase_time(&self) -> U64 {
+        self.p_reveal_phase_time.into()
+    }
+    pub fn p_set_jury_application_phase_time(&mut self, time_in_secs: u64) {
+        self.assert_owner();
+        self.p_jury_application_phase_time = time_in_secs;
+    }
+    pub fn p_get_jury_application_phase_time(&self) -> U64 {
+        self.p_jury_application_phase_time.into()
+    }
+    pub fn p_set_jury_count(&mut self, jury_count: u64) {
+        self.assert_owner();
+        self.p_jury_count = jury_count;
+    }
+    pub fn p_get_jury_count(&self) -> U64 {
+        self.p_jury_count.into()
+    }
+    pub fn p_set_jury_incentives(&mut self, incentives: u128) {
+        self.assert_owner();
+        self.p_jury_incentives = incentives;
+    }
+    pub fn p_get_jury_incentives(&self) -> U128 {
+        self.p_jury_incentives.into()
+    }
+
+    // End product schelling game
+
     pub fn set_review_incentives(&mut self, incentives: u128) {
         self.assert_owner();
         self.review_incentives = incentives;
@@ -246,6 +318,10 @@ impl Avrit {
     }
     pub fn get_min_jury_stake(&self) -> U64 {
         self.min_jury_stake.into()
+    }
+
+    pub fn p_get_min_jury_stake(&self) -> U64 {
+        self.p_min_jury_stake.into()
     }
     pub fn set_update_user_id_time_counter_zero(&mut self) {
         self.assert_owner();
@@ -374,7 +450,7 @@ impl Avrit {
         match user_id_option {
             Some(user_id) => user_id,
             None => {
-                panic!("User id doesnot exist for AccountId {}", account_id);
+                panic!("Please create profile to get user id");
             }
         }
     }
@@ -896,6 +972,7 @@ impl Avrit {
     pub fn add_product_bounty(&mut self, bounty: U64, product_id: U128) {
         let bounty: u64 = bounty.into();
         let product_id: u128 = product_id.into();
+        let timestamp = env::block_timestamp();
         assert!(
             bounty >= self.min_product_bounty,
             "Bounty can not be less than minimum product bounty"
@@ -908,6 +985,8 @@ impl Avrit {
                 if bounty > bountyvalue {
                     self.burn(&account_id, (bounty - bountyvalue) as u128);
                     self.product_bounty.insert(&product_id, &bounty);
+                    self.p_jury_application_start_time
+                        .insert(&product_id, &timestamp);
                 } else {
                     panic!("Please enter amount of higher value");
                 }
@@ -915,6 +994,8 @@ impl Avrit {
             None => {
                 self.burn(&account_id, bounty as u128);
                 self.product_bounty.insert(&product_id, &bounty);
+                self.p_jury_application_start_time
+                    .insert(&product_id, &timestamp);
             }
         }
     }
@@ -1114,6 +1195,36 @@ impl Avrit {
             nft_token_mint_count: LookupMap::new(b"a9ec8b8d".to_vec()),
             nft_owner_incentives: LookupMap::new(b"8f574fbd".to_vec()),
             nft_token_price: LookupMap::new(b"42d54eac".to_vec()),
+
+            // Product schelling game
+            // p_product_disapproval_bounty:LookupMap::new(b"5fe6f73b".to_vec()),
+            // p_product_disapproval_user:LookupMap::new(b"b4e84edd".to_vec()), //product id, user_id
+            // p_min_product_disapproval_bounty: 1000000000000000000,
+            p_min_product_bounty: 1000000000000000000,
+            p_min_jury_stake: 1000000000000000000,
+            p_user_juror_stakes: LookupMap::new(b"1d346a44".to_vec()), // <reviewer_id, <jurorid, stakes>> #Delete
+            p_user_juror_stakes_clone: LookupMap::new(b"513683fe".to_vec()), // #Delete
+            p_user_juror_stake_count: LookupMap::new(b"dd879466".to_vec()), // <review_id, juror that staked count>
+            p_juror_stake_unique_id: 0,
+            p_juror_unstaked: LookupMap::new(b"f0b9ea16".to_vec()), // <review_id, jurorid>
+            p_selected_juror_count: LookupMap::new(b"421c87f0".to_vec()), // <review_id, selected_juror_count> #Delete
+            p_selected_juror: LookupMap::new(b"6ab09130".to_vec()), // <reviewer_id, jurorid>  #Delete
+            p_juror_selection_time: LookupMap::new(b"7afbce8e".to_vec()), // <review_id, timestamp>
+            p_jury_application_start_time: LookupMap::new(b"f5bde268".to_vec()), // <review_id, time>
+            p_product_id_set_ucount: 0,
+            p_review_id_set_ucount: 0,
+            p_jury_count: 10,
+            p_jury_application_phase_time: 1296000, // Jury selection time in seconds
+            p_commit_phase_time: 2592000,           // Commit phase time in seconds
+            p_reveal_phase_time: 1296000,           // Reveal phase time in seconds
+            p_voter_commit: LookupMap::new(b"606bb829".to_vec()), // review_id, vote_commits, 1 if commited, 2 if revealed
+            p_juror_voting_status: LookupMap::new(b"18666fff".to_vec()), // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed, 3=got the incentives>
+            p_schelling_decisions_juror: LookupMap::new(b"8abe0c8d".to_vec()), // <review_id, <jurorid, 1=true 0=false>>
+            p_schelling_decision_true_count: LookupMap::new(b"26a2aa05".to_vec()), // <review_id, true_count>
+            p_schelling_decision_false_count: LookupMap::new(b"4af5ba34".to_vec()), // <review_id, false_count>
+            p_jury_incentives: 100000000000000000, //10*17                                         // Extra incentives on winning
+            p_product_incentives: 1000000000000000000, // 10*18
+            p_product_got_incentives: LookupMap::new(b"9d223da2".to_vec()),
         };
         this.ft.internal_register_account(&owner_id);
         this.ft.internal_deposit(&owner_id, admin_balance);
@@ -2639,7 +2750,6 @@ impl Avrit {
         }
 
         let state: Avrit = env::state_read().unwrap();
-
         assert_eq!(
             &env::predecessor_account_id(),
             &state.owner_id,
@@ -2748,6 +2858,37 @@ impl Avrit {
             nft_token_mint_count: LookupMap::new(b"a9ec8b8d".to_vec()),
             nft_owner_incentives: LookupMap::new(b"8f574fbd".to_vec()),
             nft_token_price: LookupMap::new(b"42d54eac".to_vec()),
+
+            // Product schelling game
+            // Product schelling game
+            // p_product_disapproval_bounty:LookupMap::new(b"5fe6f73b".to_vec()),
+            // p_product_disapproval_user:LookupMap::new(b"b4e84edd".to_vec()), //product id, user_id
+            // p_min_product_disapproval_bounty: 1000000000000000000,
+            p_min_product_bounty: 1000000000000000000,
+            p_min_jury_stake: 1000000000000000000,
+            p_user_juror_stakes: LookupMap::new(b"1d346a44".to_vec()), // <reviewer_id, <jurorid, stakes>> #Delete
+            p_user_juror_stakes_clone: LookupMap::new(b"513683fe".to_vec()), // #Delete
+            p_user_juror_stake_count: LookupMap::new(b"dd879466".to_vec()), // <review_id, juror that staked count>
+            p_juror_stake_unique_id: 0,
+            p_juror_unstaked: LookupMap::new(b"f0b9ea16".to_vec()), // <review_id, jurorid>
+            p_selected_juror_count: LookupMap::new(b"421c87f0".to_vec()), // <review_id, selected_juror_count> #Delete
+            p_selected_juror: LookupMap::new(b"6ab09130".to_vec()), // <reviewer_id, jurorid>  #Delete
+            p_juror_selection_time: LookupMap::new(b"7afbce8e".to_vec()), // <review_id, timestamp>
+            p_jury_application_start_time: LookupMap::new(b"f5bde268".to_vec()), // <review_id, time>
+            p_product_id_set_ucount: 0,
+            p_review_id_set_ucount: 0,
+            p_jury_count: 10,
+            p_jury_application_phase_time: 1296000, // Jury selection time in seconds
+            p_commit_phase_time: 2592000,           // Commit phase time in seconds
+            p_reveal_phase_time: 1296000,           // Reveal phase time in seconds
+            p_voter_commit: LookupMap::new(b"606bb829".to_vec()), // review_id, vote_commits, 1 if commited, 2 if revealed
+            p_juror_voting_status: LookupMap::new(b"18666fff".to_vec()), // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed, 3=got the incentives>
+            p_schelling_decisions_juror: LookupMap::new(b"8abe0c8d".to_vec()), // <review_id, <jurorid, 1=true 0=false>>
+            p_schelling_decision_true_count: LookupMap::new(b"26a2aa05".to_vec()), // <review_id, true_count>
+            p_schelling_decision_false_count: LookupMap::new(b"4af5ba34".to_vec()), // <review_id, false_count>
+            p_jury_incentives: 100000000000000000, //10*17                                         // Extra incentives on winning
+            p_product_incentives: 1000000000000000000, // 10*18
+            p_product_got_incentives: LookupMap::new(b"9d223da2".to_vec()),
         }
     }
 }
@@ -2931,14 +3072,15 @@ impl Avrit {
             }
         }
     }
-
+    
     #[payable]
-    pub fn buy_nft(&mut self, token_id: U128) {
+    pub fn buy_nft(&mut self, token_id: U128, amount: U128) {
         let product_id: u128 = token_id.into();
+        let amount: u128 = amount.into();
         let token_owner_id = env::predecessor_account_id();
         let product = self.get_product(product_id);
         let price = self.get_nft_price(product_id);
-        let amount = env::attached_deposit();
+        self.burn(&token_owner_id, amount);
         assert!(amount == price, "Price should be equal to deposit");
         let product_owner_id: u128 = product.user_id;
         self.increment_owner_incentives(product_owner_id, amount);
@@ -2947,6 +3089,7 @@ impl Avrit {
         let names = [product_id.to_owned().to_string(), countname];
         let joined_name = names.join("_");
         log!("NFT token id {}", joined_name);
+        log!("Amount {}: Price {}", amount, price);
         let token_metadata = TokenMetadata {
             title: Some(product.product_details_hash.into()),
             description: None,
@@ -2983,18 +3126,14 @@ impl Avrit {
         let account_id = env::predecessor_account_id();
         let user_id = self.get_user_id(&account_id);
         let incentives_option = self.nft_owner_incentives.get(&user_id);
-        let storage_balance = self.ft.storage_balance_bounds().min.0;
         match incentives_option {
             Some(incentives) => {
                 self.nft_owner_incentives.insert(&user_id, &0);
                 if incentives == 0 {
                     panic!("You have no incentives to withdraw");
-                } else if incentives > storage_balance {
-                    let transfer_amount =
-                        incentives.checked_sub(storage_balance).expect("Overflow");
-                    Promise::new(account_id).transfer(transfer_amount);
+                    
                 } else {
-                    panic!("Incentives are less than storage balance");
+                    self.mint_myft(&account_id, incentives);
                 }
             }
             None => {
@@ -3003,10 +3142,7 @@ impl Avrit {
         }
     }
 
-    pub fn last_ten_tokens_for_owner(
-        &self,
-        user_id:U128
-    ) -> Vec<Token> {
+    pub fn last_ten_tokens_for_owner(&self, user_id: U128) -> Vec<Token> {
         let user_id: u128 = user_id.into();
         let user = self.get_user_profile(user_id);
         let user_address = user.username;
@@ -3038,10 +3174,1111 @@ impl Avrit {
     }
 
     fn enum_get_token_x(&self, owner_id: AccountId, token_id: TokenId) -> Token {
-        let metadata = self.tokens.token_metadata_by_id.as_ref().unwrap().get(&token_id);
-        let approved_account_ids =
-            Some(self.tokens.approvals_by_id.as_ref().unwrap().get(&token_id).unwrap_or_default());
+        let metadata = self
+            .tokens
+            .token_metadata_by_id
+            .as_ref()
+            .unwrap()
+            .get(&token_id);
+        let approved_account_ids = Some(
+            self.tokens
+                .approvals_by_id
+                .as_ref()
+                .unwrap()
+                .get(&token_id)
+                .unwrap_or_default(),
+        );
 
-        Token { token_id, owner_id, metadata, approved_account_ids }
+        Token {
+            token_id,
+            owner_id,
+            metadata,
+            approved_account_ids,
+        }
+    }
+}
+
+// Product schelling game
+
+// // Product schelling game:
+// p_voter_commit: LookupMap<u128, LookupMap<String, u8>>, // review_id, vote_commits, 1 if commited, 2 if revealed
+// p_juror_voting_status: LookupMap<u128, LookupMap<u128, u8>>, // review_id, <juror id, 0 or null =not commited, 1=commited, 2=revealed, 3=got the incentives>
+// p_schelling_decisions_juror: LookupMap<u128, LookupMap<u128, u8>>, // <review_id, <jurorid, 1=true 0=false>>
+// p_schelling_decision_true_count: LookupMap<u128, u128>,            // <review_id, true_count>
+// p_schelling_decision_false_count: LookupMap<u128, u128>,           // <review_id, false_count>
+// p_jury_incentives: u128,                                           // Extra incentives on winning
+// p_product_incentives: u128,
+
+#[near_bindgen]
+impl Avrit {
+    // p_product_disapproval_bounty:LookupMap<u128, u64>, // Product id, bounty
+    // p_product_disapproval_user:LookupMap<u128, u128>, //product id, user_id
+    // p_min_product_disapproval_bounty: u64,
+
+    // pub fn p_add_product_disapproval_bounty(&mut self, bounty: U64, product_id: U128) {
+    //     let bounty: u64 = bounty.into();
+    //     let product_id: u128 = product_id.into();
+    //     let account_id = env::predecessor_account_id();
+    //     // check product bounty is done
+    //     let _product_bounty = self.get_product_bounty(product_id);
+    //     let user_id = self.get_user_id(&account_id);
+
+    //     assert!(
+    //         bounty >= self.p_min_product_disapproval_bounty,
+    //         "Bounty can not be less than minimum product disapproval bounty"
+    //     );
+
+    //     let product_disapproval_bounty_option = self.p_product_disapproval_bounty.get(&product_id);
+    //     match product_disapproval_bounty_option {
+    //         Some(_bountyvalue) => {
+    //             panic!("Product disapproval bounty is already set");
+    //         }
+
+    //         None => {
+    //             self.burn(&account_id, bounty as u128);
+    //             self.p_product_disapproval_bounty.insert(&product_id, &bounty);
+    //             self.p_product_disapproval_user.insert(&product_id, &user_id);
+    //         }
+    //     }
+    // }
+    pub fn p_apply_jurors(&mut self, product_id: U128, stake: U128) {
+        let product_id: u128 = product_id.into();
+        let stake: u128 = stake.into();
+        let bountyvalue = self.get_product_bounty(product_id);
+        if bountyvalue < self.p_min_product_bounty {
+            panic!(
+                "Bounty is less than minimum allowed amount {}",
+                self.p_min_product_bounty
+            );
+        }
+        if stake < self.p_min_jury_stake as u128 {
+            panic!("Stake is less than minimum allowed amount")
+        }
+        self.p_test_jury_selection_time_added(product_id); // Not done for review
+        self.p_increase_juror_that_staked_count(product_id.clone());
+        // self.check_number_of_staked_jury_exceeds_max_number_of_jury_can_stake(review_id.clone());
+        let account_id = env::predecessor_account_id();
+        let singer_juror_user = self.get_user_id(&account_id);
+        self.p_user_juror_stakes_store(
+            account_id.clone(),
+            singer_juror_user.clone(),
+            product_id.clone(),
+            stake.clone(),
+        );
+        self.p_user_juror_stakes_clone_store(
+            singer_juror_user.clone(),
+            product_id.clone(),
+            stake.clone(),
+        );
+    }
+
+    pub fn p_number_of_staked_jury(&self, product_id: U128) -> U64 {
+        let user_juror_stake_count_option = self.p_user_juror_stake_count.get(&product_id.into());
+        match user_juror_stake_count_option {
+            Some(count) => count.into(),
+            None => 0.into(),
+        }
+    }
+
+    fn p_increase_juror_that_staked_count(&mut self, product_id: u128) {
+        let user_juror_stake_count_option = self.p_user_juror_stake_count.get(&product_id);
+        match user_juror_stake_count_option {
+            Some(mut count) => {
+                count = count.checked_add(1).expect("overflow");
+                self.p_user_juror_stake_count.insert(&product_id, &count);
+            }
+            None => {
+                self.p_user_juror_stake_count.insert(&product_id, &1);
+            }
+        }
+    }
+
+    fn p_user_juror_stakes_store(
+        &mut self,
+        account_id: String,
+        singer_juror_user: u128,
+        product_id: u128,
+        stake: u128,
+    ) {
+        let user_juror_stakes_option = self.p_user_juror_stakes.get(&product_id);
+        match user_juror_stakes_option {
+            Some(mut stake_entries) => {
+                let stake_entries_option = stake_entries.get(&singer_juror_user);
+                match stake_entries_option {
+                    Some(stake) => {
+                        if stake > 0 {
+                            panic!("You have already staked")
+                        } else {
+                            stake_entries.insert(&singer_juror_user, &stake);
+                            self.burn(&account_id, stake);
+                            self.p_user_juror_stakes.insert(&product_id, &stake_entries);
+                        }
+                    }
+                    None => {
+                        stake_entries.insert(&singer_juror_user, &stake);
+                        self.burn(&account_id, stake);
+                        self.p_user_juror_stakes.insert(&product_id, &stake_entries);
+                    }
+                }
+            }
+            None => {
+                let stakeidstring = format!(
+                    "stakevoterid{}uniqueid{}",
+                    product_id, self.p_juror_stake_unique_id
+                );
+                // should self.p_juror_stake_unique_id should increment
+                let stakeid = stakeidstring.to_string().into_bytes();
+                let mut stake_entries = LookupMap::new(stakeid);
+                stake_entries.insert(&singer_juror_user, &stake);
+                self.burn(&account_id, stake);
+                self.p_user_juror_stakes.insert(&product_id, &stake_entries);
+            }
+        }
+    }
+
+    ///  clone of user_juror_stakes_store
+    fn p_user_juror_stakes_clone_store(
+        &mut self,
+        singer_juror_user: u128,
+        product_id: u128,
+        stake: u128,
+    ) {
+        let user_juror_stakes_option = self.p_user_juror_stakes_clone.get(&product_id);
+        match user_juror_stakes_option {
+            Some(mut stake_entries) => {
+                let stake_entries_option = stake_entries.get(&singer_juror_user);
+                match stake_entries_option {
+                    Some(stake) => {
+                        if stake > 0 {
+                            panic!("You have already staked")
+                        } else {
+                            stake_entries.insert(&singer_juror_user, &stake);
+                            self.p_user_juror_stakes_clone
+                                .insert(&product_id, &stake_entries);
+                        }
+                    }
+                    None => {
+                        stake_entries.insert(&singer_juror_user, &stake);
+                        self.p_user_juror_stakes_clone
+                            .insert(&product_id, &stake_entries);
+                    }
+                }
+            }
+            None => {
+                let stakeidstring = format!(
+                    "stakevoteridclone{}uniqueid{}",
+                    product_id, self.p_juror_stake_unique_id
+                );
+                self.p_juror_stake_unique_id += 1;
+                let stakeid = stakeidstring.to_string().into_bytes();
+                let mut stake_entries = TreeMap::new(stakeid);
+                stake_entries.insert(&singer_juror_user, &stake);
+                self.p_user_juror_stakes_clone
+                    .insert(&product_id, &stake_entries);
+            }
+        }
+    }
+
+    fn p_get_jury_application_start_time(&self, product_id: u128) -> u64 {
+        let timestamp_jury_application_start_time_option =
+            self.p_jury_application_start_time.get(&product_id);
+        match timestamp_jury_application_start_time_option {
+            Some(timestamp) => timestamp,
+            None => {
+                panic!("No application time for product id");
+            }
+        }
+    }
+
+    pub fn p_get_jury_application_start_time_js(&self, product_id: U128) -> U64 {
+        self.p_get_jury_application_start_time(product_id.into())
+            .into()
+    }
+
+    fn p_assert_draw_jurors_time_possible(&self, product_id: u128) {
+        let timestamp = env::block_timestamp();
+        let naive_now = NaiveDateTime::from_timestamp((timestamp / 1000000000) as i64, 0);
+        // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>naive now:   {}", naive_now);
+        let timestamp_jury_application_start_time =
+            self.p_get_jury_application_start_time(product_id);
+        let native_timestamp_jury_application_start_time = NaiveDateTime::from_timestamp(
+            (timestamp_jury_application_start_time / 1000000000) as i64,
+            0,
+        );
+        let seconds = Duration::seconds(self.p_jury_application_phase_time as i64);
+        let endtime = native_timestamp_jury_application_start_time + seconds;
+        // println!(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>endtime draw juror: {}", endtime);
+        if naive_now < endtime {
+            panic!("Juror application time has not yet ended");
+        }
+    }
+
+    pub fn p_draw_jurors(&mut self, product_id: U128) {
+        let length: usize = 3;
+        let product_id = product_id.into();
+        self.p_assert_draw_jurors_time_possible(product_id);
+        let selected_juror_option = self.p_selected_juror.get(&product_id);
+        self.p_check_minimum_number_juror_staked(product_id);
+        match selected_juror_option {
+            Some(jurysetentries) => {
+                self.p_draw_jurors_function(product_id, jurysetentries, length);
+            }
+            None => {
+                let jurysetidstring = format!("jurysetid{}", product_id);
+                let jurysetid = jurysetidstring.to_string().into_bytes();
+                let jurysetentries = LookupSet::new(jurysetid);
+                self.p_draw_jurors_function(product_id, jurysetentries, length);
+            }
+        }
+    }
+
+    pub fn p_get_selected_juror_count(&self, product_id: U128) -> U64 {
+        let product_id: u128 = product_id.into();
+        let selected_juror_count_option = self.p_selected_juror_count.get(&product_id);
+        match selected_juror_count_option {
+            Some(count) => count.into(),
+            None => 0.into(),
+        }
+    }
+    // Check minium number of juror have staked
+    fn p_check_minimum_number_juror_staked(&self, product_id: u128) {
+        let user_juror_stake_count_option = self.p_user_juror_stake_count.get(&product_id);
+        match user_juror_stake_count_option {
+            Some(count) => {
+                if count < self.p_jury_count {
+                    panic!("Staked juror are less than jury count");
+                }
+            }
+            None => {}
+        }
+    }
+
+    fn p_test_jury_selection_time_added(&self, product_id: u128) {
+        let selectiontime_option = self.p_juror_selection_time.get(&product_id);
+        match selectiontime_option {
+            Some(_selection) => {
+                panic!("Jury has been drawn")
+            }
+            None => {}
+        }
+    }
+
+    fn p_draw_jurors_function(
+        &mut self,
+        product_id: u128,
+        mut jurysetentries: LookupSet<u128>,
+        length: usize,
+    ) {
+        let slicelength: u128 = 20;
+        let user_juror_stakes_clone_option = self.p_user_juror_stakes_clone.get(&product_id);
+        match user_juror_stakes_clone_option {
+            Some(mut juries_stakes) => {
+                let juries_stakes_len = juries_stakes.len() as u128;
+                let random_vec = env::random_seed();
+                let mut rng = self.get_rng(random_vec);
+                // println!("juries stake len {:?}", juries_stakes_len);
+                // println!("jury stakes {:?}", juries_stakes.to_vec());
+                let mut end;
+                let rand_number;
+                if juries_stakes_len < slicelength {
+                    end = juries_stakes_len;
+                    rand_number = 0;
+                } else {
+                    rand_number = rng.gen_range(0, juries_stakes_len);
+                    // println!("random number {}", rand_number);
+                    end = rand_number + slicelength;
+                    if end > juries_stakes_len {
+                        end = juries_stakes_len;
+                    }
+                }
+                // println!("start {} end {}", rand_number, end);
+                let mut items = Vec::new();
+                {
+                    juries_stakes
+                        .iter()
+                        .skip(rand_number as usize)
+                        .take(end as usize)
+                        .for_each(|(key, value)| items.push((key, value)));
+                    // ; println!("key value {}-{}", key, value)
+                }
+                // println!("items {:?}", items);
+                let mut dist2 =
+                    WeightedIndex::new(items.iter().map(|item| item.1)).expect("No items");
+                let mut countvalue;
+                let selected_juror_count_option = self.p_selected_juror_count.get(&product_id);
+                match selected_juror_count_option {
+                    Some(count) => {
+                        countvalue = count;
+                        let selectiontime_option = self.p_juror_selection_time.get(&product_id);
+                        match selectiontime_option {
+                            Some(_selection) => {
+                                panic!("Jury selection time has already been added")
+                            }
+                            None => {}
+                        }
+                    }
+                    None => countvalue = 0,
+                }
+                for _ in 0..length {
+                    let index = dist2.sample(&mut rng);
+                    // println!("{}", index);
+                    let drawindex = items[index].0;
+                    // println!("draw_index {:?}", drawindex);
+                    juries_stakes.remove(&drawindex);
+                    jurysetentries.insert(&drawindex);
+                    let d = dist2.update_weights(&[(index, &0)]);
+                    // println!("{:?}",d);
+                    countvalue = countvalue + 1;
+                    if countvalue >= self.p_jury_count {
+                        // println!("set time stamp");
+                        let timestamp = env::block_timestamp();
+                        self.p_juror_selection_time.insert(&product_id, &timestamp);
+                        break;
+                    }
+                    match d {
+                        Ok(_v) => {}
+                        Err(_e) => {
+                            break;
+                        }
+                    }
+                }
+                self.p_selected_juror_count.insert(&product_id, &countvalue);
+                // println!("countvalue{}", countvalue);
+                self.p_user_juror_stakes_clone
+                    .insert(&product_id, &juries_stakes);
+                self.p_selected_juror.insert(&product_id, &jurysetentries);
+            }
+            None => {
+                panic!("There are no juries");
+            }
+        }
+    }
+
+    fn p_get_juror_stakes(&self, product_id: u128, juror_user_id: u128) -> u128 {
+        let juror_list_option = self.p_user_juror_stakes.get(&product_id);
+        match juror_list_option {
+            Some(juror_list) => {
+                let juror_stake = juror_list.get(&juror_user_id).unwrap();
+                juror_stake
+            }
+            None => panic!("No stakes for the review"),
+        }
+    }
+
+    pub fn p_get_juror_stakes_js(&self, product_id: U128, juror_user_id: U128) -> U128 {
+        let product_id: u128 = product_id.into();
+        let juror_user_id: u128 = juror_user_id.into();
+        let juror_stake = self.p_get_juror_stakes(product_id, juror_user_id);
+        juror_stake.into()
+    }
+
+    fn p_get_juror_selection_time(&self, product_id: &u128) -> u64 {
+        let timestamp_juror_selection_time_option = self.p_juror_selection_time.get(&product_id);
+        match timestamp_juror_selection_time_option {
+            Some(timestamp) => timestamp,
+            None => {
+                panic!("Jurors are not selected yet");
+            }
+        }
+    }
+
+    pub fn p_get_juror_selection_time_js(&self, product_id: U128) -> U64 {
+        let timestamp = self.p_get_juror_selection_time(&product_id.into());
+        timestamp.into()
+    }
+
+    pub fn p_check_juror_selection_time_ended(&self, product_id: U128) {
+        let product_id: u128 = product_id.into();
+        let timestamp = env::block_timestamp();
+        let naive_now = NaiveDateTime::from_timestamp((timestamp / 1000000000) as i64, 0);
+        let timestamp_juror_selection_time = self.p_get_juror_selection_time(&product_id);
+        let native_juror_selection_time =
+            NaiveDateTime::from_timestamp((timestamp_juror_selection_time / 1000000000) as i64, 0);
+        let onehour = Duration::seconds(3600);
+        let endtime = native_juror_selection_time + onehour; // One hour extra so that unstaking time is not manipulated
+        if naive_now < endtime {
+            panic!("Juror selection time has not yet ended");
+        }
+    }
+
+    pub fn p_can_juror_unstake_bool(&self, product_id: U128, user_id: U128) -> bool {
+        let product_id: u128 = product_id.into();
+        let user_id: u128 = user_id.into();
+        let juror_unstake_bool = self.p_has_juror_unstake_bool(product_id, user_id);
+        let juror_staked_bool = self.p_has_juror_staked_bool(product_id, user_id);
+        let juror_selected_bool = self.p_can_juror_selected_bool(product_id, user_id);
+        if juror_unstake_bool == false && juror_staked_bool == true && juror_selected_bool == false
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    fn p_has_juror_unstake_bool(&self, product_id: u128, user_id: u128) -> bool {
+        let juror_unstaked_option = self.p_juror_unstaked.get(&product_id);
+        match juror_unstaked_option {
+            Some(juryentries) => {
+                let juryexists = juryentries.contains(&user_id);
+                if juryexists == true {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            None => {
+                return false;
+            }
+        }
+    }
+
+    fn p_can_juror_selected_bool(&self, product_id: u128, user_id: u128) -> bool {
+        let selected_juror_option = self.p_selected_juror.get(&product_id);
+        match selected_juror_option {
+            Some(juryentries) => {
+                let juryexists = juryentries.contains(&user_id);
+                if juryexists == true {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            None => {
+                return false;
+            }
+        }
+    }
+
+    fn p_has_juror_staked_bool(&self, product_id: u128, user_id: u128) -> bool {
+        let user_juror_stakes_option = self.p_user_juror_stakes.get(&product_id);
+        match user_juror_stakes_option {
+            Some(jurystakes) => {
+                let jurystakes_option = jurystakes.get(&user_id);
+                match jurystakes_option {
+                    Some(_stake) => {
+                        return true;
+                    }
+                    None => {
+                        return false;
+                    }
+                }
+            }
+            None => {
+                return false;
+            }
+        }
+    }
+
+    fn p_juror_can_not_vote_return_stake(&self, product_id: u128, user_id: u128) -> u128 {
+        let selected_juror_option = self.p_selected_juror.get(&product_id);
+        match selected_juror_option {
+            Some(juryentries) => {
+                let juryexists = juryentries.contains(&user_id);
+                if juryexists == true {
+                    panic!("You are selected as juror to vote, can't unstake");
+                } else if juryexists == false {
+                    let user_juror_stakes_option = self.p_user_juror_stakes.get(&product_id);
+                    match user_juror_stakes_option {
+                        Some(jurystakes) => {
+                            let jurystakes_option = jurystakes.get(&user_id);
+                            match jurystakes_option {
+                                Some(stake) => {
+                                    return stake;
+                                }
+                                None => {
+                                    panic!("You have not staked for the review");
+                                }
+                            }
+                        }
+                        None => {
+                            panic!("There are no stakes for the review");
+                        }
+                    }
+                } else {
+                    panic!("You are selected as juror to vote, can't unstake");
+                }
+            }
+            None => {
+                panic!("Jury selection not done");
+            }
+        }
+    }
+
+    // juror_unstaked: LookupMap<u128, LookupSet<u128>>, // <product_id, jurorid>
+    fn p_check_and_add_jury_unstaked(&mut self, product_id: u128, user_id: u128) {
+        let juror_unstaked_option = self.p_juror_unstaked.get(&product_id);
+        match juror_unstaked_option {
+            Some(mut juryentries) => {
+                let juryexists = juryentries.contains(&user_id);
+                if juryexists == true {
+                    panic!("You have alread unstaked, can not unstake again.");
+                } else {
+                    juryentries.insert(&user_id);
+                    self.p_juror_unstaked.insert(&product_id, &juryentries);
+                }
+            }
+            None => {
+                // Add unstaked
+                let jurysetidstring = format!("juryunstakeid{}", product_id);
+                let jurysetid = jurysetidstring.to_string().into_bytes();
+                let mut juryentries = LookupSet::new(jurysetid);
+                juryentries.insert(&user_id);
+                self.p_juror_unstaked.insert(&product_id, &juryentries);
+            }
+        }
+    }
+
+    pub fn p_unstaking_non_selected_juror(&mut self, product_id: U128, user_id: U128) {
+        self.p_check_juror_selection_time_ended(product_id);
+        let product_id: u128 = product_id.into();
+        let user_id: u128 = user_id.into();
+        let stake = self.p_juror_can_not_vote_return_stake(product_id, user_id);
+        self.p_check_and_add_jury_unstaked(product_id, user_id);
+        let user_profile = self.get_user_profile(user_id);
+        let user_address = user_profile.username;
+        self.mint_myft(&user_address, stake);
+    }
+
+    pub fn p_commit_vote(&mut self, product_id: U128, vote_commit: String) {
+        let product_id: u128 = product_id.into();
+        let account_id = env::predecessor_account_id();
+        let user_id = self.get_user_id(&account_id);
+        let timestamp = env::block_timestamp();
+        let naive_now = NaiveDateTime::from_timestamp((timestamp / 1000000000) as i64, 0);
+        // println!("{}, now2", naive_now);
+        let timestamp_juror_selection_time = self.p_get_juror_selection_time(&product_id);
+        let native_juror_selection_time =
+            NaiveDateTime::from_timestamp((timestamp_juror_selection_time / 1000000000) as i64, 0);
+        let seconds = Duration::seconds(self.p_commit_phase_time as i64);
+        let endtime = native_juror_selection_time + seconds;
+        if naive_now > endtime {
+            panic!("Commiting time has ended");
+        }
+        // println!(">>>>nativenow{} native_juror_selection_time{}<<<<", naive_now,native_juror_selection_time );
+        if naive_now < native_juror_selection_time {
+            panic!("Juror selection time has not ended");
+        }
+        self.p_can_juror_vote(product_id, user_id);
+        self.p_add_juror_voting_status_commit(product_id, user_id);
+        let mut vote_commit_all = self.p_get_voter_commits_lookup(product_id);
+        let votecommit = vote_commit_all.get(&vote_commit);
+        match votecommit {
+            Some(_commit) => panic!("This vote is already commited"),
+            None => {
+                vote_commit_all.insert(&vote_commit, &1);
+                self.p_voter_commit.insert(&product_id, &vote_commit_all);
+            }
+        }
+    }
+    fn p_add_juror_voting_status_commit(&mut self, product_id: u128, user_id: u128) {
+        let juror_voting_status_option = self.p_juror_voting_status.get(&product_id);
+        match juror_voting_status_option {
+            Some(mut juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 1 || value == 2 {
+                            panic!("Voter has already commited");
+                        } else {
+                            panic!("Not at valid voter status");
+                        }
+                    }
+                    None => {
+                        juror_voting_status_lookup.insert(&user_id, &1);
+                        self.p_juror_voting_status
+                            .insert(&product_id, &juror_voting_status_lookup);
+                    }
+                }
+            }
+            None => {
+                let votestatusstring = format!("juror_voting_status{}uniqueid", product_id);
+                let votestatusid = votestatusstring.to_string().into_bytes();
+                let mut votestatus_lookup = LookupMap::new(votestatusid);
+                votestatus_lookup.insert(&user_id, &1);
+                self.p_juror_voting_status
+                    .insert(&product_id, &votestatus_lookup);
+            }
+        }
+    }
+    fn p_get_voter_commits_lookup(&self, product_id: u128) -> LookupMap<String, u8> {
+        let vote_status_option = self.p_voter_commit.get(&product_id);
+        match vote_status_option {
+            Some(votecommits) => votecommits,
+            None => {
+                let votestatusstring = format!("votecommit{}uniqueid", product_id);
+                let votestatusid = votestatusstring.to_string().into_bytes();
+                let votecommits = LookupMap::new(votestatusid);
+                votecommits
+            }
+        }
+    }
+
+    fn p_if_juror_selected(&self, product_id: u128, user_id: u128) -> bool {
+        let selected_juror_option = self.p_selected_juror.get(&product_id);
+        match selected_juror_option {
+            Some(juryentries) => {
+                let juryexists = juryentries.contains(&user_id);
+                juryexists
+            }
+            None => false,
+        }
+    }
+
+    pub fn p_can_juror_vote_bool(&self, product_id: U128, user_id: U128) -> bool {
+        let product_id: u128 = product_id.into();
+        let user_id: u128 = user_id.into();
+        let selected = self.p_if_juror_selected(product_id, user_id);
+        let commited = self.p_if_vote_commited(product_id, user_id);
+        if selected == true && commited == false {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn p_if_vote_commited(&self, product_id: u128, user_id: u128) -> bool {
+        let juror_voting_status_option = self.p_juror_voting_status.get(&product_id);
+        match juror_voting_status_option {
+            Some(juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 1 || value == 2 {
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                    None => false,
+                }
+            }
+            None => false,
+        }
+    }
+
+    pub fn p_can_juror_vote_js(&self, product_id: U128, user_id: U128) {
+        let product_id: u128 = product_id.into();
+        let user_id: u128 = user_id.into();
+        self.p_can_juror_vote(product_id, user_id);
+    }
+    fn p_can_juror_vote(&self, product_id: u128, user_id: u128) {
+        let selected_juror_option = self.p_selected_juror.get(&product_id);
+        match selected_juror_option {
+            Some(jurysetentries) => {
+                let juryexists = jurysetentries.contains(&user_id);
+                // if user id exists in selected_juror (<review_id, juror_id_set>) it will
+                // return true else false, look at the contains
+                if juryexists == false {
+                    panic!("You are not juror of the review");
+                }
+            }
+            None => {
+                panic!("No selected jurors");
+            }
+        }
+    }
+
+    /// Reveal end time is juror_selection_time + commit_phase_time + reveal_phase_time
+    // Vote can be 0 or 1, 0=> Review is not good, 1=> Review is good as per guidelines
+    pub fn p_reveal_vote(&mut self, product_id: U128, vote: String, vote_commit: String) {
+        let product_id: u128 = product_id.into();
+        let account_id = env::predecessor_account_id();
+        let user_id = self.get_user_id(&account_id);
+        let timestamp = env::block_timestamp();
+        let naive_now = NaiveDateTime::from_timestamp((timestamp / 1000000000) as i64, 0);
+        let timestamp_juror_selection_time = self.p_get_juror_selection_time(&product_id);
+        let native_juror_selection_time =
+            NaiveDateTime::from_timestamp((timestamp_juror_selection_time / 1000000000) as i64, 0);
+        let seconds = Duration::seconds(self.p_commit_phase_time as i64);
+        let endtime = native_juror_selection_time + seconds;
+        let reveal_end_seconds = Duration::seconds(self.p_reveal_phase_time as i64);
+        let reveal_endtime = native_juror_selection_time + seconds + reveal_end_seconds;
+        if naive_now < endtime {
+            panic!("Commiting time has not ended");
+        }
+        if naive_now > reveal_endtime {
+            panic!("Reveal time has ended"); // reveal phase time, when the reveal time ends
+        }
+        self.p_can_juror_vote(product_id, user_id);
+        self.p_add_juror_voting_status_reveal(product_id, user_id);
+        let mut vote_commit_all = self.p_get_voter_commits_in_reveal(product_id);
+        let votecommit = vote_commit_all.get(&vote_commit);
+
+        match votecommit {
+            Some(commitstatus) => {
+                if commitstatus == 2 {
+                    panic!("The vote has be already revealed and added.");
+                } else if commitstatus == 1 {
+                    vote_commit_all.insert(&vote_commit, &2);
+                    self.p_voter_commit.insert(&product_id, &vote_commit_all);
+                }
+            }
+            None => {
+                panic!("Vote with this commit is not present");
+            }
+        }
+        let mut hasher = Keccak256::new();
+        hasher.update(vote.as_bytes());
+        let result = hasher.finalize();
+        let vote_hex = format!("{:x}", result);
+        if vote_commit == vote_hex {
+            println!("commit and vote matches"); // comment out this step, only for debugging
+        }
+        if vote_commit != vote_hex {
+            panic!("Vote hash doesn't match the vote commit");
+        }
+
+        let answer_id_string = format!("{}", &vote[0..1]);
+        match answer_id_string.parse::<u8>() {
+            Ok(n) => {
+                if n > 1 {
+                    panic!("Vote can be only 0 or 1");
+                } else {
+                    let schelling_decisions_juror_option =
+                        self.p_schelling_decisions_juror.get(&product_id);
+                    match schelling_decisions_juror_option {
+                        Some(mut jurorsdecisionsall) => {
+                            let jurydecisionoption = jurorsdecisionsall.get(&user_id);
+                            match jurydecisionoption {
+                                Some(value) => {
+                                    panic!("You have already given the decision {}", value);
+                                }
+                                None => {
+                                    jurorsdecisionsall.insert(&user_id, &n);
+                                    self.p_schelling_decisions_juror
+                                        .insert(&product_id, &jurorsdecisionsall);
+                                    self.p_add_true_or_false_count(product_id, n);
+                                }
+                            }
+                        }
+                        None => {
+                            let decisionstring =
+                                format!("decisionstring{}uniqueid{}", product_id, self.user_id);
+                            let decisionid = decisionstring.to_string().into_bytes();
+                            let mut jurorsdecisionsallmap = LookupMap::new(decisionid);
+                            jurorsdecisionsallmap.insert(&user_id, &n);
+                            self.p_schelling_decisions_juror
+                                .insert(&product_id, &jurorsdecisionsallmap);
+                            self.p_add_true_or_false_count(product_id, n);
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        }
+    }
+
+    fn p_get_voter_commits_in_reveal(&self, product_id: u128) -> LookupMap<String, u8> {
+        let vote_status_option = self.p_voter_commit.get(&product_id);
+        match vote_status_option {
+            Some(votecommits) => votecommits,
+            None => {
+                panic!("Voter commit doesnot exist for product_id");
+            }
+        }
+    }
+
+    pub fn p_can_juror_reveal(&self, product_id: U128, user_id: U128) -> bool {
+        let product_id: u128 = product_id.into();
+        let user_id: u128 = user_id.into();
+        let juror_voting_status_option = self.p_juror_voting_status.get(&product_id);
+        match juror_voting_status_option {
+            Some(juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 2 {
+                            return false;
+                        } else if value == 1 {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                    None => {
+                        return false;
+                        // panic!("Voting status doesnot exists, commit the vote first.");
+                    }
+                }
+            }
+            None => {
+                return false;
+                // panic!("Voting status lookup doesnot exists, commit the vote first.");
+            }
+        }
+    }
+
+    fn p_add_juror_voting_status_reveal(&mut self, product_id: u128, user_id: u128) {
+        let juror_voting_status_option = self.p_juror_voting_status.get(&product_id);
+        match juror_voting_status_option {
+            Some(mut juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 2 {
+                            panic!("The juror has already been revealed a vote.");
+                        } else if value == 1 {
+                            juror_voting_status_lookup.insert(&user_id, &2);
+                            self.p_juror_voting_status
+                                .insert(&product_id, &juror_voting_status_lookup);
+                        } else {
+                            panic!("Not at valid voter status");
+                        }
+                    }
+                    None => {
+                        panic!("Voting status doesnot exists, commit the vote first.");
+                    }
+                }
+            }
+            None => {
+                panic!("Voting status lookup doesnot exists, commit the vote first.");
+            }
+        }
+    }
+
+    fn p_add_true_or_false_count(&mut self, product_id: u128, value: u8) {
+        if value == 0 {
+            let schelling_decision_false_count_option =
+                self.p_schelling_decision_false_count.get(&product_id);
+            match schelling_decision_false_count_option {
+                Some(mut count) => {
+                    count += 1;
+                    self.p_schelling_decision_false_count
+                        .insert(&product_id, &count);
+                }
+                None => {
+                    self.p_schelling_decision_false_count
+                        .insert(&product_id, &1);
+                }
+            }
+        }
+        if value == 1 {
+            let schelling_decision_true_count_option =
+                self.p_schelling_decision_true_count.get(&product_id);
+            match schelling_decision_true_count_option {
+                Some(mut count) => {
+                    count += 1;
+                    self.p_schelling_decision_true_count
+                        .insert(&product_id, &count);
+                }
+                None => {
+                    self.p_schelling_decision_true_count.insert(&product_id, &1);
+                }
+            }
+        }
+    }
+
+    fn p_get_true_count(&self, product_id: u128) -> u128 {
+        let count_option = self.p_schelling_decision_true_count.get(&product_id);
+        match count_option {
+            Some(count) => count,
+            None => 0,
+        }
+    }
+
+    pub fn p_get_true_count_js(&self, product_id: U128) -> U128 {
+        let product_id: u128 = product_id.into();
+        let count = self.p_get_true_count(product_id);
+        count.into()
+    }
+
+    fn p_get_false_count(&self, product_id: u128) -> u128 {
+        let count_option = self.p_schelling_decision_false_count.get(&product_id);
+        match count_option {
+            Some(count) => count,
+            None => 0,
+        }
+    }
+
+    pub fn p_get_false_count_js(&self, product_id: U128) -> U128 {
+        let product_id: u128 = product_id.into();
+        let count = self.p_get_false_count(product_id);
+        count.into()
+    }
+    pub fn p_get_winning_decision(&self, product_id: U128) -> u8 {
+        let product_id: u128 = product_id.into();
+        let timestamp = env::block_timestamp();
+        let naive_now = NaiveDateTime::from_timestamp((timestamp / 1000000000) as i64, 0);
+        let timestamp_juror_selection_time = self.p_get_juror_selection_time(&product_id);
+        let native_juror_selection_time =
+            NaiveDateTime::from_timestamp((timestamp_juror_selection_time / 1000000000) as i64, 0);
+        let seconds = Duration::seconds(self.p_commit_phase_time as i64);
+        let reveal_end_seconds = Duration::seconds(self.p_reveal_phase_time as i64);
+        let onehour = Duration::seconds(3600);
+        let reveal_endtime = native_juror_selection_time + seconds + reveal_end_seconds + onehour; // One hour extra so that incentive time is not manipulated
+        if naive_now < reveal_endtime {
+            panic!("Reveal time has not yet ended."); // when the reveal time ends
+        }
+        let truecount = self.p_get_true_count(product_id);
+        let falsecount = self.p_get_false_count(product_id);
+        if truecount > falsecount {
+            1
+        } else if falsecount > truecount {
+            0
+        } else if falsecount == truecount {
+            2
+        } else {
+            3
+        }
+    }
+
+    // Apply for incentive distribution
+
+    // Distribute incentives next day
+
+    pub fn p_incentives_distribution(&mut self, product_id: U128) {
+        let product_id: u128 = product_id.into();
+        let account_id = env::predecessor_account_id();
+        // println!(">>>>>>>>>>>>>>>>>>>>>>>>>accountid {}<<<<<<<<<<<<<<<<<<<<<", account_id);
+        let user_id = self.get_user_id(&account_id);
+        self.p_can_juror_vote(product_id, user_id);
+        let winning_decision = self.p_get_winning_decision(product_id.into());
+        let juror_stake = self.p_get_juror_stakes(product_id, user_id);
+        let schelling_decisions_juror_option = self.p_schelling_decisions_juror.get(&product_id);
+        match schelling_decisions_juror_option {
+            Some(decisionlookup) => {
+                let decisionlookup_option = decisionlookup.get(&user_id);
+                match decisionlookup_option {
+                    Some(decision) => {
+                        if decision == winning_decision {
+                            let mint_value = juror_stake + self.p_jury_incentives;
+                            self.p_add_juror_voting_status_got_incentives(product_id, user_id);
+                            self.mint_myft(&account_id, mint_value);
+                        }
+                        // else if winning_decision == 2{   }
+                        else if decision != winning_decision && winning_decision != 3 {
+                            self.p_add_juror_voting_status_got_incentives(product_id, user_id);
+                            let mint_value = (juror_stake as f64).powf(0.8) as u128;
+                            // println!(">>>>>>>>>>>>>mintvalue{}<<<<<<<<<<<<<<<<<<<", mint_value);
+                            if mint_value > self.p_jury_incentives {
+                                self.mint_myft(&account_id, mint_value);
+                            }
+                        }
+                    }
+                    None => {
+                        panic!("Decision doesnot exists for the user id");
+                    }
+                }
+            }
+            None => {
+                panic!("Juror decisions don't exist for this review id.");
+            }
+        }
+    }
+
+    pub fn p_if_juror_will_get_incentives(&self, product_id: U128, user_id: U128) -> bool {
+        let product_id = product_id.into();
+        let user_id = user_id.into();
+        let juror_voting_status_option = self.p_juror_voting_status.get(&product_id);
+        match juror_voting_status_option {
+            Some(juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 3 {
+                            return false;
+                            // panic!("Juror already got the incentives");
+                        } else if value == 2 {
+                            return true;
+                        } else if value == 1 {
+                            return false;
+                            // panic!("You have not yet revealed the vote");
+                        } else {
+                            return false;
+                            // panic!("Not at valid voter status");
+                        }
+                    }
+                    None => {
+                        return false;
+                        // panic!("Voting status doesnot exists, commit the vote first.");
+                    }
+                }
+            }
+            None => {
+                return false;
+                // panic!("Voting status lookup doesnot exists, commit the vote first.");
+            }
+        }
+    }
+
+    fn p_add_juror_voting_status_got_incentives(&mut self, product_id: u128, user_id: u128) {
+        let juror_voting_status_option = self.p_juror_voting_status.get(&product_id);
+        match juror_voting_status_option {
+            Some(mut juror_voting_status_lookup) => {
+                let juror_voting_status_lookup_option = juror_voting_status_lookup.get(&user_id);
+                match juror_voting_status_lookup_option {
+                    Some(value) => {
+                        if value == 3 {
+                            panic!("Juror already got the incentives");
+                        } else if value == 2 {
+                            juror_voting_status_lookup.insert(&user_id, &3);
+                            self.p_juror_voting_status
+                                .insert(&product_id, &juror_voting_status_lookup);
+                        } else if value == 1 {
+                            panic!("You have not yet revealed the vote");
+                        } else {
+                            panic!("Not at valid voter status");
+                        }
+                    }
+                    None => {
+                        panic!("Voting status doesnot exists, commit the vote first.");
+                    }
+                }
+            }
+            None => {
+                panic!("Voting status lookup doesnot exists, commit the vote first.");
+            }
+        }
+    }
+
+    fn p_check_product_got_incentives(&mut self, product_id: u128) {
+        let product_got_incentives_option = self.p_product_got_incentives.get(&product_id);
+        match product_got_incentives_option {
+            Some(value) => {
+                if value == 1 {
+                    panic!("Incentives is already given")
+                } else {
+                    self.p_product_got_incentives.insert(&product_id, &1);
+                }
+            }
+            None => {
+                self.p_product_got_incentives.insert(&product_id, &1);
+            }
+        }
+    }
+
+    pub fn p_if_product_get_incentives_bool(&self, product_id: U128) -> bool {
+        let product_id = product_id.into();
+        let product_got_incentives_option = self.p_product_got_incentives.get(&product_id);
+
+        match product_got_incentives_option {
+            Some(value) => {
+                if value == 1 {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            None => {
+                return true;
+            }
+        }
+    }
+
+    pub fn p_incentive_distribution_product(&mut self, product_id: U128) {
+        let winning_decision = self.p_get_winning_decision(product_id);
+        let product_id: u128 = product_id.into();
+        let bountyvalue = self.get_product_bounty(product_id);
+        let product = self.get_product(product_id);
+        let product_user_id = product.user_id;
+        let user = self.get_user_profile(product_user_id);
+        let product_incentives = self.p_product_incentives;
+        let user_address = user.username;
+        if winning_decision == 1 {
+            self.p_check_product_got_incentives(product_id);
+            self.mint_myft(&user_address, product_incentives + bountyvalue as u128);
+        }
     }
 }

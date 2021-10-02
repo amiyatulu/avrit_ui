@@ -60,7 +60,7 @@ function Nav(props) {
                       to="/myproducts"
                     >
                       Profile
-                      <span class="caret"></span>
+                      <span className="caret"></span>
                     </Link>
                     <ul className="dropdown-menu submenu">
                       <li>

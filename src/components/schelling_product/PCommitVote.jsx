@@ -2,46 +2,44 @@ import React, { useState, useContext } from "react"
 import * as Yup from "yup"
 import { Formik, Form, Field } from "formik"
 import { useHistory, useParams } from "react-router-dom"
-import ipfs from "../../commons/ipfs"
 import { NearContext } from "../../commons/context/NearContext"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
-import { BigNumber } from "bignumber.js"
+import keccak256 from "keccak256"
 
-function SetNFTPrice(props) {
+function PCommitVote(props) {
   // const [count, setCount] = useState(0);
   const { pid } = useParams()
   let history = useHistory()
   let { nearvar } = useContext(NearContext)
   const [errorThrow, setErrorThrow] = useState(false)
-  let pw = BigNumber(10).pow(18)
 
   return (
     <React.Fragment>
       <div className="container">
-        <br/>
-        <br/>
         <Formik
           initialValues={{
-            price: "",
-            token_count: "",
+            Vote: "",
           }}
           validationSchema={Yup.object().shape({
-            price: Yup.string().required("Price is required"),
-            token_count: Yup.string().required("NFT count is required"),
+            Vote: Yup.string()
+              .matches(/^[10]+/, "Vote is invalid")
+              .required("Vote is required"),
           })}
           onSubmit={async (values, actions) => {
             try {
               //   values.countvariable = count
-              let attotokens = BigNumber(values.price).times(pw)
-              console.log(attotokens.toFixed())
-              await nearvar.contract.setup_nft_price_and_token_count({
+              const hex = keccak256(values.Vote).toString("hex")
+              const data = await nearvar.contract.p_commit_vote({
                 product_id: pid.toString(),
-                price: attotokens.toFixed(),
-                token_count: values.token_count.toString(),
+                vote_commit: hex,
               })
+              console.log(data)
               actions.setSubmitting(false)
               // console.log(data)
-               history.push(`/product/${pid}`)
+              history.push({
+                pathname: "/commitsubmitted",
+                state: { hex: hex, vote: values.Vote },
+              })
               // history.goBack()
             } catch (e) {
               console.error(e)
@@ -65,21 +63,40 @@ function SetNFTPrice(props) {
               {errorThrow && <p>{errorThrow}</p>}
 
               <div className="form-group">
-                <label htmlFor="price">Price in Avrit</label>
-                {touched.price && errors.price && (
-                  <p className="alert alert-danger">{errors.price}</p>
+                <p className="p-2 mb-2 bg-primary text-white">
+                  <label htmlFor="Vote">Vote:</label>
+                </p>
+                <p>Vote if already not voted.</p>
+                <p>
+                  Vote format, first character can be 0 or 1, then a unique
+                  string.
+                  <br />1 =&gt; 👍 Review meets the quality check as per the
+                  guidelines. <br />
+                  0 =&gt; 👎 Review does not meet the quality check as per the
+                  guidelines.
+                  <br />
+                  For example, <br />
+                  0iilzmfeofopzblgycbuiahhkptp <br />
+                  1psiycigusjdkfoartn <br />
+                  0lbjvjgzqwigattqdqglzxxdepmwnsf <br />
+                </p>
+                <p className="alert alert-warning">
+                  Please copy the vote and the hex string in safe place before
+                  submitting. You will need it to reveal the vote.
+                </p>
+                {errors.Vote && (
+                  <p className="alert alert-danger">{errors.Vote}</p>
                 )}
-
-                <Field name="price" className="form-control" />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="token_count">NFT count to be minted</label>
-                {touched.token_count && errors.token_count && (
-                  <p className="alert alert-danger">{errors.token_count}</p>
+                <Field name="Vote" className="form-control" />
+                <br />
+                {values.Vote && !errors.Vote ? (
+                  <p>
+                    Your hex string: <br />
+                    {keccak256(values.Vote).toString("hex")}
+                  </p>
+                ) : (
+                  <p></p>
                 )}
-
-                <Field name="token_count" className="form-control" />
               </div>
 
               <div className="text-center">
@@ -101,4 +118,4 @@ function SetNFTPrice(props) {
   )
 }
 
-export default SetNFTPrice
+export default PCommitVote
