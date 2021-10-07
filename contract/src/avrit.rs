@@ -118,21 +118,23 @@ pub struct Avrit {
     nft_owner_incentives: LookupMap<u128, u128>, // <Profile id, incentives>
 
     // Product schelling game:
-    // p_product_disapproval_bounty:LookupMap<u128, u64>, // Product id, bounty
-    // p_product_disapproval_user:LookupMap<u128, u128>, //product id, user_id
-    // p_min_product_disapproval_bounty: u64,
+    p_product_disapproval_bounty: LookupMap<u128, u64>, // Product id, bounty
+    p_product_disapproval_user: LookupMap<u128, u128>,  //product id, user_id
+    p_min_product_disapproval_bounty: u64,
+    p_product_bounty_time: LookupMap<u128, u64>, // <product_id, time>
+    p_product_bounty_time_sort: TreeMap<(u64, u128), ()>, // <time, product_id, ()>
     p_min_product_bounty: u64,
     p_min_jury_stake: u64,
     // max_number_of_jury_can_stake: u64,
-    p_user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <reviewer_id, <jurorid, stakes>> #Delete
+    p_user_juror_stakes: LookupMap<u128, LookupMap<u128, u128>>, // <product_id, <jurorid, stakes>> #Delete
     p_user_juror_stakes_clone: LookupMap<u128, TreeMap<u128, u128>>, // #Delete
-    p_user_juror_stake_count: LookupMap<u128, u64>, // <review_id, juror that staked count>
+    p_user_juror_stake_count: LookupMap<u128, u64>, // <product_id, juror that staked count>
     p_juror_stake_unique_id: u128,
-    p_juror_unstaked: LookupMap<u128, LookupSet<u128>>, // <review_id, jurorid>
-    p_selected_juror_count: LookupMap<u128, u64>,       // <review_id, selected_juror_count> #Delete
-    p_selected_juror: LookupMap<u128, LookupSet<u128>>, // <reviewer_id, jurorid>  #Delete
-    p_juror_selection_time: LookupMap<u128, u64>,       // <review_id, timestamp>
-    p_jury_application_start_time: LookupMap<u128, u64>, // <review_id, time>
+    p_juror_unstaked: LookupMap<u128, LookupSet<u128>>, // <product_id, jurorid>
+    p_selected_juror_count: LookupMap<u128, u64>, // <product_id, selected_juror_count> #Delete
+    p_selected_juror: LookupMap<u128, LookupSet<u128>>, // <product_id, jurorid>  #Delete
+    p_juror_selection_time: LookupMap<u128, u64>, // <product_id, timestamp>
+    p_jury_application_start_time: LookupMap<u128, u64>, // <product_id, time>
     p_product_id_set_ucount: u128,
     p_review_id_set_ucount: u128,
     p_jury_count: u64,
@@ -985,8 +987,6 @@ impl Avrit {
                 if bounty > bountyvalue {
                     self.burn(&account_id, (bounty - bountyvalue) as u128);
                     self.product_bounty.insert(&product_id, &bounty);
-                    self.p_jury_application_start_time
-                        .insert(&product_id, &timestamp);
                 } else {
                     panic!("Please enter amount of higher value");
                 }
@@ -994,8 +994,9 @@ impl Avrit {
             None => {
                 self.burn(&account_id, bounty as u128);
                 self.product_bounty.insert(&product_id, &bounty);
-                self.p_jury_application_start_time
-                    .insert(&product_id, &timestamp);
+                self.p_product_bounty_time.insert(&product_id, &timestamp);
+                let key = (timestamp, product_id);
+                self.p_product_bounty_time_sort.insert(&key, &());
             }
         }
     }
@@ -1197,9 +1198,11 @@ impl Avrit {
             nft_token_price: LookupMap::new(b"42d54eac".to_vec()),
 
             // Product schelling game
-            // p_product_disapproval_bounty:LookupMap::new(b"5fe6f73b".to_vec()),
-            // p_product_disapproval_user:LookupMap::new(b"b4e84edd".to_vec()), //product id, user_id
-            // p_min_product_disapproval_bounty: 1000000000000000000,
+            p_product_disapproval_bounty: LookupMap::new(b"5fe6f73b".to_vec()),
+            p_product_disapproval_user: LookupMap::new(b"b4e84edd".to_vec()), //product id, user_id
+            p_min_product_disapproval_bounty: 1000000000000000000,
+            p_product_bounty_time: LookupMap::new(b"1df7b38d".to_vec()),
+            p_product_bounty_time_sort: TreeMap::new(b"1df7b38d2".to_vec()),
             p_min_product_bounty: 1000000000000000000,
             p_min_jury_stake: 1000000000000000000,
             p_user_juror_stakes: LookupMap::new(b"1d346a44".to_vec()), // <reviewer_id, <jurorid, stakes>> #Delete
@@ -2861,9 +2864,11 @@ impl Avrit {
 
             // Product schelling game
             // Product schelling game
-            // p_product_disapproval_bounty:LookupMap::new(b"5fe6f73b".to_vec()),
-            // p_product_disapproval_user:LookupMap::new(b"b4e84edd".to_vec()), //product id, user_id
-            // p_min_product_disapproval_bounty: 1000000000000000000,
+            p_product_disapproval_bounty: LookupMap::new(b"5fe6f73b".to_vec()),
+            p_product_disapproval_user: LookupMap::new(b"b4e84edd".to_vec()), //product id, user_id
+            p_min_product_disapproval_bounty: 1000000000000000000,
+            p_product_bounty_time: LookupMap::new(b"1df7b38d".to_vec()),
+            p_product_bounty_time_sort: TreeMap::new(b"1df7b38d2".to_vec()),
             p_min_product_bounty: 1000000000000000000,
             p_min_jury_stake: 1000000000000000000,
             p_user_juror_stakes: LookupMap::new(b"1d346a44".to_vec()), // <reviewer_id, <jurorid, stakes>> #Delete
@@ -3005,6 +3010,51 @@ impl Avrit {
         }
     }
 
+    pub fn nft_count_is_set_bool(&self, product_id: U128) -> bool {
+        let product_id: u128 = product_id.into();
+        let count_option = self.nft_token_count.get(&product_id);
+        match count_option {
+            Some(_count) => true,
+            None => false,
+        }
+    }
+
+    fn get_nft_count_total(&self, product_id: u128) -> u128 {
+        let product_id: u128 = product_id.into();
+        let count_option = self.nft_token_count.get(&product_id);
+        match count_option {
+            Some(count) => count,
+            None => 0,
+        }
+    }
+
+    fn nft_present_to_mint(&self, product_id: U128) -> bool {
+        let product_id: u128 = product_id.into();
+        let total_nft_count = self.get_nft_count_total(product_id);
+        let token_mint_count_option = self.nft_token_mint_count.get(&product_id);
+        match token_mint_count_option {
+            Some(count) => {
+                if count >= total_nft_count {
+                    false
+                } else {
+                    true
+                }
+            }
+            None => true,
+        }
+    }
+
+    pub fn display_buy_nft(&self, product_id: U128) -> bool {
+        let nft_count_set = self.nft_count_is_set_bool(product_id);
+        let nft_present = self.nft_present_to_mint(product_id);
+        log!(
+            "nft_count_set {}: nft_present {}",
+            nft_count_set,
+            nft_present
+        );
+        nft_count_set && nft_present
+    }
+
     pub fn get_nft_price_js(&self, product_id: U128) -> U128 {
         let product_id: u128 = product_id.into();
         let price = self.get_nft_price(product_id);
@@ -3072,7 +3122,6 @@ impl Avrit {
             }
         }
     }
-    
     #[payable]
     pub fn buy_nft(&mut self, token_id: U128, amount: U128) {
         let product_id: u128 = token_id.into();
@@ -3131,7 +3180,6 @@ impl Avrit {
                 self.nft_owner_incentives.insert(&user_id, &0);
                 if incentives == 0 {
                     panic!("You have no incentives to withdraw");
-                    
                 } else {
                     self.mint_myft(&account_id, incentives);
                 }
@@ -3215,42 +3263,51 @@ impl Avrit {
     // p_product_disapproval_user:LookupMap<u128, u128>, //product id, user_id
     // p_min_product_disapproval_bounty: u64,
 
-    // pub fn p_add_product_disapproval_bounty(&mut self, bounty: U64, product_id: U128) {
-    //     let bounty: u64 = bounty.into();
-    //     let product_id: u128 = product_id.into();
-    //     let account_id = env::predecessor_account_id();
-    //     // check product bounty is done
-    //     let _product_bounty = self.get_product_bounty(product_id);
-    //     let user_id = self.get_user_id(&account_id);
+    pub fn p_add_product_disapproval_bounty(&mut self, bounty: U64, product_id: U128) {
+        let bounty: u64 = bounty.into();
+        let product_id: u128 = product_id.into();
+        let account_id = env::predecessor_account_id();
+        // check product bounty is done
+        let _product_bounty = self.get_product_bounty(product_id);
+        let user_id = self.get_user_id(&account_id);
+        let timestamp = env::block_timestamp();
 
-    //     assert!(
-    //         bounty >= self.p_min_product_disapproval_bounty,
-    //         "Bounty can not be less than minimum product disapproval bounty"
-    //     );
+        assert!(
+            bounty >= self.p_min_product_disapproval_bounty,
+            "Bounty can not be less than minimum product disapproval bounty"
+        );
 
-    //     let product_disapproval_bounty_option = self.p_product_disapproval_bounty.get(&product_id);
-    //     match product_disapproval_bounty_option {
-    //         Some(_bountyvalue) => {
-    //             panic!("Product disapproval bounty is already set");
-    //         }
+        let product_disapproval_bounty_option = self.p_product_disapproval_bounty.get(&product_id);
+        match product_disapproval_bounty_option {
+            Some(_bountyvalue) => {
+                panic!("Product disapproval bounty is already set");
+            }
 
-    //         None => {
-    //             self.burn(&account_id, bounty as u128);
-    //             self.p_product_disapproval_bounty.insert(&product_id, &bounty);
-    //             self.p_product_disapproval_user.insert(&product_id, &user_id);
-    //         }
-    //     }
-    // }
+            None => {
+                self.burn(&account_id, bounty as u128);
+                self.p_jury_application_start_time
+                    .insert(&product_id, &timestamp);
+                self.p_product_disapproval_bounty
+                    .insert(&product_id, &bounty);
+                self.p_product_disapproval_user
+                    .insert(&product_id, &user_id);
+            }
+        }
+    }
+
+    fn disapproval_product_bounty_applied(&self, product_id: u128) -> u64 {
+        match self.p_product_disapproval_bounty.get(&product_id) {
+            Some(bounty) => bounty,
+            None => {
+                panic!("Disapproval product bounty not set.")
+            }
+        }
+    }
+
     pub fn p_apply_jurors(&mut self, product_id: U128, stake: U128) {
         let product_id: u128 = product_id.into();
         let stake: u128 = stake.into();
-        let bountyvalue = self.get_product_bounty(product_id);
-        if bountyvalue < self.p_min_product_bounty {
-            panic!(
-                "Bounty is less than minimum allowed amount {}",
-                self.p_min_product_bounty
-            );
-        }
+        let _bountyvalue = self.disapproval_product_bounty_applied(product_id);
         if stake < self.p_min_jury_stake as u128 {
             panic!("Stake is less than minimum allowed amount")
         }
@@ -3575,6 +3632,16 @@ impl Avrit {
     fn p_get_juror_selection_time(&self, product_id: &u128) -> u64 {
         let timestamp_juror_selection_time_option = self.p_juror_selection_time.get(&product_id);
         match timestamp_juror_selection_time_option {
+            Some(timestamp) => timestamp,
+            None => {
+                panic!("Jurors are not selected yet");
+            }
+        }
+    }
+
+    fn p_get_product_stake_time(&self, product_id: u128) -> u64 {
+        let timestamp_product_stake_time_option = self.p_product_bounty_time.get(&product_id);
+        match timestamp_product_stake_time_option {
             Some(timestamp) => timestamp,
             None => {
                 panic!("Jurors are not selected yet");
@@ -4268,17 +4335,73 @@ impl Avrit {
     }
 
     pub fn p_incentive_distribution_product(&mut self, product_id: U128) {
-        let winning_decision = self.p_get_winning_decision(product_id);
-        let product_id: u128 = product_id.into();
-        let bountyvalue = self.get_product_bounty(product_id);
-        let product = self.get_product(product_id);
+        // Pass one months if no disapproval applied, give incentives.
+        let uproduct_id: u128 = product_id.into();
+        let bountyvalue = self.get_product_bounty(uproduct_id);
+        let product = self.get_product(uproduct_id);
         let product_user_id = product.user_id;
         let user = self.get_user_profile(product_user_id);
         let product_incentives = self.p_product_incentives;
         let user_address = user.username;
-        if winning_decision == 1 {
-            self.p_check_product_got_incentives(product_id);
-            self.mint_myft(&user_address, product_incentives + bountyvalue as u128);
+
+        let disapproval_applied_option = self.p_product_disapproval_bounty.get(&uproduct_id);
+        match disapproval_applied_option {
+            Some(_bounty) => {
+                let winning_decision = self.p_get_winning_decision(product_id);
+                if winning_decision == 1 {
+                    self.p_check_product_got_incentives(uproduct_id);
+                    self.mint_myft(&user_address, product_incentives + bountyvalue as u128);
+                }
+            }
+            None => {
+                let timestamp = env::block_timestamp();
+                let naive_now = NaiveDateTime::from_timestamp((timestamp / 1000000000) as i64, 0);
+                let timestamp_product_stake_time = self.p_get_product_stake_time(uproduct_id);
+                let native_product_stake_time = NaiveDateTime::from_timestamp(
+                    (timestamp_product_stake_time / 1000000000) as i64,
+                    0,
+                );
+                let month = Duration::seconds(2592000); // One month
+                let endtime = native_product_stake_time + month;
+                if naive_now < endtime {
+                    panic!("Incentive drawing time of one months has not yet ended");
+                } else {
+                    self.p_check_product_got_incentives(uproduct_id);
+                    self.mint_myft(&user_address, product_incentives + bountyvalue as u128);
+                }
+            }
         }
+    }
+
+    fn get_disapproval_user_id(&self, product_id:u128) -> u128 {
+        match self.p_product_disapproval_user.get(&product_id){
+            Some(user_id) => {
+                user_id
+            }
+            None => {
+                panic!("User id for disapproval does not exists.")
+            }
+        }
+
+    }
+
+    pub fn disapproval_product_incentives(&mut self, product_id: U128) {
+        let uproduct_id: u128 = product_id.into();
+        let bountyvalue = self.disapproval_product_bounty_applied(uproduct_id);
+        let bountyuserid = self.get_disapproval_user_id(uproduct_id);
+        let user = self.get_user_profile(bountyuserid);
+        let user_address = user.username;
+        let account_id = env::predecessor_account_id();
+        assert!(user_address == account_id,
+        "User address doesnot match account id");
+        let product_incentives = self.p_product_incentives;
+
+        let winning_decision = self.p_get_winning_decision(product_id);
+                if winning_decision == 1 {
+                    // self.p_check_product_got_incentives(uproduct_id); // fix it... 
+                    self.mint_myft(&user_address, product_incentives + bountyvalue as u128);
+                }
+
+
     }
 }

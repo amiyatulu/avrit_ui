@@ -14,6 +14,8 @@ import ProductCrowdfundingGet from "./ProductCrowdfundingGet"
 import "./ProductById.css"
 import GetNFTPrice from "../NFT/GetNFTPrice"
 import GetNFTCount from "../NFT/GetNFTCount"
+import BuyNFTLink from "../NFT/BuyNFTLink"
+import NFTForSaleLink from "../NFT/NFTForSaleLink"
 
 function ProductById() {
   const { nearvar, userId } = useContext(NearContext)
@@ -127,6 +129,7 @@ function ProductById() {
             <div>
               <ProductTypeStyle type={ipfsData.profile_type_fullname} />
             </div>
+            <br/>
             <Link
               to={`/createreview/${id}`}
               className="badge badge-secondary mr-3"
@@ -141,19 +144,13 @@ function ProductById() {
                 >
                   Update Product
                 </Link>
-
-                <Link
-                  to={`/setnftprice/${id}`}
-                  className="badge badge-secondary mr-3"
-                >
-                  Create NFT for Sale
-                </Link>
+                <br/>
+                <NFTForSaleLink pid={id} />
+                <br/>
               </React.Fragment>
             )}
 
-            <Link to={`/buynft/${id}`} className="badge badge-secondary mr-3">
-              Buy NFT
-            </Link>
+            <BuyNFTLink pid={id} />
 
             <Link
               to={`/productstake/${id}`}
