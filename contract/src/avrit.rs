@@ -135,6 +135,7 @@ pub struct Avrit {
     p_selected_juror: LookupMap<u128, LookupSet<u128>>, // <product_id, jurorid>  #Delete
     p_juror_selection_time: LookupMap<u128, u64>, // <product_id, timestamp>
     p_jury_application_start_time: LookupMap<u128, u64>, // <product_id, time>
+    p_jury_application_start_time_sort: TreeMap<(u64, u128), ()>, // <product_id, time>
     p_product_id_set_ucount: u128,
     p_review_id_set_ucount: u128,
     p_jury_count: u64,
@@ -149,6 +150,7 @@ pub struct Avrit {
     p_jury_incentives: u128,    // Extra incentives on winning
     p_product_incentives: u128, // Extra incentives on winning
     p_product_got_incentives: LookupMap<u128, u8>,
+    p_product_disapproval_got_incentives: LookupMap<u128, u8>,
 }
 
 // Owner functions
@@ -1214,6 +1216,7 @@ impl Avrit {
             p_selected_juror: LookupMap::new(b"6ab09130".to_vec()), // <reviewer_id, jurorid>  #Delete
             p_juror_selection_time: LookupMap::new(b"7afbce8e".to_vec()), // <review_id, timestamp>
             p_jury_application_start_time: LookupMap::new(b"f5bde268".to_vec()), // <review_id, time>
+            p_jury_application_start_time_sort: TreeMap::new(b"84905bc2".to_vec()),
             p_product_id_set_ucount: 0,
             p_review_id_set_ucount: 0,
             p_jury_count: 10,
@@ -1228,6 +1231,7 @@ impl Avrit {
             p_jury_incentives: 100000000000000000, //10*17                                         // Extra incentives on winning
             p_product_incentives: 1000000000000000000, // 10*18
             p_product_got_incentives: LookupMap::new(b"9d223da2".to_vec()),
+            p_product_disapproval_got_incentives: LookupMap::new(b"0017f1f8".to_vec()),
         };
         this.ft.internal_register_account(&owner_id);
         this.ft.internal_deposit(&owner_id, admin_balance);
@@ -2880,6 +2884,7 @@ impl Avrit {
             p_selected_juror: LookupMap::new(b"6ab09130".to_vec()), // <reviewer_id, jurorid>  #Delete
             p_juror_selection_time: LookupMap::new(b"7afbce8e".to_vec()), // <review_id, timestamp>
             p_jury_application_start_time: LookupMap::new(b"f5bde268".to_vec()), // <review_id, time>
+            p_jury_application_start_time_sort: TreeMap::new(b"84905bc2".to_vec()),
             p_product_id_set_ucount: 0,
             p_review_id_set_ucount: 0,
             p_jury_count: 10,
@@ -2894,6 +2899,7 @@ impl Avrit {
             p_jury_incentives: 100000000000000000, //10*17                                         // Extra incentives on winning
             p_product_incentives: 1000000000000000000, // 10*18
             p_product_got_incentives: LookupMap::new(b"9d223da2".to_vec()),
+            p_product_disapproval_got_incentives: LookupMap::new(b"0017f1f8".to_vec()),
         }
     }
 }
@@ -3287,6 +3293,8 @@ impl Avrit {
                 self.burn(&account_id, bounty as u128);
                 self.p_jury_application_start_time
                     .insert(&product_id, &timestamp);
+                let key = (timestamp, product_id);
+                self.p_jury_application_start_time_sort.insert(&key, &());
                 self.p_product_disapproval_bounty
                     .insert(&product_id, &bounty);
                 self.p_product_disapproval_user
@@ -4316,6 +4324,22 @@ impl Avrit {
         }
     }
 
+    fn p_check_product_disapproval_got_incentives(&mut self, product_id: u128) {
+        let product_disapproval_got_incentives_option = self.p_product_disapproval_got_incentives.get(&product_id);
+        match product_disapproval_got_incentives_option {
+            Some(value) => {
+                if value == 1 {
+                    panic!("Incentives is already given")
+                } else {
+                    self.p_product_disapproval_got_incentives.insert(&product_id, &1);
+                }
+            }
+            None => {
+                self.p_product_disapproval_got_incentives.insert(&product_id, &1);
+            }
+        }
+    }
+
     pub fn p_if_product_get_incentives_bool(&self, product_id: U128) -> bool {
         let product_id = product_id.into();
         let product_got_incentives_option = self.p_product_got_incentives.get(&product_id);
@@ -4397,8 +4421,8 @@ impl Avrit {
         let product_incentives = self.p_product_incentives;
 
         let winning_decision = self.p_get_winning_decision(product_id);
-                if winning_decision == 1 {
-                    // self.p_check_product_got_incentives(uproduct_id); // fix it... 
+                if winning_decision == 0 {
+                    self.p_check_product_disapproval_got_incentives(uproduct_id);
                     self.mint_myft(&user_address, product_incentives + bountyvalue as u128);
                 }
 
