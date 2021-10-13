@@ -3275,8 +3275,20 @@ impl Avrit {
         let account_id = env::predecessor_account_id();
         // check product bounty is done
         let _product_bounty = self.get_product_bounty(product_id);
+
         let user_id = self.get_user_id(&account_id);
         let timestamp = env::block_timestamp();
+
+        let naive_now = NaiveDateTime::from_timestamp((timestamp / 1000000000) as i64, 0);
+        let timestamp_product_stake_time = self.p_get_product_stake_time(product_id);
+        let native_product_stake_time =
+            NaiveDateTime::from_timestamp((timestamp_product_stake_time / 1000000000) as i64, 0);
+        let month = Duration::seconds(2592000); // One month
+        let endtime = native_product_stake_time + month;
+
+        if naive_now > endtime {
+            panic!("Disapproval voting time has ended.");
+        }
 
         assert!(
             bounty >= self.p_min_product_disapproval_bounty,
@@ -3309,6 +3321,24 @@ impl Avrit {
             None => {
                 panic!("Disapproval product bounty not set.")
             }
+        }
+    }
+
+    pub fn disapproval_product_bounty_value(&self, product_id: U128) -> U64 {
+        let product_id: u128 = product_id.into();
+        match self.p_product_disapproval_bounty.get(&product_id) {
+            Some(bounty) => bounty.into(),
+            None => {
+               0.into()
+            }
+        }
+    }
+
+    pub fn disapproval_product_bounty_display_bool(&self, product_id: U128) -> bool {
+        let product_id: u128 = product_id.into();
+        match self.p_product_disapproval_bounty.get(&product_id) {
+            Some(_bounty) => false,
+            None => true,
         }
     }
 
@@ -4325,17 +4355,20 @@ impl Avrit {
     }
 
     fn p_check_product_disapproval_got_incentives(&mut self, product_id: u128) {
-        let product_disapproval_got_incentives_option = self.p_product_disapproval_got_incentives.get(&product_id);
+        let product_disapproval_got_incentives_option =
+            self.p_product_disapproval_got_incentives.get(&product_id);
         match product_disapproval_got_incentives_option {
             Some(value) => {
                 if value == 1 {
                     panic!("Incentives is already given")
                 } else {
-                    self.p_product_disapproval_got_incentives.insert(&product_id, &1);
+                    self.p_product_disapproval_got_incentives
+                        .insert(&product_id, &1);
                 }
             }
             None => {
-                self.p_product_disapproval_got_incentives.insert(&product_id, &1);
+                self.p_product_disapproval_got_incentives
+                    .insert(&product_id, &1);
             }
         }
     }
@@ -4397,16 +4430,13 @@ impl Avrit {
         }
     }
 
-    fn get_disapproval_user_id(&self, product_id:u128) -> u128 {
-        match self.p_product_disapproval_user.get(&product_id){
-            Some(user_id) => {
-                user_id
-            }
+    fn get_disapproval_user_id(&self, product_id: u128) -> u128 {
+        match self.p_product_disapproval_user.get(&product_id) {
+            Some(user_id) => user_id,
             None => {
                 panic!("User id for disapproval does not exists.")
             }
         }
-
     }
 
     pub fn disapproval_product_incentives(&mut self, product_id: U128) {
@@ -4416,16 +4446,16 @@ impl Avrit {
         let user = self.get_user_profile(bountyuserid);
         let user_address = user.username;
         let account_id = env::predecessor_account_id();
-        assert!(user_address == account_id,
-        "User address doesnot match account id");
+        assert!(
+            user_address == account_id,
+            "User address doesnot match account id"
+        );
         let product_incentives = self.p_product_incentives;
 
         let winning_decision = self.p_get_winning_decision(product_id);
-                if winning_decision == 0 {
-                    self.p_check_product_disapproval_got_incentives(uproduct_id);
-                    self.mint_myft(&user_address, product_incentives + bountyvalue as u128);
-                }
-
-
+        if winning_decision == 0 {
+            self.p_check_product_disapproval_got_incentives(uproduct_id);
+            self.mint_myft(&user_address, product_incentives + bountyvalue as u128);
+        }
     }
 }

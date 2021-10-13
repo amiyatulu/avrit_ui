@@ -3,6 +3,7 @@ import { NearContext } from "../../commons/context/NearContext"
 import { useParams, Link } from "react-router-dom"
 import PJuryCount from "./PJuryCount"
 import { BigNumber } from "bignumber.js";
+import GetDisapprovalStake from "./GetDisapprovalStake";
 
 function PGetJuryStake(props) {
   const { nearvar } = useContext(NearContext)
@@ -31,6 +32,7 @@ function PGetJuryStake(props) {
 
   return (
     <React.Fragment>
+     <GetDisapprovalStake pid={pid}/>
       {stake ? (
         <React.Fragment>
           <p className="badge badge-secondary mr-3">Your jury Stake: {BigNumber(stake).div(pw).toFixed()}</p>

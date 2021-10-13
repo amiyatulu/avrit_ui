@@ -25,8 +25,8 @@ function LoadingOrNoStake(props) {
     </p>
   )
 }
-function GetProductStake(props) {
-  const { nearvar, userId } = useContext(NearContext)
+function GetDisapprovalStake(props) {
+  const { nearvar } = useContext(NearContext)
   const { pid } = props
   const [stake, setStake] = useState(null)
   const [noStake, setNoStake] = useState(null)
@@ -34,7 +34,7 @@ function GetProductStake(props) {
   useEffect(() => {
     async function fetchStake() {
       try {
-        let data = await nearvar.contract.get_product_bounty_js({
+        let data = await nearvar.contract.disapproval_product_bounty_value({
           product_id: pid.toString(),
         })
         console.log(data)
@@ -50,16 +50,14 @@ function GetProductStake(props) {
     <React.Fragment>
       {stake ? (
         <React.Fragment>
-        <p className="badge badge-secondary mr-3">Product Stake: {BigNumber(stake).div(pw).toFixed()} </p>
-       
-        <StakeDisapprovalLink pid={pid} useId={userId} />
-        <PTimeConditionRender pid={pid}/>
+        <p className="badge badge-secondary mr-3">Disapproval Stake: {BigNumber(stake).div(pw).toFixed()} </p>
         </React.Fragment>
       ) : (
-        <LoadingOrNoStake noStake={noStake} />
+          <p></p>
+        // <LoadingOrNoStake noStake={noStake} />
       )}
     </React.Fragment>
   )
 }
 
-export default GetProductStake
+export default GetDisapprovalStake
