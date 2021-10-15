@@ -31,10 +31,10 @@ function BuyNFT(props) {
               await nearvar.contract.buy_nft({
                 args:{
                   token_id: pid.toString(),
-                  amount: "10000000000000000000",
+                  amount: price,
                 },
                 callbackUrl: `${window.location.origin.toString()}/#/viewnft`,
-                amount: "6100000000000000000000",
+                amount: "7100000000000000000000",
                 gas: 95000000000000
 
               })

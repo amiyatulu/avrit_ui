@@ -3091,6 +3091,21 @@ impl Avrit {
         }
     }
 
+    pub fn get_total_nft_left_for_buying_js(&self, product_id: U128) -> U128 {
+        let product_id: u128 = product_id.into();
+        let count = self.get_total_nft_count(product_id);
+        let minted_count = self.get_nft_minted_count(product_id);
+        let left = count.checked_sub(minted_count).expect("overflow");
+        left.into()
+    }
+
+    fn get_nft_minted_count(&self, product_id: u128) -> u128 {
+        match self.nft_token_mint_count.get(&product_id) {
+            Some(count) => count,
+            None => 0,
+        }
+    }
+
     // To Do:
     // Check deposit is the price of token
     // Check nft mint availabe from nft token count
@@ -3328,9 +3343,7 @@ impl Avrit {
         let product_id: u128 = product_id.into();
         match self.p_product_disapproval_bounty.get(&product_id) {
             Some(bounty) => bounty.into(),
-            None => {
-               0.into()
-            }
+            None => 0.into(),
         }
     }
 

@@ -9,7 +9,7 @@ function GetNFTCount(props) {
   useEffect(() => {
     async function fetchPrice() {
       try {
-        let data = await nearvar.contract.get_total_nft_count_js({
+        let data = await nearvar.contract.get_total_nft_left_for_buying_js({
           product_id: pid.toString(),
         })
         // console.log(data.toString())
@@ -25,7 +25,7 @@ function GetNFTCount(props) {
   return (
     <React.Fragment>
       {count && (<React.Fragment>
-        <p className="badge badge-secondary mr-3">Available NFT: {count} </p>
+        <p className="badge badge-secondary mr-3">Available NFT for Buying: {count} </p>
           </React.Fragment>)}
     </React.Fragment>
   )
