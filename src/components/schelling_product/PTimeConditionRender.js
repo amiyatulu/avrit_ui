@@ -184,12 +184,18 @@ function PTimeConditionRender(props) {
         <br />
         <PGetTrueCount pid={pid} />
         <PGetFalseCount pid={pid} />
-        <br/>
+        <br />
         <PJurorGetIncentivesLink pid={pid} />
-        <br/>
+        <br />
         <PProductIncentivesLink pid={pid} />
-        <br/>
-        
+        <br />
+
+        <Link
+          to={`/drawdisapprovalincentives/${pid}/`}
+          className="badge badge-secondary mr-3"
+        >
+          Draw Incentives for Disapproval of Product
+        </Link>
       </React.Fragment>
     )
   }
@@ -220,7 +226,10 @@ function PTimeConditionRender(props) {
     juryselectiontime_slice = moment.unix(jurySelectionTime.slice(0, 10))
   }
   let unstake
-  if (moment().isSameOrAfter(moment(juryselectiontime_slice).add(1, "hours")) &&  jurySelectionTime !== undefined) {
+  if (
+    moment().isSameOrAfter(moment(juryselectiontime_slice).add(1, "hours")) &&
+    jurySelectionTime !== undefined
+  ) {
     unstake = <PUnstakeVoteLink pid={pid} />
   }
 
@@ -249,7 +258,10 @@ function PTimeConditionRender(props) {
     return (
       <React.Fragment>
         <PSelectedJuror pid={pid} />
-        <Link to={`/drawjuryforproduct/${pid}`} className="badge badge-secondary mr-3">
+        <Link
+          to={`/drawjuryforproduct/${pid}`}
+          className="badge badge-secondary mr-3"
+        >
           Draw Juror
         </Link>
       </React.Fragment>

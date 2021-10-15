@@ -112,6 +112,9 @@ const PDrawProductIncentives = lazy(() =>
 const StakeDisapproval = lazy(() =>
   import("./components/schelling_product/StakeDisapproval")
 )
+const PDisapprovalProductIncentives = lazy(() =>
+  import("./components/schelling_product/PDisapprovalProductIncentives")
+)
 
 function App(props) {
   const [login, setLogin] = useState(false)
@@ -341,6 +344,10 @@ function App(props) {
               <Route
                 path="/stakedisapproval/:id"
                 component={StakeDisapproval}
+              />
+              <Route
+                path="/drawdisapprovalincentives/:pid"
+                component={PDisapprovalProductIncentives}
               />
             </Switch>
           </section>

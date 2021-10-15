@@ -6,7 +6,7 @@ import ipfs from "../../commons/ipfs"
 import { NearContext } from "../../commons/context/NearContext"
 import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
 
-function PDrawProductIncentives(props) {
+function PDisapprovalProductIncentives(props) {
   // const [count, setCount] = useState(0);
   const { pid } = useParams()
   // console.log(rid, "rid")
@@ -22,7 +22,7 @@ function PDrawProductIncentives(props) {
           validationSchema={Yup.object().shape({})}
           onSubmit={async (values, actions) => {
             try {
-              await nearvar.contract.p_incentive_distribution_product({
+              await nearvar.contract.disapproval_product_incentives({
                 product_id: pid.toString(),
               })
               actions.setSubmitting(false)
@@ -53,8 +53,7 @@ function PDrawProductIncentives(props) {
                 <div className="text-center">
                   <br/><br/>
                   <p className="badge badge-secondary mr-3">
-                    Draw the incentives if one month after product staking is
-                    over or disapproval schelling game has finished
+                    Draw after disapproval schelling game has finished
                   </p><br/>
                   {errorThrow && <p>{errorThrow}</p>}<br/>
                   <button
@@ -62,7 +61,7 @@ function PDrawProductIncentives(props) {
                     className="btn btn-primary"
                     disabled={isSubmitting}
                   >
-                    Draw Incentives for Product
+                    Draw incentives for Disapproval of Product
                   </button>
                 </div>
                 <SubmittingWheel isSubmitting={isSubmitting} />
@@ -76,4 +75,4 @@ function PDrawProductIncentives(props) {
   )
 }
 
-export default PDrawProductIncentives
+export default PDisapprovalProductIncentives

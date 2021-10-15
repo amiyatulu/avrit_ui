@@ -11,6 +11,9 @@ function ProductData() {
       <div className="container">
         <br/><br/>
         <GetProductStake pid={pid} />
+        <Link to={`/productdrawincentives/${pid}/`} className="badge badge-secondary mr-3">
+          Draw Incentives for Product
+        </Link>
       </div>
     </React.Fragment>
   )
