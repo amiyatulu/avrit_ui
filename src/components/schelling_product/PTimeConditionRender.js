@@ -187,7 +187,7 @@ function PTimeConditionRender(props) {
         <br />
         <PJurorGetIncentivesLink pid={pid} />
         <br />
-        <PProductIncentivesLink pid={pid} />
+        {/* <PProductIncentivesLink pid={pid} /> */}
         <br />
 
         <Link
@@ -248,8 +248,8 @@ function PTimeConditionRender(props) {
         {/* To do: If already commited don't render commit vote */}
         <PSelectedJuror pid={pid} />
 
-        {unstake}
-        <PCommitVoteLink pid={pid} />
+        {unstake} <br/>
+        <PCommitVoteLink pid={pid} /> <br/>
       </React.Fragment>
     )
   }

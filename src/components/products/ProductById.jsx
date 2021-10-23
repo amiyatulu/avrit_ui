@@ -169,6 +169,12 @@ function ProductById() {
             <GetNFTPrice pid={id} />
             <GetNFTCount pid={id} />
             <UserName uid={productUserId} />
+            <Link
+              to={`/productdata/${id}`}
+              className="badge badge-secondary mr-3"
+            >
+              Staking Details
+            </Link>
           </div>
           <div>
             <GetReviews pid={id} />

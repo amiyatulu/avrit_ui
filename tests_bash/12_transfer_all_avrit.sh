@@ -9,20 +9,20 @@ export TOKEN=`cat neardev/dev-account`
 # near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit.testnet
 # near call $TOKEN ft_transfer '{"receiver_id":"avrit.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
 
-near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit0.testnet
-near call $TOKEN ft_transfer '{"receiver_id":"avrit0.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
+# near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit0.testnet
+# near call $TOKEN ft_transfer '{"receiver_id":"avrit0.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
 
-near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit1.testnet
-near call $TOKEN ft_transfer '{"receiver_id":"avrit1.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
+# near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit1.testnet
+# near call $TOKEN ft_transfer '{"receiver_id":"avrit1.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
 
-near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit2.testnet
-near call $TOKEN ft_transfer '{"receiver_id":"avrit2.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
+# near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit2.testnet
+# near call $TOKEN ft_transfer '{"receiver_id":"avrit2.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
 
-near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit3.testnet
-near call $TOKEN ft_transfer '{"receiver_id":"avrit3.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
+# near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit3.testnet
+# near call $TOKEN ft_transfer '{"receiver_id":"avrit3.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
 
-near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit4.testnet
-near call $TOKEN ft_transfer '{"receiver_id":"avrit4.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
+# near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit4.testnet
+# near call $TOKEN ft_transfer '{"receiver_id":"avrit4.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001
 
 near call $TOKEN create_profile '{"profile_hash":"QmddTHc8MEeJ9ri8SgjjXk2AJaZcCN7jSBKPCvY5o4vW9X"}' --accountId avrit5.testnet
 near call $TOKEN ft_transfer '{"receiver_id":"avrit5.testnet", "amount":"50000000000000000000"}' --accountId amiyatulu.testnet --amount 0.000000000000000000000001

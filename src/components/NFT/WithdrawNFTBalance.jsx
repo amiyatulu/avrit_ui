@@ -54,7 +54,7 @@ function WithdrawNFTBalance(props) {
                   className="btn btn-primary"
                   disabled={isSubmitting}
                 >
-                  Withdraw Near
+                  Withdraw Avrit
                 </button>
               </div>
               <SubmittingWheel isSubmitting={isSubmitting} />

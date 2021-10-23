@@ -54,14 +54,14 @@ function ReviewFullDetailsEvidence(props) {
             >
               Update Review
             </Link>
-            <Link
+            {/* <Link
               to={`/reviewstake/${rid}`}
               className="badge badge-secondary mr-3"
             >
               Add or Update Stake
             </Link>
             <GetReviewStake rid={rid} />
-            <TimeConditionRender rid={rid} pid={pid} />
+            <TimeConditionRender rid={rid} pid={pid} /> */}
             <UserName uid={uid}/>
           </div>
           

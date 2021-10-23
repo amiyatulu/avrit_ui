@@ -1018,37 +1018,37 @@ impl Avrit {
             }
         }
     }
-    pub fn add_review_bounty(&mut self, bounty: U64, review_id: U128) {
-        let bounty: u64 = bounty.into();
-        let review_id: u128 = review_id.into();
-        self.check_products_reviewer_crossed(review_id);
-        // let review = self.get_review(review_id);
-        // let product_review_id = review.product_id;
-        // let _bounty = self.get_product_bounty(product_review_id);
-        assert!(
-            bounty >= self.min_review_bounty,
-            "Bounty can not be less than minimum review bounty"
-        );
-        let account_id = env::predecessor_account_id();
-        let timestamp = env::block_timestamp();
-        let review_bounty_exists_option = self.review_bounty.get(&review_id);
-        match review_bounty_exists_option {
-            Some(bountyvalue) => {
-                if bounty > bountyvalue {
-                    self.burn(&account_id, (bounty - bountyvalue) as u128);
-                    self.review_bounty.insert(&review_id, &bounty);
-                } else {
-                    panic!("Please enter amount of higher value");
-                }
-            }
-            None => {
-                self.burn(&account_id, bounty as u128);
-                self.review_bounty.insert(&review_id, &bounty);
-                self.jury_application_start_time
-                    .insert(&review_id, &timestamp);
-            }
-        }
-    }
+    // pub fn add_review_bounty(&mut self, bounty: U64, review_id: U128) {
+    //     let bounty: u64 = bounty.into();
+    //     let review_id: u128 = review_id.into();
+    //     self.check_products_reviewer_crossed(review_id);
+    //     // let review = self.get_review(review_id);
+    //     // let product_review_id = review.product_id;
+    //     // let _bounty = self.get_product_bounty(product_review_id);
+    //     assert!(
+    //         bounty >= self.min_review_bounty,
+    //         "Bounty can not be less than minimum review bounty"
+    //     );
+    //     let account_id = env::predecessor_account_id();
+    //     let timestamp = env::block_timestamp();
+    //     let review_bounty_exists_option = self.review_bounty.get(&review_id);
+    //     match review_bounty_exists_option {
+    //         Some(bountyvalue) => {
+    //             if bounty > bountyvalue {
+    //                 self.burn(&account_id, (bounty - bountyvalue) as u128);
+    //                 self.review_bounty.insert(&review_id, &bounty);
+    //             } else {
+    //                 panic!("Please enter amount of higher value");
+    //             }
+    //         }
+    //         None => {
+    //             self.burn(&account_id, bounty as u128);
+    //             self.review_bounty.insert(&review_id, &bounty);
+    //             self.jury_application_start_time
+    //                 .insert(&review_id, &timestamp);
+    //         }
+    //     }
+    // }
 
     pub fn get_review_bounty_js(&self, review_id: U128) -> U64 {
         let review_id: u128 = review_id.into();
@@ -1066,28 +1066,28 @@ impl Avrit {
         }
     }
 
-    fn check_products_reviewer_crossed(&self, review_id: u128) {
-        let review_option = self.review_map.get(&review_id);
-        let product_id;
-        match review_option {
-            Some(review) => {
-                product_id = review.product_id;
-            }
-            None => {
-                panic!("Product for the review donot exists");
-            }
-        }
+    // fn check_products_reviewer_crossed(&self, review_id: u128) {
+    //     let review_option = self.review_map.get(&review_id);
+    //     let product_id;
+    //     match review_option {
+    //         Some(review) => {
+    //             product_id = review.product_id;
+    //         }
+    //         None => {
+    //             panic!("Product for the review donot exists");
+    //         }
+    //     }
 
-        let product_review_count_option = self.product_review_count.get(&product_id);
-        match product_review_count_option {
-            Some(value) => {
-                if value >= 10 {
-                    panic!("You cannot stake more reviews")
-                }
-            }
-            None => {}
-        }
-    }
+    //     let product_review_count_option = self.product_review_count.get(&product_id);
+    //     match product_review_count_option {
+    //         Some(value) => {
+    //             if value >= 10 {
+    //                 panic!("You cannot stake more reviews")
+    //             }
+    //         }
+    //         None => {}
+    //     }
+    // }
 }
 
 #[near_bindgen]
@@ -2321,11 +2321,11 @@ impl Avrit {
                         // else if winning_decision == 2{   }
                         else if decision != winning_decision && winning_decision != 3 {
                             self.add_juror_voting_status_got_incentives(review_id, user_id);
-                            let mint_value = (juror_stake as f64).powf(0.8) as u128;
+                            let mint_value = (juror_stake* 2/3) as u128;
                             // println!(">>>>>>>>>>>>>mintvalue{}<<<<<<<<<<<<<<<<<<<", mint_value);
-                            if mint_value > self.jury_incentives {
-                                self.mint_myft(&account_id, mint_value);
-                            }
+                            // if mint_value > self.jury_incentives {
+                            self.mint_myft(&account_id, mint_value);
+                            // }
                         }
                     }
                     None => {
@@ -4268,11 +4268,11 @@ impl Avrit {
                         // else if winning_decision == 2{   }
                         else if decision != winning_decision && winning_decision != 3 {
                             self.p_add_juror_voting_status_got_incentives(product_id, user_id);
-                            let mint_value = (juror_stake as f64).powf(0.8) as u128;
+                            let mint_value = (juror_stake * 2/3) as u128;
                             // println!(">>>>>>>>>>>>>mintvalue{}<<<<<<<<<<<<<<<<<<<", mint_value);
-                            if mint_value > self.p_jury_incentives {
-                                self.mint_myft(&account_id, mint_value);
-                            }
+                            // if mint_value > self.jury_incentives {
+                            self.mint_myft(&account_id, mint_value);
+                            // }
                         }
                     }
                     None => {
@@ -4469,6 +4469,9 @@ impl Avrit {
         if winning_decision == 0 {
             self.p_check_product_disapproval_got_incentives(uproduct_id);
             self.mint_myft(&user_address, product_incentives + bountyvalue as u128);
+        } else {
+            panic!("Product has won.")
         }
+
     }
 }

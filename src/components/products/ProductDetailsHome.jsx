@@ -3,6 +3,7 @@ import { IPFS_URL } from "../../config/configvar"
 import axios from "axios"
 import { Link } from "react-router-dom"
 import "./ProductDetailsHome.css"
+import loadingimage from "../image/doublering.gif"
 
 function ProductDetailsHome(props) {
   const [ipfsData, setIpfsData] = useState(false)
@@ -24,9 +25,8 @@ function ProductDetailsHome(props) {
     <React.Fragment>
       {loading && (
         <p className="container">
-          Loading
           <span role="img" aria-label="loading">
-            ⌛⌛⌛⌛
+          <img src={loadingimage} alt="loading" />
           </span>
         </p>
       )}

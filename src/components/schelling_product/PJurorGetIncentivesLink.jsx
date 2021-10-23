@@ -39,7 +39,7 @@ function PJurorGetIncentivesLink(props) {
         }
         <br />
             { canDrawIncentives && <Link to={`/drawincentivesjuryproduct/${pid}/`} className="badge badge-secondary mr-3">
-          Draw Incentives
+          Draw Jury Incentives
         </Link>}
 
            {/* <p> Can You Commit Vote {JSON.stringify(canDrawIncentives)}</p> */}

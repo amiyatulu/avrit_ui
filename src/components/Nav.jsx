@@ -28,7 +28,7 @@ function Nav(props) {
         <div className="container">
           <a className="navbar-brand js-scroll-trigger" href="/">
             {/* <img src={Logo} width="50" height="50" class="d-inline-block align-top" alt="logo"/>  */}
-            Avrit
+            Avrit: Earn for Learning
           </a>
           <button
             className="navbar-toggler navbar-toggler-right"
@@ -66,17 +66,17 @@ function Nav(props) {
                       <li>
                         <Link
                           className="nav-link js-scroll-trigger"
-                          to="/profile"
+                          to="/myproducts"
                         >
-                          My Profile
+                          My Products
                         </Link>
                       </li>
                       <li>
                         <Link
                           className="nav-link js-scroll-trigger"
-                          to="/myproducts"
+                          to="/profile"
                         >
-                          My Products
+                          My Profile
                         </Link>
                       </li>
 
@@ -86,6 +86,15 @@ function Nav(props) {
                           to="/viewnft"
                         >
                           My NFTs
+                        </Link>
+                      </li>
+
+                      <li>
+                        <Link
+                          className="nav-link js-scroll-trigger"
+                          to="/nftbalance"
+                        >
+                          Withdraw NFTs Balance
                         </Link>
                       </li>
                     </ul>

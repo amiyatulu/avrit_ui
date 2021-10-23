@@ -41,7 +41,7 @@ function StakeDisapprovalLink(props) {
           to={`/stakedisapproval/${pid}/`}
           className="badge badge-secondary mr-3"
         >
-          Disapproval Stake
+          Stake for Disapproval
         </Link>
       )}
 

@@ -12,7 +12,7 @@ import { FocusError, SubmittingWheel } from "../../commons/FocusWheel"
 
 function PDrawIncentives(props) {
     // const [count, setCount] = useState(0);
-    const { rid } = useParams()
+    const { pid } = useParams()
     // console.log(rid, "rid")
     let history = useHistory();
     let {nearvar, reloadBalance} = useContext(NearContext)
@@ -30,7 +30,7 @@ function PDrawIncentives(props) {
           onSubmit={async (values, actions) => {
           	try {
               await nearvar.contract.p_incentives_distribution({
-                product_id: rid.toString(),
+                product_id: pid.toString(),
               })
               actions.setSubmitting(false)
               // console.log(data)

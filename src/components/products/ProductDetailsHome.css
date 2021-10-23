@@ -2,6 +2,7 @@
     width: 100%;
     height: 20vw;
     object-fit: cover;
+    background:url(../image/doublering.gif) center center no-repeat;
 }
 
 a:link {
